@@ -33,7 +33,7 @@
          *  Object constructor.
          */
         public function __construct () {
-            parent::__construct ('fuse_layouts', __ ('Layout', 'fuse'), __ ('Layouts', 'fuse'), array (
+            parent::__construct ('fuse_layouts', 'Layout', 'Layouts', array (
                 'public' => false,
                 'publicly_queryable' => false,
                 'show_ui' => true,
@@ -42,7 +42,8 @@
                 'rewrite' => false,
                 'supports' => array (
                     'title'
-                )
+                ),
+                'text_domain' => 'fuse'
             ));
             
             // Add thea ction to save the post layuout values.

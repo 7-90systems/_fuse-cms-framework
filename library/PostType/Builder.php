@@ -19,7 +19,7 @@
          *  Object constructor.
          */
         public function __construct () {
-            parent::__construct ('fuse_posttype', __ ('Post Type', 'fuse'), __ ('Post Type Builder'), array (
+            parent::__construct ('fuse_posttype', 'Post Type', 'Post Type Builder', array (
                 'public' => false,
                 'publicly_queryable' => false,
                 'rewrite' => false,
@@ -27,7 +27,8 @@
                 'show_in_menu' => 'fusesettings',
                 'supports' => array (
                     'title'
-                )
+                ),
+                'text_domain' => 'fuse'
             ));
         } // __construct ()
         

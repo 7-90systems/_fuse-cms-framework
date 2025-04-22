@@ -44,6 +44,11 @@
         private $_name_plural;
         
         /**
+         *  @param string This is the text domain for this post types translations.
+         */
+        private $_text_domain;
+        
+        /**
          *  @var array The arguments for this post type.
          */
         private $_args;
@@ -68,6 +73,7 @@
             $this->_name_singular = $name_singular;
             $this->_name_plural = $name_plural;
             $this->_args = $args;
+            $this->_text_domain = array_key_exists ('text_domain', $args) ? $args ['text_domain'] : 'fuse';
             
             // Set up the post type registration.
             add_action ('init', array ($this, 'registerPostType'));
@@ -106,34 +112,37 @@
         final public function registerPostType () {
             // Register if allowed
             if ($this->_register_post_type !== false) {
+                $name_plural = __ ($this->_name_plural, $this->_text_domain);
+                $name_singular = __ ($this->_name_singular, $this->_text_domain);
+                
                 $labels = array (
                     'name' => $this->_name_plural,
                     'singular_name' => $this->_name_singular,
-                    'add_new' => sprintf (__ ('Add a new %s', 'fuse'), $this->_name_singular),
-                    'add_new_item' => sprintf (__ ('Add New %s', 'fuse'), $this->_name_singular),
-                    'edit_item' => sprintf (__ ('Edit %s', 'fuse'), $this->_name_singular),
-                    'new_item' => sprintf (__ ('New %s', 'fuse'), $this->_name_singular),
-                    'view_item' => sprintf (__ ('View %s', 'fuse'), $this->_name_singular),
-                    'view_items' => sprintf (__ ('View %s', 'fuse'), $this->_name_plural),
-                    'search_items' => sprintf (__ ('Search %s', 'fuse'), $this->_name_plural),
-                    'not_found' => sprintf (__ ('No %s found', 'fuse'), strtolower ($this->_name_plural)),
-                    'not_found_in_trash' => sprintf (__ ('No %s found in trash', 'fuse'), strtolower ($this->_name_plural)),
-                    'parent_item_colon' => sprintf (__ ('Parent %s', 'fuse'), $this->_name_singular),
-                    'all_items' => $this->_name_plural,
-                    'archives' => sprintf (__ ('%s Archives', 'fuse'), $this->_name_singular),
-                    'attributes' => sprintf (__ ('%s Attributes', 'fuse'), $this->_name_singular),
-                    'insert_into_item' => sprintf (__ ('Insert into %s', 'fuse'), strtolower ($this->_name_singular)),
-                    'uploaded_to_this_item' => sprintf (__ ('Uploaded to this %s', 'fuse'), strtolower ($this->_name_singular)),
-                    'filter_items_list' => sprintf (__ ('Filter %s list', 'fuse'), strtolower ($this->_name_plural)),
-                    'items_list_navigation' => sprintf (__ ('%s list navigation', 'fuse'), $this->_name_plural),
-                    'items_list' => sprintf (__ ('%s list','fuse'), $this->_name_plural),
-                    'item_published' => sprintf (__ ('%s published.', 'fuse'), $this->_name_singular),
-                    'item_published_privately' => sprintf (__ ('%s published privately.', 'fuse'), $this->_name_singular),
-                    'item_reverted_to_draft' => sprintf (__ ('%s reverted to draft.', 'fuse'), $this->_name_singular),
-                    'item_scheduled' => sprintf (__ ('%s scheduled.', 'fuse'), $this->_name_singular),
-                    'item_updated' => sprintf (__ ('%s updated.', 'fuse'), $this->_name_singular),
-                    'item_link' => sprintf (__ ('%s Link', 'fuse'), $this->_name_singular),
-                    'item_link_description' => sprintf (__ ('A link to a %s.', 'fuse'), strtolower ($this->_name_singular))
+                    'add_new' => sprintf (__ ('Add a new %s', 'fuse'), $name_singular),
+                    'add_new_item' => sprintf (__ ('Add New %s', 'fuse'), $name_singular),
+                    'edit_item' => sprintf (__ ('Edit %s', 'fuse'), $name_singular),
+                    'new_item' => sprintf (__ ('New %s', 'fuse'), $name_singular),
+                    'view_item' => sprintf (__ ('View %s', 'fuse'), $name_singular),
+                    'view_items' => sprintf (__ ('View %s', 'fuse'), $name_plural),
+                    'search_items' => sprintf (__ ('Search %s', 'fuse'), $name_plural),
+                    'not_found' => sprintf (__ ('No %s found', 'fuse'), strtolower ($name_plural)),
+                    'not_found_in_trash' => sprintf (__ ('No %s found in trash', 'fuse'), strtolower ($name_plural)),
+                    'parent_item_colon' => sprintf (__ ('Parent %s', 'fuse'), $name_singular),
+                    'all_items' => $name_plural,
+                    'archives' => sprintf (__ ('%s Archives', 'fuse'), $name_singular),
+                    'attributes' => sprintf (__ ('%s Attributes', 'fuse'), $name_singular),
+                    'insert_into_item' => sprintf (__ ('Insert into %s', 'fuse'), strtolower ($name_singular)),
+                    'uploaded_to_this_item' => sprintf (__ ('Uploaded to this %s', 'fuse'), strtolower ($name_singular)),
+                    'filter_items_list' => sprintf (__ ('Filter %s list', 'fuse'), strtolower ($name_plural)),
+                    'items_list_navigation' => sprintf (__ ('%s list navigation', 'fuse'), $name_plural),
+                    'items_list' => sprintf (__ ('%s list','fuse'), $name_plural),
+                    'item_published' => sprintf (__ ('%s published.', 'fuse'), $name_singular),
+                    'item_published_privately' => sprintf (__ ('%s published privately.', 'fuse'), $name_singular),
+                    'item_reverted_to_draft' => sprintf (__ ('%s reverted to draft.', 'fuse'), $name_singular),
+                    'item_scheduled' => sprintf (__ ('%s scheduled.', 'fuse'), $name_singular),
+                    'item_updated' => sprintf (__ ('%s updated.', 'fuse'), $name_singular),
+                    'item_link' => sprintf (__ ('%s Link', 'fuse'), $name_singular),
+                    'item_link_description' => sprintf (__ ('A link to a %s.', 'fuse'), strtolower ($name_singular))
                 );
                 
                 $args = array (
