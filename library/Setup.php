@@ -43,6 +43,9 @@
             $posttype_layout = new PostType\Layout ();
             $email_sender = new Setup\EmailSender ();
             
+            // Enable optional post types
+            add_action ('after_setup_theme', array ($this, 'enableOptionalPostTypes'), 11);
+            
             add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
             
             if (is_admin ()) {
@@ -95,5 +98,18 @@
                 $setup_builder = Setup\PostType\Builder::getInstance ();
             } // if ()
         } // loadExtraFunctions ()
+        
+        
+        
+        
+        /**
+         *  Enable our additional post types if required.
+         */
+        public function enableOptionalPostTypes () {
+            // FAQs
+            if (get_fuse_option ('faq_posttype', false) == 'yes') {
+                $posttype_faqs = new PostType\FAQ ();
+            } // if ()
+        } // enableOptionalPostTypes ()
         
     } // class Setup

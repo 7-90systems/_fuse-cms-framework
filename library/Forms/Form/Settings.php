@@ -55,7 +55,8 @@
                 ))),
                 new Component\Panel ('theme_css', __ ('Theme CSS Styles', 'fuse'), apply_filters ('fuse_settings_form_theme_css_fields', $theme_style_options)),
                 new Component\Panel ('theme_features', __ ('Theme Features', 'fuse'), apply_filters ('fuse_settings_form_theme_features_fields', array (
-                    new Component\Field\Toggle ('html_fragments', __ ('Enable HTML Fragments', 'fuse'), get_fuse_option ('html_fragments', false))
+                    new Component\Field\Toggle ('html_fragments', __ ('Enable HTML Fragments', 'fuse'), get_fuse_option ('html_fragments', false)),
+                    new Component\Field\Toggle ('faq_posttype', __ ('Enable FAQ post type', 'fuse'), get_fuse_option ('faq_posttype', false))
                 ))),
                 new Component\Panel ('development_features', __ ('Development Features', 'fuse'), apply_filters ('fuse_settings_form_development_features_fields', array (
                     new Component\Field\Toggle ('pagetype_builder', __ ('Enable Page Type Builder', 'fuse'), get_fuse_option ('pagetype_builder', false))
