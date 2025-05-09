@@ -52,6 +52,10 @@
                 $admin = new Admin ();
             } // if ()
             
+            // Set up the Google API link in the header when the API key is set.
+            add_action ('wp_head', array ($this, 'googleApiKeyLink'));
+            add_action ('admin_head', array ($this, 'googleApiKeyLink'));
+            
             /**
              *  When we are finished we can call the action related to Fuse.
              */
@@ -111,5 +115,22 @@
                 $posttype_faqs = new PostType\FAQ ();
             } // if ()
         } // enableOptionalPostTypes ()
+        
+        
+        
+        
+        /**
+         *  Add the Google API key to the header area.
+         */
+        public function googleApiKeyLink () {
+            $api_key = get_fuse_option ('google_api_key', '');
+            
+            if (strlen ($api_key) > 0) {
+                ?>
+                    <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+        ({key: "<?php esc_attr_e ($api_key); ?>", v: "weekly"});</script>
+                <?php
+            } // if ()
+        } // googleApiKeyLink ()
         
     } // class Setup
