@@ -48,6 +48,9 @@
             
             add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
             
+            // Add our Gutenberg blocks
+            $block_tabs = new Block\Tabs ();
+            
             if (is_admin ()) {
                 $admin = new Admin ();
             } // if ()

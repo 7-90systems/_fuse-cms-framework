@@ -21,7 +21,6 @@
      *  @action fuse_after_enqueue_css Run after CSS is enqueued
      *  @action fuse_before_enqueue_javascript Run before JavaScript is enqueued.
      *  @action fuse_after_enqueue_javascript Run after JavaScript is enqueued
-     *  @action fuse_block_patterns Add block pattern objects to be registered.
      *  @action fuse_gutenberg_stylesheets Filter the list of CSS stylesheets for the Gutenberg editor.
      */
     
@@ -90,9 +89,6 @@
             
             // Set up the admin form tags
             add_action ('post_edit_form_tag', array ($this, 'postEditFormTag'));
-            
-            // Register our block patterns.
-            add_action ('init', array ($this, 'registerBlockPatterns'));
             
             // Remove extraneous <p> tags from shortcodes
             add_filter ('the_content', array ($this, 'removeShortcodeP'), PHP_INT_MAX);
@@ -659,25 +655,6 @@
         public function postEditFormTag () {
             echo ' enctype="multipart/form-data"';
         } // postEditFormTag ()
-        
-        
-        
-        
-        /**
-         *  Register our block patterns. See the Fuse\Block\Pattern class for
-         *  more information.
-         */
-        public function registerBlockPatterns () {
-            $patterns = apply_filters ('fuse_block_patterns', array ());
-            
-            if (count ($patterns) == 0) {
-                $patterns [] = new Block\Pattern\Example ();
-            } // if ()
-            
-            foreach ($patterns as $pattern) {
-                $pattern->registerPattern ();
-            } // foreach ()
-        } // registerBlockPatterns ()
         
         
         
