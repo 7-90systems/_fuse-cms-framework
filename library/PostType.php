@@ -324,12 +324,25 @@
          *  Add the list of children for this parent post.
          */
         public function listChildren ($post) {
+            $orderby = 'title';
+            $order = 'ASC';
+            
+            if (array_key_exists ('child_list_order', $this->_args)) {
+                if (strtoupper ($this->_args ['child_list_order']) == 'DESC') {
+                    $order = 'DESC';
+                } // if ()
+            } // if ()
+            
+            if (array_key_exists ('child_list_orderby', $this->_args)) {
+                $orderby = $this->_args ['child_list_orderby'];
+            } // if ()
+            
             $children = get_posts (array (
                 'numberposts' => -1,
                 'post_type' => $this->getSlug (),
                 'post_parent' => $post->ID,
-                'orderby' => 'title',
-                'order' => 'ASC'
+                'orderby' => $orderby,
+                'order' => $order
             ));
             ?>
                 <table class="widefat">

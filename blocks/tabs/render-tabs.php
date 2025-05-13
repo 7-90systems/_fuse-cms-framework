@@ -2,7 +2,6 @@
     if (!defined ('ABSPATH')) {
         die ();
     } // if ()
-error_log ("Getting template!!");
     
     // Extract tab contents from the inner block content using DOM parsing
     $dom = new DOMDocument ();

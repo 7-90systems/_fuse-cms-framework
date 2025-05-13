@@ -46,10 +46,11 @@
             // Enable optional post types
             add_action ('after_setup_theme', array ($this, 'enableOptionalPostTypes'), 11);
             
-            add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
+            // Enable optional editor blocks
+            add_action ('after_setup_theme', array ($this, 'enableOptionalEditorBlocks'), 11);
             
-            // Add our Gutenberg blocks
-            $block_tabs = new Block\Tabs ();
+            // Load our function files
+            add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
             
             if (is_admin ()) {
                 $admin = new Admin ();
@@ -118,6 +119,16 @@
                 $posttype_faqs = new PostType\FAQ ();
             } // if ()
         } // enableOptionalPostTypes ()
+        
+        /**
+         *  Enable our additional editor blocks if required.
+         */
+        public function enableOptionalEditorBlocks () {
+            // Tbs
+            if (get_fuse_option ('tabs_block', false) == 'yes') {
+                $block_tabs = new Block\Tabs ();
+            } // if ()
+        } // enableOptionalEditorBlocks ()
         
         
         

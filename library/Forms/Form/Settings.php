@@ -47,16 +47,11 @@
                         'class' => 'full'
                     ))
                 ))),
-                new Component\Panel ('google_api', __ ('Google API', 'fuse'), apply_filters ('fuse_settings_form_google_api_fields', array (
-                    new Component\Field\Text ('google_api_key', __ ('Google API Key'), get_fuse_option ('google_api_key', ''), array (
-                        'class' => 'full',
-                        'description' => __ ('Please make sure that this Google API key is available for every Google API that is needed for your site.', 'fuse')
-                    ))
-                ))),
                 new Component\Panel ('theme_css', __ ('Theme CSS Styles', 'fuse'), apply_filters ('fuse_settings_form_theme_css_fields', $theme_style_options)),
                 new Component\Panel ('theme_features', __ ('Theme Features', 'fuse'), apply_filters ('fuse_settings_form_theme_features_fields', array (
-                    new Component\Field\Toggle ('html_fragments', __ ('Enable HTML Fragments', 'fuse'), get_fuse_option ('html_fragments', false)),
-                    new Component\Field\Toggle ('faq_posttype', __ ('Enable FAQ post type', 'fuse'), get_fuse_option ('faq_posttype', false))
+                    new Component\Field\Toggle ('faq_posttype', __ ('Enable FAQ post type', 'fuse'), get_fuse_option ('faq_posttype', false)),
+                    new Component\Field\Toggle ('tabs_block', __ ('Enable Tabs editor block', 'fuse'), get_fuse_option ('tabs_block', false)),
+                    new Component\Field\Toggle ('html_fragments', __ ('Enable HTML Fragments', 'fuse'), get_fuse_option ('html_fragments', false))
                 ))),
                 new Component\Panel ('development_features', __ ('Development Features', 'fuse'), apply_filters ('fuse_settings_form_development_features_fields', array (
                     new Component\Field\Toggle ('pagetype_builder', __ ('Enable Page Type Builder', 'fuse'), get_fuse_option ('pagetype_builder', false))
@@ -67,7 +62,13 @@
                     )),
                     new Component\Field\TextArea ('body_scripts', __ ('Code to be added at the start of the &lt;body&gt; tag', 'fuse'), get_fuse_option ('body_scripts', '')),
                     new Component\Field\TextArea ('footer_scripts', __ ('Code to be added before the closing &lt;body&gt; tag', 'fuse'), get_fuse_option ('footer_scripts', ''))
-                ))
+                )),
+                new Component\Panel ('google_api', __ ('Google API', 'fuse'), apply_filters ('fuse_settings_form_google_api_fields', array (
+                    new Component\Field\Text ('google_api_key', __ ('Google API Key'), get_fuse_option ('google_api_key', ''), array (
+                        'class' => 'full',
+                        'description' => __ ('Please make sure that this Google API key is available for every Google API that is needed for your site.', 'fuse')
+                    ))
+                )))
             ));
             
             $args = array (
