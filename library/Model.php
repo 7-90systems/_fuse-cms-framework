@@ -45,7 +45,7 @@
          *  information.
          *
          *  @param string $name The name of the value to be returned.
-         *  @param bool $single_meta_value Used when retriving meta values for this model.
+         *  @param bool $single_meta_value Used when retrieving meta values for this model.
          *
          *  @return mixed The requested value or NULL if no value is found.
          */

@@ -215,3 +215,28 @@
             return $image;
         } // fuse_get_image_url ()
     } // if ()
+    
+    /**
+     *  Output a list of FAQs from the given FAQ section.
+     *
+     *  @param int $section_id The FAQs section ID.
+     */
+    if (function_exists ('fuse_faqs_list') === false) {
+        function fuse_faqs_list ($section_id) {
+            $questions = get_posts (array (
+                'numberposts' => -1,
+                'post_type' => 'fuse_faq',
+                'orderby' => 'menu_order title',
+                'order' => 'ASC',
+                'tax_query' => array (
+                    'taxonomy' => 'fuse_faq-section',
+                    'field' => 'term_id',
+                    'terms' => $section_id
+                )
+            ));
+            
+            if (count ($questions) > 0) {
+                include (FUSE_BASE_URI.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'faqs.php');
+            } // if ()
+        } // fuse_faqs_list ()
+    } // if ()

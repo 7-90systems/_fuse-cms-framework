@@ -45,7 +45,8 @@
                 'public' => false,
                 'show_ui' => true,
                 'show_in_rest' => true,
-                'hierarchical' => true
+                'hierarchical' => true,
+                'show_admin_column' =>true
             ));
         } // registerTaxonomies ()
         
