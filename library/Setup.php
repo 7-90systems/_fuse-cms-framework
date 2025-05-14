@@ -128,6 +128,11 @@
             if (get_fuse_option ('tabs_block', false) == 'yes') {
                 $block_tabs = new Block\Tabs ();
             } // if ()
+            
+            
+            
+            
+            $block_faqs = new Block\FAQS ();
         } // enableOptionalEditorBlocks ()
         
         

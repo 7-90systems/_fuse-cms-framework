@@ -50,4 +50,35 @@
             ));
         } // registerTaxonomies ()
         
+        
+        
+        
+        /**
+         *  Allow others to over-ride the existing admin list columns.
+         *
+         *  @param array $columns The existing columns.
+         *
+         *  @return array The completed column list.
+         */
+        public function adminListColumns ($columns) {
+            $columns ['fuse_faq_order'] = __ ('Display Order', 'fuse');
+            
+            return $columns;
+        } // adminListColumns ()
+        
+        /**
+         *  Output the values for our custom admin list columns.
+         *
+         *  @param string $column The name of the column
+         *  @param int $post_id The ID of the post.
+         */
+        public function adminListValues ($column, $post_id) {
+            switch ($column) {
+                case 'fuse_faq_order':
+                    $post = get_post ($post_id);
+                    echo $post->menu_order;
+                    break;
+            } // switch ()
+        } // adminListValues ()
+        
     } // class FAQ
