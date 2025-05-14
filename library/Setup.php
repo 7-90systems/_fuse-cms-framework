@@ -124,15 +124,15 @@
          *  Enable our additional editor blocks if required.
          */
         public function enableOptionalEditorBlocks () {
-            // Tbs
+            // Tabs
             if (get_fuse_option ('tabs_block', false) == 'yes') {
                 $block_tabs = new Block\Tabs ();
             } // if ()
             
-            
-            
-            
-            $block_faqs = new Block\FAQS ();
+            // FAQs
+            if (get_fuse_option ('faq_posttype', false) == 'yes') {
+                $block_faqs = new Block\FAQs ();
+            } // if ()
         } // enableOptionalEditorBlocks ()
         
         
