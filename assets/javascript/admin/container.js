@@ -60,7 +60,6 @@ function fuseFormsSetup () {
     
     // Set up our various fields
     _fuseFormsSetupToggleFields ();
-    _fuseFormsSetupDateFields ();
 } // fuseFormsSetup ()
 
 
@@ -252,31 +251,6 @@ function _isValueInList (value, value_list) {
     
     return in_list;
 } // _isValueInList ()
-
-
-
-
-/**
- *  Set up our date fields.
- */
-function _fuseFormsSetupDateFields () {
-    jQuery ('.fuse-datepicker').each (function () {
-        let field= jQuery (this);
-        let alt_field = '#' + field.attr ('id').substr (16);
-        
-        field.datepicker ({
-            dateFormat: 'd MM yy',
-            altFormat: 'yy-mm-dd',
-            altField: alt_field
-        });
-        
-        field.on ('input', function () {
-            if (jQuery (this).val ().length == 0) {
-                jQuery (alt_field).val ('');
-            } // if ()
-        });
-    });
-} // _fuseFormsSetupDateFields ()
 
 
 

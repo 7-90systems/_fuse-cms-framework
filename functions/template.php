@@ -194,7 +194,7 @@
      */
     if (function_exists ('fuse_get_image_url') === false) {
         function fuse_get_image_url ($image_id, $size = 'full', $fallback = false) {
-            $image = NULL;
+            $image = '';
             
             if ($image_id > 0) {
                 $image = wp_get_attachment_image_url ($image_id, $size);
