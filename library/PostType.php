@@ -73,7 +73,6 @@
             $this->_name_singular = $name_singular;
             $this->_name_plural = $name_plural;
             $this->_args = $args;
-            $this->_text_domain = array_key_exists ('text_domain', $args) ? $args ['text_domain'] : 'fuse';
             
             // Set up the post type registration.
             add_action ('init', array ($this, 'registerPostType'));
