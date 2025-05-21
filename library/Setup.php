@@ -12,6 +12,7 @@
      *  @action fuse_before_load_functions Run before function files are loaded.
      *  @action fuse_efter_load_functions Run after function files are loaded.
      *  @action fuse_init Run after the Fuse system is initialised and is ready.
+     *  @action fuse_register_posttypes Run when ready to register post types.
      */
     
     namespace Fuse;
@@ -35,22 +36,25 @@
              */
             add_action ('after_setup_theme', array ($this, 'loadFunctions'));
             
+            // Load our function files
+            add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
+            /**
+             *  Load our post types
+             */
+            add_action ('after_setup_theme', array ($this, 'loadPostTypes'), 11);
+            
             /**
              *  Set up our various additions.
              */
             $setup_theme = new Setup\Theme ();
             
-            $posttype_layout = new PostType\Layout ();
+            /**
+             *  Set the email sender details for the site.
+             */
             $email_sender = new Setup\EmailSender ();
-            
-            // Enable optional post types
-            add_action ('after_setup_theme', array ($this, 'enableOptionalPostTypes'), 11);
             
             // Enable optional editor blocks
             add_action ('after_setup_theme', array ($this, 'enableOptionalEditorBlocks'), 11);
-            
-            // Load our function files
-            add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
             
             if (is_admin ()) {
                 $admin = new Admin ();
@@ -111,14 +115,18 @@
         
         
         /**
-         *  Enable our additional post types if required.
+         *  Load ourpost types.
          */
-        public function enableOptionalPostTypes () {
+        public function loadPostTypes () {
+            $posttype_layout = new PostType\Layout ();
+            
             // FAQs
             if (get_fuse_option ('faq_posttype', false) == 'yes') {
                 $posttype_faqs = new PostType\FAQ ();
             } // if ()
-        } // enableOptionalPostTypes ()
+            
+            do_action ('fuse_register_posttypes');
+        } // loadPostTypes ()
         
         /**
          *  Enable our additional editor blocks if required.

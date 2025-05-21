@@ -44,11 +44,6 @@
         private $_name_plural;
         
         /**
-         *  @param string This is the text domain for this post types translations.
-         */
-        private $_text_domain;
-        
-        /**
          *  @var array The arguments for this post type.
          */
         private $_args;
@@ -111,8 +106,8 @@
         final public function registerPostType () {
             // Register if allowed
             if ($this->_register_post_type !== false) {
-                $name_plural = __ ($this->_name_plural, $this->_text_domain);
-                $name_singular = __ ($this->_name_singular, $this->_text_domain);
+                $name_plural = $this->_name_plural;
+                $name_singular = $this->_name_singular;
                 
                 $labels = array (
                     'name' => $this->_name_plural,
