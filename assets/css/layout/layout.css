@@ -32,9 +32,10 @@
     --fuse-site-max-width: 1800px;
     
     --fuse-container-padding-x: 5%;
-    --fuse-container-padding-x-narrow: 12.5%;
-    --fuse-container-padding-x-thin: 20%;
     --fuse-container-padding-y: calc(var(--fuse-padding-base) * 4);
+    
+    --fuse-container-width-narrow: 75%;
+    --fuse-container-width-thin: 60%;
 
     /*  **********  Grid layout  **********  */
     
@@ -109,13 +110,11 @@
 
 /*  **********  Container widths  *********  */
 
-.fuse-container.narrow {
-    padding-left: var(--fuse-container-padding-x-narrow);
-    padding-right: var(--fuse-container-padding-x-narrow);
+.fuse-container.narrow > div {
+    width: var(--fuse-container-width-narrow);
 }
-.fuse-container.thin {
-    padding-left: var(--fuse-container-padding-x-thin);
-    padding-right: var(--fuse-container-padding-x-thin);
+.fuse-container.thin > div {
+    width: var(--fuse-container-width-thin);
 }
 
 
