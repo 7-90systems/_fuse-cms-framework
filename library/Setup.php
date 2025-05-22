@@ -125,6 +125,12 @@
                 $posttype_faqs = new PostType\FAQ ();
             } // if ()
             
+            // Sliders
+            if (get_fuse_option ('sliders_posttype', false) == 'yes') {
+                $posttype_slider = new PostType\Slider ();
+                $posttype_slider_slide = new PostType\Slider\Slide ();
+            } // if ()
+            
             do_action ('fuse_register_posttypes');
         } // loadPostTypes ()
         
