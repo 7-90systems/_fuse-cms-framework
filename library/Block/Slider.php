@@ -82,7 +82,7 @@
                 if ($slider && $slider->post_type == 'fuse_slider') {
                     $model = new \Fuse\Model\PostType\Slider ($slider);
                     
-                    $output = $model->render ();
+                    $output = $model->render (false);
                 } // if ()
             } // if ()
             
