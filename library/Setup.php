@@ -147,6 +147,11 @@
             if (get_fuse_option ('faq_posttype', false) == 'yes') {
                 $block_faqs = new Block\FAQs ();
             } // if ()
+            
+            // Sliders
+            if (get_fuse_option ('sliders_posttype', false) == 'yes') {
+                $block_sliders = new Block\Slider ();
+            } // if ()
         } // enableOptionalEditorBlocks ()
         
         
