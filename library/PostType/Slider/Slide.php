@@ -30,7 +30,7 @@
                     'title',
                     'editor',
                     'page-attributes',
-                    'thumbnails'
+                    'thumbnail'
                 )
             ));
             

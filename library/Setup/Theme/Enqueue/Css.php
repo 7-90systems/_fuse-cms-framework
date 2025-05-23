@@ -87,6 +87,11 @@
                  wp_dequeue_style ('wp-block-library-theme');
                   wp_dequeue_style ('wc-blocks-style');
             } // if ()
+            
+            // Sliders
+            if (get_fuse_option ('sliders_posttype', false) == 'yes') {
+                wp_enqueue_style ('fuse_sliders', FUSE_BASE_URL.'/assets/css/sliders.css');
+            } // if ()
         } // _enqueue ()
         
     } // class Css

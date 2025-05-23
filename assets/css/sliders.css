@@ -1,0 +1,107 @@
+.fuse-slider-slide  {
+    position: relative;
+}
+.fuse-slider-slide .slide-background {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    background-size_ cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+.fuse-slider-slide .slide-content.fuse-container {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+
+
+
+/*  **********  Dot page markers  **********  */
+
+ul.slick-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 10px;
+    z-index: 5;
+}
+ul.slick-dots,
+ul.slick-dots li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+ul.slick-dots li button {
+    font-size: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    padding: 0;
+}
+
+
+
+
+/*  **********  Arrow navigation  **********  */
+
+.slick-arrow {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    z-index: 5;
+}
+.slick-arrow.slick-next {
+    left: auto;
+    right: 10px;
+}
+
+.slick-arrow.slick-disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+
+
+
+@media screen and (min-width: 768px) {
+    
+    .fuse-slider-slide  {
+        height: 400px;
+    }
+    
+    .fuse-slider-slide .slide-background {
+        position: absolute;
+        aspect-ratio: inherit;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        padding-bottom: 40px;
+    }
+    
+    .fuse-slider-slide .slide-content.fuse-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+}
+
+
+
+
+@media screen and (min-width: 1200px) {
+    
+    .fuse-slider-slide  {
+        height: 600px;
+    }
+
+}
