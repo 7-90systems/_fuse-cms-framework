@@ -169,8 +169,8 @@
      *  @return string|NULL Returns the image URL or a NULL value if no image
      *  is available.
      */
-    if (function_exists ('fuse_get_feature_image') === false) {
-        function fuse_get_feature_image ($post, $size = 'full', $fallback = true) {
+    if (function_exists ('fuse_get_feature_image_url') === false) {
+        function fuse_get_feature_image_url ($post, $size = 'full', $fallback = true) {
             $image = NULL;
             $image_id = 0;
             
@@ -179,7 +179,7 @@
             } // if ()
             
             return fuse_get_image_url ($image_id, $size, $fallback);
-        } // fuse_get_feature_image ()
+        } // fuse_get_feature_image_url ()
     } // if ()
     
     /**
@@ -215,6 +215,86 @@
             return $image;
         } // fuse_get_image_url ()
     } // if ()
+    
+    
+    
+    
+    /**
+     *  Get the featured image of the given post. If no image is found a
+     *  fallback image can be given instead.
+     *
+     *  Fallback images must be located in your themes
+     *  '/assets/images/fallback/' folder with the same name as the image size.
+     *  As an example, if the size of 'bigsquare' the fallback will be called
+     *  'bigsquare.jpg'.
+     *
+     *  @param WP_Post|int $post The post object or ID.
+     *  @param string $size The image size.
+     *  @param bool $use_fallback Boolean 'true' to use a fallback image.
+     *
+     *  @return array|NULL Returns the image details or a NULL value if no image
+     *  is available.
+     */
+    if (function_exists ('fuse_get_feature_image') === false) {
+        function fuse_get_feature_image ($post, $size = 'full', $fallback = true) {
+            $image = NULL;
+            $image_id = 0;
+            
+            if (has_post_thumbnail ($post)) {
+                $image_id = get_post_thumbnail_id ($post);
+            } // if ()
+            
+            return fuse_get_image ($image_id, $size, $fallback);
+        } // fuse_get_feature_image ()
+    } // if ()
+    
+    /**
+     *  Get an image URL given the image ID or return a fallback if none exists.
+     *
+     *  @param int $image_id the ID of the image.
+     *  @param string $size The image size.
+     *  @param bool $use_fallback Boolean 'true' to use a fallback image.
+     *
+     *  @return array|NULL Returns the image details or a NULL value if no image
+     *  is available.
+     */
+    if (function_exists ('fuse_get_image') === false) {
+        function fuse_get_image ($image_id, $size = 'full', $fallback = false) {
+            $image = '';
+            
+            if ($image_id > 0) {
+                $image = wp_get_attachment_image_src ($image_id, $size);
+            } // if ()
+            
+            if (empty ($image) && $fallback !== false) {
+                $fallback_image = apply_filters ('fuse_fallback_image_url', 'assets/images/fallback/'.esc_attr ($size).'.jpg', $size);
+                    
+                if (is_child_theme () && file_exists (trailingslashit (get_stylesheet_directory ()).$fallback_image)) {
+                    $image = trailingslashit (get_stylesheet_directory_uri ()).$fallback_image;
+                } // if ()
+                
+                if (empty ($image) && file_exists (trailingslashit (get_template_directory ()).$fallback_image)) {
+                     $image = trailingslashit (get_template_directory_uri ()).$fallback_image;
+                } // if ()
+                
+                if (strlen ($image) > 0) {
+                    $size = getimagesize ($image);
+                    
+                    $image = array (
+                        $image,
+                        $size [0],
+                        $size [1],
+                        false
+                    );
+                } // if ()
+            } // if ()
+            
+            return $image;
+        } // fuse_get_image ()
+    } // if ()
+    
+    
+    
     
     /**
      *  Output a list of FAQs from the given FAQ section.
