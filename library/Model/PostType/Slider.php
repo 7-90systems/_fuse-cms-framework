@@ -116,21 +116,26 @@
          *      {parent theme}/templates/slider/{file}
          *      {Fuse}/templates/slider/{file}
          *
-         *  The files for this can be either slider.php or slide.php
+         *  The files for this can be either slider.php or slide.php or other
+         *  template files such as slider-main.php in your themes template folders.
          *
          *  @param string $file The template file that we want to find.
          *
          *  @return string The template file URI.
          */
         protected function _getTemplateUri ($file) {
-            $template = get_stylesheet_directory_uri ().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR.$file;
+            // Get the template files that we want to use
+            $template = NULL;
+            $template_file = get_post_meta ($this->_post->ID, 'fuse_slider_template_'.substr ($file, 0, strlen ($file) - 4), true);
             
-            if (file_exists ($template) === false) {
-                $template = get_template_directory_uri ().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR.$file;
-                
-                if (file_exists ($template) === false) {
-                    $template = FUSE_BASE_URI.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR.$file;
+            foreach (apply_filters ('fuse_slider_template_locations', array ()) as $folder_uri => $folder_url) {
+                if (empty ($template) && file_exists ($folder_uri.$template_file)) {
+                    $template = $folder_uri.$template_file;
                 } // if ()
+            } // foreach ()
+            
+            if (empty ($template)) {
+                $template = FUSE_BASE_URI.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR.$file;
             } // if ()
             
             return $template;

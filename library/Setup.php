@@ -8,6 +8,8 @@
      *
      *  @filter fuse_load_functions_from Set the folder locations to load
      *  function files from.
+     *  @filter fuse_slider_template_locations Set the folder locations for
+     *  slider templates.
      *
      *  @action fuse_before_load_functions Run before function files are loaded.
      *  @action fuse_efter_load_functions Run after function files are loaded.
@@ -127,8 +129,13 @@
             
             // Sliders
             if (get_fuse_option ('sliders_posttype', false) == 'yes') {
+                
+                
                 $posttype_slider = new PostType\Slider ();
                 $posttype_slider_slide = new PostType\Slider\Slide ();
+                
+                // Add our base slider locations
+                add_filter ('fuse_slider_template_locations', array ($this, 'setSliderTemplateFolders'), 1);
             } // if ()
             
             do_action ('fuse_register_posttypes');
@@ -172,5 +179,29 @@
                 <?php
             } // if ()
         } // googleApiKeyLink ()
+        
+        
+        
+        
+        /**
+         *  Set up the slider template folders.
+         *
+         *  @param array $folders the folders to add in.
+         *
+         *  @return array The folder structure.
+         */
+        public function setSliderTemplateFolders ($folders) {
+            if (is_array ($folders) === false) {
+                $folders = array ();
+            } // if ()
+            
+            $folders = array_merge (array (
+                get_stylesheet_directory ().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR => get_stylesheet_directory_uri ().'/templates/slider/',
+                get_template_directory ().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR => get_template_directory_uri ().'/templates/slider/',
+                FUSE_BASE_URI.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'slider'.DIRECTORY_SEPARATOR => FUSE_BASE_URL.'/templates/slider/'
+            ), $folders);
+            
+            return $folders;
+        } // setSliderTemplateFolders ()
         
     } // class Setup
