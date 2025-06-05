@@ -9,7 +9,7 @@
         die ();
     } // if ()
     
-    $slides = $this->geSlides ();
+    $slides = $this->getSlides ();
 ?>
 <?php if (count ($slides) > 0): ?>
 
