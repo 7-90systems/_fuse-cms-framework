@@ -56,6 +56,7 @@
          */
         public function detailsMeta ($post) {
             ?>
+                <p><strong><?php _e ('Note:', 'fuse'); ?></strong> <?php _e ('These settings rely on your slide template to work. Please check your slides template code if something is not working as expected.', 'fuse'); ?></p>
                 <table class="form-table">
                     <tr>
                         <th><?php _e ('Full slide link', 'fuse'); ?></th>
