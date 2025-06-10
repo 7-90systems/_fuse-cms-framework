@@ -47,8 +47,26 @@
          *  Add our meta boxes.
          */
         public function addMetaBoxes () {
+            add_meta_box ('fuse_slider_slide_details_meta', __ ('Slide Details', 'fuse'), array ($this, 'detailsMeta'), $this->getSlug (), 'normal', 'high');
             add_meta_box ('fuse_slider_slide_display_meta', __ ('Display Settings', 'fuse'), array ($this, 'displayMeta'), $this->getSlug (), 'normal', 'default');
         } // addMetaBoxes ()
+        
+        /**
+         *  Set up the details meta box.
+         */
+        public function detailsMeta ($post) {
+            ?>
+                <table class="form-table">
+                    <tr>
+                        <th><?php _e ('Full slide link', 'fuse'); ?></th>
+                        <td>
+                            <input type="url" name="fuse_slider_slide_link" value="<?php echo esc_url (get_post_meta ($post->ID, 'fuse_slider_slide_link', true)); ?>" class="large-text" />
+                            <p class="description"><?php _e ('Enter a link her to encase the entire slide.', 'fuse'); ?></p>
+                        </td>
+                    </tr>
+                </table>
+            <?php
+        } // detailsMeta ()
         
         /**
          *  Set up the display settings meta box.
@@ -108,6 +126,11 @@
          *  Save the posts values.
          */
         public function savePost ($post_id, $post) {
+            // Details
+            if (array_key_exists ('fuse_slider_slide_link', $_POST)) {
+                update_post_meta ($post_id, 'fuse_slider_slide_link', $_POST ['fuse_slider_slide_link']);
+            } // if ()
+            
             // Display dates
             foreach ($this->_dates as $key => $label) {
                 if (array_key_exists ('fuse_slide_set_'.$key, $_POST) && $_POST ['fuse_slide_set_'.$key] == 'set') {
