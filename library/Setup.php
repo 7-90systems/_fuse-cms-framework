@@ -48,7 +48,7 @@
             /**
              *  Set up our various additions.
              */
-            $setup_theme = new Setup\Theme ();
+            add_action ('after_setup_theme', array ($this, 'setupTheme'), 12);
             
             /**
              *  Set the email sender details for the site.
@@ -160,6 +160,13 @@
                 $block_sliders = new Block\Slider ();
             } // if ()
         } // enableOptionalEditorBlocks ()
+        
+        /**
+         *  Get our theme set up.
+         */
+        public function setupTheme () {
+            $setup_theme = new Setup\Theme ();
+        } // setupTheme ()
         
         
         

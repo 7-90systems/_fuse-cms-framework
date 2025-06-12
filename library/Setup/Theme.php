@@ -72,6 +72,11 @@
             $this->_css_enqueue = new Theme\Enqueue\Css ();
             $this->_javascript_enqueue = new Theme\Enqueue\JavaScript ();
             
+            // Are we auto-loading fonts?
+            if (get_fuse_option ('web_fonts', false) == 'yes') {
+                $fonts = Theme\Font::getInstance ();
+            } // if ()
+            
             // Menus
             add_action ('after_setup_theme', array ($this, 'registerNavMenus'));
             

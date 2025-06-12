@@ -129,7 +129,7 @@
                             $value = $values [$field->name];
                         } // if ()
     
-                        $field->setValue ($value, $values);
+                        $field->setValue ($value);
                     } // foreach ()
                     
                     foreach ($panel->getValues () as $key => $value) {
