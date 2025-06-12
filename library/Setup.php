@@ -36,19 +36,19 @@
             /**
              *  Load our functions
              */
-            add_action ('after_setup_theme', array ($this, 'loadFunctions'));
+            add_action ('after_setup_theme', array ($this, 'loadFunctions'), 1);
             
             // Load our function files
-            add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 11);
+            add_action ('after_setup_theme', array ($this, 'loadExtraFunctions'), 2);
             /**
              *  Load our post types
              */
-            add_action ('after_setup_theme', array ($this, 'loadPostTypes'), 11);
+            add_action ('after_setup_theme', array ($this, 'loadPostTypes'));
             
             /**
              *  Set up our various additions.
              */
-            add_action ('after_setup_theme', array ($this, 'setupTheme'), 12);
+            add_action ('after_setup_theme', array ($this, 'setupTheme'), 3);
             
             /**
              *  Set the email sender details for the site.

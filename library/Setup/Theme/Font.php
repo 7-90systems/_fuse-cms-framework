@@ -30,55 +30,17 @@
          *  Initailise our object.
          */
         protected function _init () {
-            // add our administration settings options
-            if (is_admin ()) {
-                add_filter ('fuse_settings_form_theme_features_fields', array ($this, 'settingsFields'));
-            } // if ()
-            
             add_action ('wp_enqueue_scripts', array ($this, 'enqueueFonts'), 1);
         } // _init ()
-        
-        
-        
-        
-        /**
-         *  Add in our settings form fields.
-         *
-         *  @param array $fields The settings forms fields array.
-         *
-         *  @return array The completed fields array.
-         */
-        public function settingsFields ($fields) {
-            $fonts = $this->getAvailableFonts ();
-            
-            $available_fonts = array ();
-            
-            foreach ($fonts as $key => $dir) {
-                $available_fonts [$key] = $this->getFontName ($key, $dir);
-            } // foreach ()
-
-            $fields [] = new Component\Field\Checkbox ('load_fonts', __ ('Web fonts to load', 'fuse'), $available_fonts, get_fuse_option ('load_fonts', ''));
-            
-            return $fields;
-        } // settingsFields ()
         
         /**
          *  Enqueue our fonts
          */
         public function enqueueFonts () {
-            $active_fonts = get_fuse_option ('load_fonts', '');
-            
-            if (is_array ($active_fonts) == false) {
-                $active_fonts = explode (',', $active_fonts);
-                $active_fonts = array_filter ($active_fonts);
-            } // if ()
-            
             foreach ($this->getAvailableFonts () as $key => $dir) {
-                if (in_array ($key, $active_fonts)) {
-                    $dir = substr ($dir, strlen (ABSPATH));
-                    $dir = str_replace ('\\', '/', $dir);
-                    wp_enqueue_style ('fuse_font_'.$key, home_url ('/'.$dir.'/font.css'));
-                } // if ()
+                $dir = substr ($dir, strlen (ABSPATH));
+                $dir = str_replace ('\\', '/', $dir);
+                wp_enqueue_style ('fuse_font_'.$key, home_url ('/'.$dir.'/font.css'));
             } // foreach ()
         } // enqueueFonts ()
         
