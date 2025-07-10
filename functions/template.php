@@ -320,3 +320,49 @@
             } // if ()
         } // fuse_faqs_list ()
     } // if ()
+        
+        
+        
+        
+    /**
+     *  Output a responsive image.
+     *
+     *  @param array $args The arguemnts for the image
+     *      image       Image ID
+     *      size        WordPress image size
+     *      alt         ALT text
+     *      class       Additional CSS classes for the image figure tag
+     *      caption     Optional caption for the image
+     */
+    if (function_exists ('fuse_responsive_image') === false) {
+        function fuse_responsive_image ($args) {
+			$fallback = get_fuse_option ('fallback_image', 0);
+
+			$args = array_merge (array (
+				'image' => $fallback,
+				'size' => 'full',
+				'alt' => '',
+				'class' => '',
+				'caption' => ''
+			), $args);
+
+			if (empty ($args ['image'])) {
+				$args ['image'] = $fallback;
+			} // if ()
+
+			$image = wp_get_attachment_image_src ($args ['image'], $args ['size']);
+			?>
+				<figure class="fuse-responsive-image <?php esc_attr_e ($args ['class']); ?>">
+
+					<img src="<?php echo esc_url ($image [0]); ?>" alt="<?php esc_attr_e ($args ['alt']); ?>" width="<?php echo $image [1]; ?>" height="<?php echo $image [2]; ?>" />
+
+					<?php if (strlen ($args ['caption']) > 0): ?>
+
+						<figcaption><?php echo $args ['caption']; ?></figcaption>
+
+					<?php endif; ?>
+
+				</figure>
+			<?php
+		} // fuse_responsive_image ()
+    } // if ()
