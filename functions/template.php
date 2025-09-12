@@ -267,25 +267,10 @@
             } // if ()
             
             if (empty ($image) && $fallback !== false) {
-                $fallback_image = apply_filters ('fuse_fallback_image_url', 'assets/images/fallback/'.esc_attr ($size).'.jpg', $size);
-                    
-                if (is_child_theme () && file_exists (trailingslashit (get_stylesheet_directory ()).$fallback_image)) {
-                    $image = trailingslashit (get_stylesheet_directory_uri ()).$fallback_image;
-                } // if ()
+                $fallback_id = intval (get_fuse_option ('fallback_image'));
                 
-                if (empty ($image) && file_exists (trailingslashit (get_template_directory ()).$fallback_image)) {
-                     $image = trailingslashit (get_template_directory_uri ()).$fallback_image;
-                } // if ()
-                
-                if (strlen ($image) > 0) {
-                    $size = getimagesize ($image);
-                    
-                    $image = array (
-                        $image,
-                        $size [0],
-                        $size [1],
-                        false
-                    );
+                if ($fallback_id > 0) {
+                    $image = wp_get_attachment_image_src ($fallback_id, $size);
                 } // if ()
             } // if ()
             
