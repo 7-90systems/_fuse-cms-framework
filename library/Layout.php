@@ -81,7 +81,6 @@
          */
         protected function _setLayout () {
             $this->_layout = $this->_getCurrentLayout ();
-\Fuse\Debug::dump ($this->_layout);
             
             $parts = get_post_meta ($this->_layout, 'fuse_layout_parts', true);
             
