@@ -8,23 +8,22 @@
     
     namespace Fuse;
     
+    use Fuse\Traits\Singleton;
+    
     
     class Loader {
         
-        /**
-         *  @var Fuse\Loader The singular instance of the loader class.
-         */
-        static private $_instance;
+        use Singleton;
         
         
         
         
         /**
-         *  Object constructor.
+         *  Set up our clss.
          */
-        private function __construct () {
+        private function _init () {
             spl_autoload_register (array ($this, 'load'));
-        } // __construct ()
+        } // _init ()
         
         
         
@@ -68,19 +67,5 @@
                 } // if ()
             } // if ()
         } // load ()
-        
-        
-        
-        
-        /**
-         *  Get the single instance of this class.
-         */
-        static final public function getInstance () {
-            if (empty (self::$_instance)) {
-                self::$_instance = new Loader ();
-            } // if ()
-            
-            return self::$_instance;
-        } // getInstance ()
         
     } // class Loader

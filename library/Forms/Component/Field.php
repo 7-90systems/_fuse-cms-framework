@@ -114,11 +114,11 @@
          *
          *  @return Fuse\Form\Component\Field This field object.
          */
-        public function setValue ($value, $values) {
+        public function setValue ($value) {
             $this->_value = $this->validate ($value);
             
             return $this;
-        } // setValue 
+        } // setValue ()
         
         
         

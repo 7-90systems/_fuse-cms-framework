@@ -1,6 +1,15 @@
 /**
  *  Set up the administration styles.
  */
+:root {
+   
+   --fuse-admin-colour-light-grey: #F3F3F3;
+   --fuse-admin-colour-grey: #999999;
+   --fuse-admin-colour-red: #CC0000;
+   --fuse-admin-colour-green: #00CC00;
+   --fuse-admin-colour-blue: #0000CC;
+   
+}
 
 /*  **********  Layouts  **********  */
 
@@ -29,16 +38,16 @@
 
 .admin-grey,
 .admin-light {
-    color: #999999;
+    color: var(--fuse-admin-colour-grey);
 }
 .admin-red {
-    color: #CC0000;
+    color: var(--fuse-admin-colour-red);
 }
 .admin-green {
-    color: #00CC00;
+    color: var(--fuse-admin-colour-green);
 }
 .admin-blue {
-    color: #0000CC;
+    color: var(--fuse-admin-colour-blue);
 }
 
 .admin-bold {
@@ -84,4 +93,32 @@
 }
 .dashicons-fusecms:before {
     content:'\0041';
+}
+
+
+
+
+/*  **********  Sortable tables  ********** */
+
+table.fuse-post-type-table tr {
+   cursor: ns-resize;
+}
+
+
+
+
+/*  **********  Post type admin tables  *********  */
+
+.fuse-post-type-table th.fuse-post-type-table-column-item,
+.fuse-post-type-table td.fuse-post-type-table-column-item {
+   
+}
+.fuse-post-type-table th.fuse-post-type-table-column-delete,
+.fuse-post-type-table td.fuse-post-type-table-column-delete {
+   width: 20px;
+   text-align: center;
+}
+.fuse-post-type-table td.fuse-post-type-table-column-delete .dashicons {
+   color: var(--fuse-admin-colour-red);
+   cursor: pointer;
 }

@@ -1,0 +1,853 @@
+/**
+ *  @package fuse-cms
+ *
+ *  This file contains the CSS styles for layout in the Fuse CMS Framework.
+ *
+ *  Device breakpoints:
+ *      XXL  - 1450px
+ *      XL   - 1200px
+ *      L    - 992px
+ *      M    - 768px
+ *      S    - 576px
+ *      XS   - Under 576px
+ */
+
+/*  ********************************************************************************  **
+
+    CSS variables.
+    
+    Feel free to over-ride these in your theme to suit your layout!
+
+**  ********************************************************************************  */
+
+:root {
+    
+    --fuse-padding-base: 5px;
+    
+    
+    
+    
+    /*  **********  Containers  **********  */
+    
+    --fuse-site-max-width: 1800px;
+    
+    --fuse-container-padding-x: 5%;
+    --fuse-container-padding-y: calc(var(--fuse-padding-base) * 4);
+    
+    --fuse-container-width-narrow: 75%;
+    --fuse-container-width-thin: 60%;
+
+    /*  **********  Grid layout  **********  */
+    
+    --fuse-grid-gap: calc(var(--fuse-padding-base) * 3);
+    
+    --fuse-grid-col-1: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12));
+    --fuse-grid-col-2: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 2) + (var(--fuse-grid-gap) * 1));
+    --fuse-grid-col-3: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 3) + (var(--fuse-grid-gap) * 2));
+    --fuse-grid-col-4: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 4) + (var(--fuse-grid-gap) * 3));
+    --fuse-grid-col-5: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 5) + (var(--fuse-grid-gap) * 4));
+    --fuse-grid-col-6: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 6) + (var(--fuse-grid-gap) * 5));
+    --fuse-grid-col-7: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 7) + (var(--fuse-grid-gap) * 6));
+    --fuse-grid-col-8: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 8) + (var(--fuse-grid-gap) * 7));
+    --fuse-grid-col-9: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 9) + (var(--fuse-grid-gap) * 8));
+    --fuse-grid-col-10: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 10) + (var(--fuse-grid-gap) * 9));
+    --fuse-grid-col-11: calc(((100% - (var(--fuse-grid-gap) * 11)) / 12 * 11) + (var(--fuse-grid-gap) * 10));
+    
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Reset Gutenberg style rules
+
+**  ********************************************************************************  */
+
+@media screen and (max-width: 781px) {
+    
+    .wp-block-columns.fuse-grid-row:not(.is-not-stacked-on-mobile) > .wp-block-column.fuse-grid-cell {
+        flex-basis: unset !important;
+    }
+    
+}
+    
+
+
+
+/*  ********************************************************************************  **
+
+    Container elements
+
+**  ********************************************************************************  */
+
+.fuse-container {
+    position: relative;
+    margin: 0;
+    padding: var(--fuse-container-padding-y) var(--fuse-container-padding-x);
+}
+.fuse-container > div {
+    position: relative;
+    max-width: var(--fuse-site-max-width);
+    margin: 0 auto;
+    padding: 0;
+}
+
+
+
+
+/*  **********  Container content alignment  **********  */
+
+.fuse-container.content-left > div {
+    margin-left: 0;
+}
+.fuse-container.content-right > div {
+    margin-right: 0;
+}
+
+
+
+
+/*  **********  Container widths  *********  */
+
+.fuse-container.narrow > div {
+    width: var(--fuse-container-width-narrow);
+}
+.fuse-container.thin > div {
+    width: var(--fuse-container-width-thin);
+}
+
+
+
+
+/*  **********  Top and bottom padding  **********  */
+
+.fuse-container.no-top-padding {
+    padding-top: 0 !important;
+}
+.fues-container.no-bottom-padding {
+    padding-bottom: 0 !important;
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Grid layout
+
+**  ********************************************************************************  */
+
+.fuse-grid-row,
+.wp-block-columns.fuse-grid-row {
+    position: relative;
+    display: flex;
+    gap: var(--fuse-grid-gap);
+    flex-wrap: wrap !important;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
+}
+.fuse-grid-row.reverse,
+.wp-block-columns.fuse-grid-row.reverse {
+    flex-direction: row-reverse;
+}
+.fuse-grid-row.align-center {
+    justify-content: center;
+}
+.fuse-grid-row.align-right {
+    justify-content: flex-end;
+}
+
+
+
+
+/*  **********  Grid cells  **********  */
+
+.fuse-grid-cell,
+.wp-block-columns.fuse-grid-row > .wp-block-column.fuse-grid-cell,
+.wp-block-columns.fuse-grid-row.is-not-stacked-on-mobile > .wp-block-column.fuse-grid-cell,
+.wp-block-columns.fuse-grid-row:not(.is-not-stacked-on-mobile) > .wp-block-column.fuse-grid-cell {
+    position: relative;
+    box-sizing: border-box;
+    flex-basis: unset;
+    flex-grow: unset;
+}
+.fuse-grid-cell {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+.fuse-grid-cell.no-padding {
+    padding: 0;
+}
+
+.fuse-grid-cell.padded {
+    padding: calc(var(--fuse-grid-gap) / 2);
+}
+
+
+
+
+/*  **********  Standard grid cells  **********  */
+
+.fuse-grid-cell.fuse-grid-cell-xs-1 {
+    width: var(--fuse-grid-col-1);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-2 {
+    width: var(--fuse-grid-col-2);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-3 {
+    width: var(--fuse-grid-col-3);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-4 {
+    width: var(--fuse-grid-col-4);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-5 {
+    width: var(--fuse-grid-col-5);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-6 {
+    width: var(--fuse-grid-col-6);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-7 {
+    width: var(--fuse-grid-col-7);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-8 {
+    width: var(--fuse-grid-col-8);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-9 {
+    width: var(--fuse-grid-col-9);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-10 {
+    width: var(--fuse-grid-col-10);
+}
+.fuse-grid-cell.fuse-grid-cell-xs-11 {
+    width: var(--fuse-grid-col-11);
+}
+
+
+
+
+/*  **********  Cell spacers  **********  */
+
+.fuse-grid-cell.fuse-grid-space-xs-1 {
+    margin-left: var(--fuse-grid-col-1);
+}
+.fuse-grid-cell.fuse-grid-space-xs-2 {
+    margin-left: var(--fuse-grid-col-2);
+}
+.fuse-grid-cell.fuse-grid-space-xs-3 {
+    margin-left: var(--fuse-grid-col-3);
+}
+.fuse-grid-cell.fuse-grid-space-xs-4 {
+    margin-left: var(--fuse-grid-col-4);
+}
+.fuse-grid-cell.fuse-grid-space-xs-5 {
+    margin-left: var(--fuse-grid-col-5);
+}
+.fuse-grid-cell.fuse-grid-space-xs-6 {
+    margin-left: var(--fuse-grid-col-6);
+}
+.fuse-grid-cell.fuse-grid-space-xs-7 {
+    margin-left: var(--fuse-grid-col-7);
+}
+.fuse-grid-cell.fuse-grid-space-xs-8 {
+    margin-left: var(--fuse-grid-col-8);
+}
+.fuse-grid-cell.fuse-grid-space-xs-9 {
+    margin-left: var(--fuse-grid-col-9);
+}
+.fuse-grid-cell.fuse-grid-space-xs-10 {
+    margin-left: var(--fuse-grid-col-10);
+}
+.fuse-grid-cell.fuse-grid-space-xs-11 {
+    margin-left: var(--fuse-grid-col-11);
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Show / Hide
+
+**  ********************************************************************************  */
+
+.hide-xs,
+.show-s,
+.show-m,
+.show-l,
+.show-xl,
+.show-xxl {
+    display: none;
+}
+.show-xs {
+    display: inherit;
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+   Responsive Image
+
+**  ********************************************************************************  */
+
+.fuse-responsive-image {
+	display: block;
+	width: 100%;
+	height: auto;
+	margin: 0;
+	padding: 0;
+}
+.fuse-responsive-image img {
+	display: block;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center center;
+	aspect-ratio: 1.4 / 1;
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Media queries - Small
+
+**  ********************************************************************************  */
+
+@media screen and (min-width: 576px) {
+    
+    /*  **********  Standard grid cells  **********  */
+    
+    .fuse-grid-cell.fuse-grid-cell-s-1 {
+        width: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-2 {
+        width: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-3 {
+        width: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-4 {
+        width: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-5 {
+        width: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-6 {
+        width: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-7 {
+        width: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-8 {
+        width: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-9 {
+        width: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-10 {
+        width: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-cell-s-11 {
+        width: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  **********  Cell spacers  **********  */
+    
+    .fuse-grid-cell.fuse-grid-space-s-1 {
+        margin-left: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-2 {
+        margin-left: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-3 {
+        margin-left: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-4 {
+        margin-left: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-5 {
+        margin-left: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-6 {
+        margin-left: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-7 {
+        margin-left: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-8 {
+        margin-left: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-9 {
+        margin-left: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-10 {
+        margin-left: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-space-s-11 {
+        margin-left: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  ********************************************************************************  **
+
+        Show / Hide
+    
+    **  ********************************************************************************  */
+    
+    .hide-s {
+        display: none;
+    }
+    .show-s {
+        display: inherit;
+    }
+    
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Media queries - Medium
+
+**  ********************************************************************************  */
+
+@media screen and (min-width: 768px) {
+    
+    :root {
+        
+        --fuse-padding-base: 10px;
+        
+    }
+    
+    
+    
+    
+    
+    /*  **********  Standard grid cells  **********  */
+    
+    .fuse-grid-cell.fuse-grid-cell-m-1 {
+        width: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-2 {
+        width: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-3 {
+        width: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-4 {
+        width: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-5 {
+        width: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-6 {
+        width: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-7 {
+        width: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-8 {
+        width: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-9 {
+        width: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-10 {
+        width: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-cell-m-11 {
+        width: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  **********  Cell spacers  **********  */
+    
+    .fuse-grid-cell.fuse-grid-space-m-1 {
+        margin-left: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-2 {
+        margin-left: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-3 {
+        margin-left: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-4 {
+        margin-left: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-5 {
+        margin-left: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-6 {
+        margin-left: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-7 {
+        margin-left: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-8 {
+        margin-left: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-9 {
+        margin-left: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-10 {
+        margin-left: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-space-m-11 {
+        margin-left: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  ********************************************************************************  **
+
+        Show / Hide
+    
+    **  ********************************************************************************  */
+    
+    .hide-m {
+        display: none;
+    }
+    .show-m {
+        display: inherit;
+    }
+    
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Media queries - Large
+
+**  ********************************************************************************  */
+
+@media screen and (min-width: 992px) {
+    
+    :root {
+        
+        --fuse-padding-base: 15px;
+        
+    }
+    
+    
+    
+    
+    /*  **********  Standard grid cells  **********  */
+
+    .fuse-grid-cell.fuse-grid-cell-l-1 {
+        width: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-2 {
+        width: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-3 {
+        width: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-4 {
+        width: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-5 {
+        width: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-6 {
+        width: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-7 {
+        width: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-8 {
+        width: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-9 {
+        width: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-10 {
+        width: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-cell-l-11 {
+        width: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  **********  Cell spacers  **********  */
+    
+    .fuse-grid-cell.fuse-grid-space-l-1 {
+        margin-left: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-2 {
+        margin-left: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-3 {
+        margin-left: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-4 {
+        margin-left: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-5 {
+        margin-left: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-6 {
+        margin-left: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-7 {
+        margin-left: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-8 {
+        margin-left: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-9 {
+        margin-left: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-10 {
+        margin-left: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-space-l-11 {
+        margin-left: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  ********************************************************************************  **
+
+        Show / Hide
+    
+    **  ********************************************************************************  */
+    
+    .hide-l {
+        display: none;
+    }
+    .show-l {
+        display: inherit;
+    }
+    
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Media queries - Extra Large
+
+**  ********************************************************************************  */
+
+@media screen and (min-width: 1200px) {
+    
+    /*  **********  Standard grid cells  **********  */
+
+    .fuse-grid-cell.fuse-grid-cell-xl-1 {
+        width: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-2 {
+        width: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-3 {
+        width: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-4 {
+        width: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-5 {
+        width: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-6 {
+        width: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-7 {
+        width: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-8 {
+        width: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-9 {
+        width: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-10 {
+        width: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xl-11 {
+        width: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  **********  Cell spacers  **********  */
+    
+    .fuse-grid-cell.fuse-grid-space-xl-1 {
+        margin-left: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-2 {
+        margin-left: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-3 {
+        margin-left: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-4 {
+        margin-left: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-5 {
+        margin-left: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-6 {
+        margin-left: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-7 {
+        margin-left: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-8 {
+        margin-left: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-9 {
+        margin-left: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-10 {
+        margin-left: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-space-xl-11 {
+        margin-left: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  ********************************************************************************  **
+
+        Show / Hide
+    
+    **  ********************************************************************************  */
+    
+    .hide-xl {
+        display: none;
+    }
+    .show-xl {
+        display: inherit;
+    }
+    
+}
+
+
+
+
+/*  ********************************************************************************  **
+
+    Media queries - Extra Extra Large
+
+**  ********************************************************************************  */
+
+@media screen and (min-width: 1450px) {
+    
+    /*  **********  Standard grid cells  **********  */
+
+    .fuse-grid-cell.fuse-grid-cell-xxl-1 {
+        width: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-2 {
+        width: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-3 {
+        width: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-4 {
+        width: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-5 {
+        width: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-6 {
+        width: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-7 {
+        width: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-8 {
+        width: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-9 {
+        width: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-10 {
+        width: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-cell-xxl-11 {
+        width: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  **********  Cell spacers  **********  */
+    
+    .fuse-grid-cell.fuse-grid-space-xxl-1 {
+        margin-left: var(--fuse-grid-col-1);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-2 {
+        margin-left: var(--fuse-grid-col-2);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-3 {
+        margin-left: var(--fuse-grid-col-3);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-4 {
+        margin-left: var(--fuse-grid-col-4);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-5 {
+        margin-left: var(--fuse-grid-col-5);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-6 {
+        margin-left: var(--fuse-grid-col-6);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-7 {
+        margin-left: var(--fuse-grid-col-7);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-8 {
+        margin-left: var(--fuse-grid-col-8);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-9 {
+        margin-left: var(--fuse-grid-col-9);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-10 {
+        margin-left: var(--fuse-grid-col-10);
+    }
+    .fuse-grid-cell.fuse-grid-space-xxl-11 {
+        margin-left: var(--fuse-grid-col-11);
+    }
+    
+    
+    
+    
+    /*  ********************************************************************************  **
+
+        Show / Hide
+    
+    **  ********************************************************************************  */
+    
+    .hide-xxl {
+        display: none;
+    }
+    .show-xxl {
+        display: inherit;
+    }
+    
+}

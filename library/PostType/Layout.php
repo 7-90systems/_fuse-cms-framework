@@ -33,7 +33,7 @@
          *  Object constructor.
          */
         public function __construct () {
-            parent::__construct ('fuse_layouts', __ ('Layout', 'fuse'), __ ('Layouts', 'fuse'), array (
+            parent::__construct ('fuse_layouts', 'Layout', 'Layouts', array (
                 'public' => false,
                 'publicly_queryable' => false,
                 'show_ui' => true,
@@ -42,11 +42,15 @@
                 'rewrite' => false,
                 'supports' => array (
                     'title'
-                )
+                ),
+                'text_domain' => 'fuse'
             ));
             
             // Add thea ction to save the post layuout values.
             add_action ('save_post', array ($this, 'savePostLayout'));
+            
+            // Add our layout chooer post types separately
+            add_action ('add_meta_boxes', array ($this, 'addLayoutMetaBoxes'));
         } // __construct ()
         
         
@@ -59,7 +63,12 @@
             add_meta_box ('fuse_layout_parts_meta', __ ('Display Areas', 'fuse'), array ($this, 'partsMeta'), $this->getSlug (), 'normal', 'default');
             add_meta_box ('fuse_layout_defaults_meta', __ ('Set Layout Defaults', 'fuse'), array ($this, 'defaultsMeta'), $this->getSlug (), 'normal', 'default');
             add_meta_box ('fuse_layout_advanced_meta', __ ('Advanced Layout Options', 'fuse'), array ($this, 'advancedMeta'), $this->getSlug (), 'normal', 'default');
-
+        } // addMetaBoxes ()
+        
+        /**
+         *  Add the meta boxes for the layout chooser.
+         */
+        public function addLayoutMetaBoxes () {
             // Let each public post type select their layout individually
             $public_post_types = get_post_types (array (
                 'public' => true
@@ -68,7 +77,7 @@
             foreach ($public_post_types as $type) {
                 add_meta_box ('fuse_post_layout_meta', __ ('Layout', 'fuse'), array ($this, 'postLayoutMeta'), $type, 'side', 'default');
             } // foreach ()
-        } // addMetaBoxes ()
+        } // addLayoutMetaBoxes ()
         
         /**
          *  Set up the display areas meta box.

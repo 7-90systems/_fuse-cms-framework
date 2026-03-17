@@ -16,12 +16,12 @@
      *  @filter fuse_sidebars Set up sidebars to be registered.
      *  @filter fuse_image_sizes Set up the additional image sizes.
      *  @filter fuse_register_shortcodes Set up the shortcodes to register.
-     *  @filter fuse_before_enqueue_css Run before CSS is enqueued.
-     *  @filter fuse_after_enqueue_css Run after CSS is enqueued
-     *  @filter fuse_before_enqueue_javascript Run before JavaScript is enqueued.
-     *  @filter fuse_after_enqueue_javascript Run after JavaScript is enqueued
-     *  @filter fuse_block_patterns Add block pattern objects to be registered.
-     *  @fitler fuse_gutenberg_stylesheets Filter the list of CSS stylesheets for the Gutenberg editor.
+     *  
+     *  @action fuse_before_enqueue_css Run before CSS is enqueued.
+     *  @action fuse_after_enqueue_css Run after CSS is enqueued
+     *  @action fuse_before_enqueue_javascript Run before JavaScript is enqueued.
+     *  @action fuse_after_enqueue_javascript Run after JavaScript is enqueued
+     *  @action fuse_gutenberg_stylesheets Filter the list of CSS stylesheets for the Gutenberg editor.
      */
     
     namespace Fuse\Setup;
@@ -58,6 +58,9 @@
             // Theme Supports
             add_action ('after_setup_theme', array ($this, 'setThemeSupports'));
             
+            // Register assets
+            $assets = new Assets ();
+            
             // JavaScript and CSS files
             add_action ('wp_enqueue_scripts', array ($this, 'wpEnqueueScripts'));
             add_action ('login_enqueue_scripts', array ($this, 'loginEnqueueScripts'));
@@ -68,6 +71,11 @@
             
             $this->_css_enqueue = new Theme\Enqueue\Css ();
             $this->_javascript_enqueue = new Theme\Enqueue\JavaScript ();
+            
+            // Are we auto-loading fonts?
+            if (get_fuse_option ('web_fonts', false) == 'yes') {
+                $fonts = Theme\Font::getInstance ();
+            } // if ()
             
             // Menus
             add_action ('after_setup_theme', array ($this, 'registerNavMenus'));
@@ -87,12 +95,6 @@
             // Set up the admin form tags
             add_action ('post_edit_form_tag', array ($this, 'postEditFormTag'));
             
-            // Register assets
-            $assets = new Assets ();
-            
-            // Register our block patterns.
-            add_action ('init', array ($this, 'registerBlockPatterns'));
-            
             // Remove extraneous <p> tags from shortcodes
             add_filter ('the_content', array ($this, 'removeShortcodeP'), PHP_INT_MAX);
             
@@ -101,6 +103,11 @@
             
             // Set up our theme features
             add_action ('after_setup_theme', array ($this, 'setupThemeFeatures'));
+            
+            // Add our header and footer scripts to the site.
+            add_action ('wp_head', array ($this, 'wpHead'));
+            add_action ('wp_body_open', array ($this, 'wpBodyOpen'));
+            add_action ('wp_footer', array ($this, 'wpFooter'));
         } // __construct ()
         
         
@@ -155,19 +162,6 @@
             
             $deps = array ();
             
-            // Set up our assets
-            wp_register_style ('mmenulight', FUSE_BASE_URL.'/assets/external/mmenu-light-master/dist/mmenu-light.css');
-            wp_register_style ('superfish', FUSE_BASE_URL.'/assets/external/superfish-master/dist/css/superfish.css');
-            wp_register_style ('colorbox', FUSE_BASE_URL.'/assets/external/colorbox-master/example1/colorbox.css');
-            wp_register_style ('slick', FUSE_BASE_URL.'/assets/external/slick-1.8.1/slick/slick.css');
-            
-            if (defined ('WP_DEBUG') && WP_DEBUG === true) {
-                wp_register_style ('bxslider', FUSE_BASE_URL.'/assets/external/bxslider-4-4.2.12/dist/jquery.bxslider.css');
-            } // if ()
-            else {
-                wp_register_style ('bxslider', FUSE_BASE_URL.'/assets/external/bxslider-4-4.2.12/dist/jquery.bxslider.min.css');
-            } // else
-            
             $theme_base = trailingslashit (get_stylesheet_directory_uri ());
             
             // Are we using a child theme?
@@ -214,24 +208,7 @@
          */
         protected function _enqueueJavaScript () {
             do_action ('fuse_before_enqueue_javascript');
-            
-            // Set up our assets
-            wp_register_script ('mmenulight', FUSE_BASE_URL.'/assets/external/mmenu-light-master/dist/mmenu-light.js', array ('jquery'));
-            wp_register_script ('hoverintent', FUSE_BASE_URL.'/assets/external/superfish-master/dist/js/hoverIntent.js', array ('jquery'));
-            
-            if (defined ('WP_DEBUG') && WP_DEBUG === true) {
-                wp_register_script ('bxslider', FUSE_BASE_URL.'/assets/external/bxslider-4-4.2.12/dist/jquery.bxslider.js', array ('jquery'));
-                wp_register_script ('superfish', FUSE_BASE_URL.'/assets/external/superfish-master/dist/js/superfish.js', array ('jquery', 'hoverintent'));
-                wp_register_script ('colorbox', FUSE_BASE_URL.'/assets/external/colorbox-master/jquery.colorbox.js', array ('jquery'));
-                wp_register_script ('slick', FUSE_BASE_URL.'/assets/external/slick-1.8.1/slick/slick.js', array ('jquery'));
-            } // if ()
-            else {
-                wp_register_script ('bxslider', FUSE_BASE_URL.'/assets/external/bxslider-4-4.2.12/dist/jquery.bxslider.min.js', array ('jquery'));
-                wp_register_script ('superfish', FUSE_BASE_URL.'/assets/external/superfish-master/dist/js/superfish.min.js', array ('jquery', 'hoverintent'));
-                wp_register_script ('colorbox', FUSE_BASE_URL.'/assets/external/colorbox-master/jquery.colorbox-min.js', array ('jquery'));
-                wp_register_script ('slick', FUSE_BASE_URL.'/assets/external/slick-1.8.1/slick/slick.min.js', array ('jquery'));
-            } // else
-            
+
             $deps = array (
                 'jquery'
             );
@@ -406,9 +383,13 @@
             wp_register_style ('fuse_container', FUSE_BASE_URL.'/assets/css/admin/container.css', array (
                 'fuse-jquery-ui'
             ));
+            wp_register_style ('fuse_form_fields', FUSE_BASE_URL.'/assets/css/fields.css');
+            wp_register_style ('fuse_posttype_builder', FUSE_BASE_URL.'/assets/css/admin/posttype-builder.css');
             
             $deps = apply_filters ('fuse_css_admin_dependencies', array (
-                'fuse_container'
+                'fuse_container',
+                'fuse_form_fields',
+                'fuse_posttype_builder'
             ));
             
             $theme_base = trailingslashit (get_stylesheet_directory_uri ());
@@ -445,9 +426,18 @@
                 'jquery-ui-core',
                 'jquery-ui-datepicker'
             ));
+            wp_register_script ('fuse_form_fields', FUSE_BASE_URL.'/assets/javascript/fields.js', array (
+                'jquery',
+                'jquery-ui-sortable'
+            ));
+            wp_register_script ('fuse_posttype_builder', FUSE_BASE_URL.'/assets/javascript/admin/posttype-builder.js', array (
+                'jquery'
+            ));
             
             $deps = apply_filters ('fuse_javascript_admin_dependencies', array (
                 'fuse_container',
+                'fuse_form_fields',
+                'fuse_posttype_builder',
                 'jquery'
             ));
             
@@ -463,6 +453,8 @@
             } // if ()
             
             wp_enqueue_script ('fuse-core-admin', FUSE_BASE_URL.'/assets/javascript/admin.js', $deps);
+            
+            wp_enqueue_media ();
             
             wp_localize_script ('fuse-core-admin', 'fuse_admin', array (
                 'fuse_url_button_message' => __ ('Do you really want to enable this option? This may break your site if you are not sure of what you are setting here.', 'fuse'),
@@ -673,25 +665,6 @@
         
         
         /**
-         *  Register our block patterns. See the Fuse\Block\Pattern class for
-         *  more information.
-         */
-        public function registerBlockPatterns () {
-            $patterns = apply_filters ('fuse_block_patterns', array ());
-            
-            if (count ($patterns) == 0) {
-                $patterns [] = new Block\Pattern\Example ();
-            } // if ()
-            
-            foreach ($patterns as $pattern) {
-                $pattern->registerPattern ();
-            } // foreach ()
-        } // registerBlockPatterns ()
-        
-        
-        
-        
-        /**
          *  Remove extra <p> tags from shortcodes. WordPress adds these in
          *  and there's no fix in core for it.
          *
@@ -732,5 +705,29 @@
                 $themes_fragments = new Theme\Fragments ();
             } // if ()
         } // setupThemeFeatures ()
+        
+        
+        
+        
+        /**
+         *  Output the head scripts.
+         */
+        public function wpHead () {
+            echo stripslashes (get_fuse_option ('header_scripts'));
+        } // wpHead ()
+        
+        /**
+         *  Output the body scripts.
+         */
+        public function wpBodyOpen () {
+            echo stripslashes (get_fuse_option ('body_scripts'));
+        } // wpBodyOpen ()
+        
+        /**
+         *  Output the head scripts.
+         */
+        public function wpFooter () {
+            echo stripslashes (get_fuse_option ('footer_scripts'));
+        } // wpFooter ()
         
     } // class Theme

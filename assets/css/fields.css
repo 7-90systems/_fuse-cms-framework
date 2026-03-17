@@ -1,0 +1,143 @@
+/*  **********  Image Inputs  **********  */
+
+.fuse-input-image-container,
+.fuse-input-gallery-container {
+   --image-size: 80px;
+}
+.fuse-input-image-container .image-container,
+.fuse-input-gallery-container .gallery-images .image-container {
+   position: relative;
+   width: var(--image-size);
+   height: var(--image-size);
+}
+
+.fuse-input-image-container .image-container img,
+.fuse-input-gallery-container .gallery-images .image-container img {
+   position: relative;
+   z-index: 0;
+   width: var(--image-size);
+   height: var(--image-size);
+   display: block;
+}
+.fuse-input-image-container .image-container .delete,
+.fuse-input-gallery-container .gallery-images .image-container .delete {
+   position: absolute;
+   z-index: 1;
+   top: -5px;
+   right: -5px;
+   padding: 0;
+   border: 3px solid var(--wp--preset--color--cyan-bluish-gray);
+   border-radius: 6px;
+   color: var(--wp--preset--color--cyan-bluish-gray);
+   background: var(--wp--preset--color--white);
+   cursor: pointer;
+}
+.fuse-input-image-container .image-container .delete:hover,
+.fuse-input-gallery-container .gallery-images .image-container .delete:hover {
+   border-color: var(--wp--preset--color--vivid-red);
+   color: var(--wp--preset--color--vivid-red);
+}
+
+
+
+
+/*  **********  Gallery Inouts  **********  */
+
+.fuse-input-gallery-container .gallery-images {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 20px;
+   padding-bottom: 20px;
+}
+.fuse-input-gallery-container .gallery-images .image-container {
+   cursor: grab;
+}
+
+
+
+
+/*  **********  Form fieds  **********  */
+
+/*  ********************************************************************************  **
+
+    Image, gallery and file fields
+ 
+**  ********************************************************************************  */
+
+.fuse-gallery-field .gallery-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 20px;
+}
+.fuse-image-image,
+.fuse-gallery-image,
+.fuse-file-file {
+    width: 70px;
+    position: relative;
+}
+
+.fuse-image-image img,
+.fuse-gallery-image img {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: auto;
+    padding: 2px;
+    border: 2px solid var(--fuse-admin-colour-grey);
+    border-radius: 2px;
+}
+.fuse-gallery-image img {
+    cursor: grab;
+}
+.fuse-file-file a {
+   display: inline-block;
+}
+
+.fuse-image-image .dashicons,
+.fuse-gallery-image .dashicons,
+.fuse-file-file .dashicons {
+    position: absolute;
+    z-index: 1;
+    top: -10px;
+    right: -10px;
+    border: 2px solid var(--fuse-admin-colour-red);
+    border-radius: 4px;
+    color: var(--fuse-admin-colour-red);
+    background: #FFFFFF;
+    padding: 0;
+    cursor: pointer;
+    display: none;
+}
+.fuse-image-image:hover .dashicons,
+.fuse-gallery-image:hover .dashicons,
+.fuse-file-file:hover .dashicons {
+    display: inherit;
+}
+
+
+
+
+/*  **********  Icon Group Fields  *********  */
+
+.fuse-form-field-icongroup {
+    display: flex;
+    gap: 10px;
+}
+.fuse-form-field-icongroup a.fuse-form-field-icongroup-image {
+    text-decoration: none;
+    border: 2px solid var(--fuse-admin-colour-light-grey);
+    border-radius: 3px;
+    padding: 10px;
+}
+.fuse-form-field-icongroup a.fuse-form-field-icongroup-image.selected {
+    border-color: var(--fuse-admin-colour-green);
+}
+.fuse-form-field-icongroup a.fuse-form-field-icongroup-image span {
+    display: block;
+    width: 100px;
+    height: 100px;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+}

@@ -1,0 +1,32 @@
+.fuse-tabs-nav {
+    display: none;
+}
+
+.fuse-tab-nav-mobile {
+    display: block;
+}
+
+
+
+
+@media screen and (min-width: 996px) {
+    
+    .fuse-tab-nav-mobile {
+        display: none;
+    }
+    
+    .fuse-tabs-nav {
+        display: block;
+    }
+    
+    .fuse-tabs-nav ul,
+    .fuse-tabs-nav ul li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .fuse-tabs-nav ul {
+        display: flex;
+    }
+    
+}

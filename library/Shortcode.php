@@ -121,6 +121,7 @@
             foreach (apply_filters ('fuse_shortcode_template_locations', $template_locations, $template) as $loc) {
                 if ($template_found === false && file_exists ($loc)) {
                     $location = $loc;
+                    $template_found = true;
                 } // if ()
             } // foreach ()
             

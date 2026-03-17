@@ -169,8 +169,8 @@
      *  @return string|NULL Returns the image URL or a NULL value if no image
      *  is available.
      */
-    if (function_exists ('fuse_get_feature_image') === false) {
-        function fuse_get_feature_image ($post, $size = 'full', $fallback = true) {
+    if (function_exists ('fuse_get_feature_image_url') === false) {
+        function fuse_get_feature_image_url ($post, $size = 'full', $fallback = true) {
             $image = NULL;
             $image_id = 0;
             
@@ -179,7 +179,7 @@
             } // if ()
             
             return fuse_get_image_url ($image_id, $size, $fallback);
-        } // fuse_get_feature_image ()
+        } // fuse_get_feature_image_url ()
     } // if ()
     
     /**
@@ -194,7 +194,7 @@
      */
     if (function_exists ('fuse_get_image_url') === false) {
         function fuse_get_image_url ($image_id, $size = 'full', $fallback = false) {
-            $image = NULL;
+            $image = '';
             
             if ($image_id > 0) {
                 $image = wp_get_attachment_image_url ($image_id, $size);
@@ -214,4 +214,140 @@
             
             return $image;
         } // fuse_get_image_url ()
+    } // if ()
+    
+    
+    
+    
+    /**
+     *  Get the featured image of the given post. If no image is found a
+     *  fallback image can be given instead.
+     *
+     *  Fallback images must be located in your themes
+     *  '/assets/images/fallback/' folder with the same name as the image size.
+     *  As an example, if the size of 'bigsquare' the fallback will be called
+     *  'bigsquare.jpg'.
+     *
+     *  @param WP_Post|int $post The post object or ID.
+     *  @param string $size The image size.
+     *  @param bool $use_fallback Boolean 'true' to use a fallback image.
+     *
+     *  @return array|NULL Returns the image details or a NULL value if no image
+     *  is available.
+     */
+    if (function_exists ('fuse_get_feature_image') === false) {
+        function fuse_get_feature_image ($post, $size = 'full', $fallback = true) {
+            $image = NULL;
+            $image_id = 0;
+            
+            if (has_post_thumbnail ($post)) {
+                $image_id = get_post_thumbnail_id ($post);
+            } // if ()
+            
+            return fuse_get_image ($image_id, $size, $fallback);
+        } // fuse_get_feature_image ()
+    } // if ()
+    
+    /**
+     *  Get an image URL given the image ID or return a fallback if none exists.
+     *
+     *  @param int $image_id the ID of the image.
+     *  @param string $size The image size.
+     *  @param bool $use_fallback Boolean 'true' to use a fallback image.
+     *
+     *  @return array|NULL Returns the image details or a NULL value if no image
+     *  is available.
+     */
+    if (function_exists ('fuse_get_image') === false) {
+        function fuse_get_image ($image_id, $size = 'full', $fallback = false) {
+            $image = '';
+            
+            if ($image_id > 0) {
+                $image = wp_get_attachment_image_src ($image_id, $size);
+            } // if ()
+            
+            if (empty ($image) && $fallback !== false) {
+                $fallback_id = intval (get_fuse_option ('fallback_image'));
+                
+                if ($fallback_id > 0) {
+                    $image = wp_get_attachment_image_src ($fallback_id, $size);
+                } // if ()
+            } // if ()
+            
+            return $image;
+        } // fuse_get_image ()
+    } // if ()
+    
+    
+    
+    
+    /**
+     *  Output a list of FAQs from the given FAQ section.
+     *
+     *  @param int $section_id The FAQs section ID.
+     */
+    if (function_exists ('fuse_faqs_list') === false) {
+        function fuse_faqs_list ($section_id) {
+            $questions = get_posts (array (
+                'numberposts' => -1,
+                'post_type' => 'fuse_faq',
+                'orderby' => 'menu_order title',
+                'order' => 'ASC',
+                'tax_query' => array (
+                    'taxonomy' => 'fuse_faq-section',
+                    'field' => 'term_id',
+                    'terms' => $section_id
+                )
+            ));
+            
+            if (count ($questions) > 0) {
+                include (FUSE_BASE_URI.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'faqs.php');
+            } // if ()
+        } // fuse_faqs_list ()
+    } // if ()
+        
+        
+        
+        
+    /**
+     *  Output a responsive image.
+     *
+     *  @param array $args The arguemnts for the image
+     *      image       Image ID
+     *      size        WordPress image size
+     *      alt         ALT text
+     *      class       Additional CSS classes for the image figure tag
+     *      caption     Optional caption for the image
+     */
+    if (function_exists ('fuse_responsive_image') === false) {
+        function fuse_responsive_image ($args) {
+			$fallback = get_fuse_option ('fallback_image', 0);
+
+			$args = array_merge (array (
+				'image' => $fallback,
+				'size' => 'full',
+				'alt' => '',
+				'class' => '',
+				'caption' => ''
+			), $args);
+
+			if (empty ($args ['image'])) {
+				$args ['image'] = $fallback;
+			} // if ()
+
+			$image = wp_get_attachment_image_src ($args ['image'], $args ['size']);
+			?>
+				<figure class="fuse-responsive-image <?php esc_attr_e ($args ['class']); ?>">
+
+					<img src="<?php echo esc_url ($image [0]); ?>" alt="<?php esc_attr_e ($args ['alt']); ?>" width="<?php echo $image [1]; ?>" height="<?php echo $image [2]; ?>" />
+
+					<?php if (strlen ($args ['caption']) > 0): ?>
+
+						<figcaption><?php echo $args ['caption']; ?></figcaption>
+
+					<?php endif; ?>
+
+				</figure>
+			<?php
+		} // fuse_responsive_image ()
     } // if ()

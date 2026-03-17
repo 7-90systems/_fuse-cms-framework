@@ -88,6 +88,11 @@
                             $files [] = substr ($file->getPathname (), $path_string_length);
                         } // if ()
                     } // foreach ()
+					
+					/**
+					 *	Don't trust the file system to get the order right... yes it has happened!
+					 */
+					sort ($files);
                     
                     /**
                      *  For JavaScript files, the .js file is found after the .dep file, so reverse the array.
@@ -102,7 +107,7 @@
                         $id = str_replace (array ('\\', '/'), '_', $id);
                         
                         // We want to have all of the 'default' files included
-                        if ($id == 'default') {
+                        if ($id == 'default' && substr ($file, -4, 4) != '.dep') {
                             $id.= '_'.$default_index;
                             $default_index++;
                         } // if ()
@@ -117,6 +122,9 @@
                             if (array_key_exists ($id, $this->_files)) {
                                 $this->_files [$id]['deps'] = explode ('|', file_get_contents ($path.$file));
                             } // if ()
+                            elseif ($id == 'default' && array_key_exists ('default_1', $this->_files)) {
+                                $this->_files ['default_1']['deps'] = explode ('|', file_get_contents ($path.$file));
+                            } // elseif ()
                         } // elseif ()
                     } // foreach ()
                 } // if ()
@@ -189,7 +197,7 @@
                 $content = get_the_content ();
                 
                 foreach (parse_blocks ($content) as $block) {
-                    if (strlen ($block ['blockName']) > 0) {
+                    if (strlen ($block ['blockName'].'') > 0) {
                         $name = 'blocks_'.str_replace ('/', '_', $block ['blockName']);
                         
                         if (array_key_exists ($name, $this->_files)) {

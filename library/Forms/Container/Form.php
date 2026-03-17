@@ -90,7 +90,7 @@
         public function render ($output = false) {
             ob_start ();
             ?>
-                <form action="<?php esc_attr_e ($this->action); ?>" method="<?php esc_attr_e ($this->method); ?>" enctype="<?php esc_attr_e ($this->enctype); ?>">
+                <form class="fuse-form-container" action="<?php esc_attr_e ($this->action); ?>" method="<?php esc_attr_e ($this->method); ?>" enctype="<?php esc_attr_e ($this->enctype); ?>">
                     <?php
                         parent::render (true);
                         
@@ -129,7 +129,7 @@
                             $value = $values [$field->name];
                         } // if ()
     
-                        $field->setValue ($value, $values);
+                        $field->setValue ($value);
                     } // foreach ()
                     
                     foreach ($panel->getValues () as $key => $value) {

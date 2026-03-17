@@ -1,0 +1,68 @@
+/*  **********  Metabox  **********  */
+
+.fuse-builder-metabox {
+    border: 1px solid var(--fuse-admin-colour-grey);
+    border-radius: 3px;
+    margin: 0 0 10px 0;
+    padding: 5px;
+    background: #FFFFFF;
+}
+
+
+
+
+/*  **********  Heading areas  **********  */
+
+.fuse_builder_metabox_title,
+.fuse_builder_metabox_field_title {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 20px 20px 1fr 20px;
+    align-items: center;
+}
+.fuse_builder_metabox_title h4,
+.fuse_builder_metabox_field_title h4 {
+    margin: 0;
+}
+.fuse_builder_metabox_title a.move,
+.fuse_builder_metabox_field_title a.move {
+    cursor: n-resize;
+}
+.fuse_builder_metabox_title a.expand,
+.fuse_builder_metabox_field_title a.expand {
+    transition:
+        transform 0.2s;
+}
+.fuse_builder_metabox_title a.expand.open,
+.fuse_builder_metabox_field_title a.expand.open {
+    transform: rotate(180deg);
+}
+.fuse_builder_metabox_title a.delete,
+.fuse_builder_metabox_field_title a.delete {
+    color: var(--fuse-admin-colour-red);
+}
+
+
+
+
+/*  **********  Fields  **********  */
+
+.fuse_builder_metabox_fields .form-table th {
+    padding: 10px 5px 10px 0;
+    width: 100px;
+}
+.fuse_builder_metabox_fields .form-table td {
+    padding: 5px;
+}
+
+.fuse-builder-metabox-field {
+    border: 1px solid var(--fuse-admin-colour-grey);
+    background: var(--fuse-admin-colour-light-grey);
+    border-radius: 3px;
+    margin: 5px 0;
+    padding: 5px;
+}
+
+.fuse_builder_metabox_fields_list {
+    padding-left: 20px;
+}
