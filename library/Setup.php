@@ -43,7 +43,7 @@
             /**
              *  Load our post types
              */
-            add_action ('after_setup_theme', array ($this, 'loadPostTypes'));
+            add_action ('after_setup_theme', array ($this, 'loadPostTypes'), 1);
             
             /**
              *  Set up our various additions.
@@ -129,8 +129,6 @@
             
             // Sliders
             if (get_fuse_option ('sliders_posttype', false) == 'yes') {
-                
-                
                 $posttype_slider = new PostType\Slider ();
                 $posttype_slider_slide = new PostType\Slider\Slide ();
                 
