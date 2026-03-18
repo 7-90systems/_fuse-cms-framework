@@ -531,7 +531,8 @@
         public function registerShortcodes () {
             $shortcodes = apply_filters ('fuse_register_shortcodes', array (
                 new Shortcode\ContentBlock (),
-                new Shortcode\ContentColumn ()
+                new Shortcode\ContentColumn (),
+                new Shortcode\ContactField ()
             ));
             
             foreach ($shortcodes as $shortcode) {
