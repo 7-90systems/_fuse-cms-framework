@@ -80,14 +80,8 @@
          *
          *  @return Fuse\Form\Component\Field\Group This group object.
          */
-        public function setValue ($value, $values) {
-            foreach ($this->_fields as $field) {
-                $value = array_key_exists ($field->name, $values) ? $values [$field->name] : '';
-                
-                $field->setValue ($value, $values);
-            } // foreach ()
-            
-            return $value;
+        public function setValue ($value) {
+            return false;
         } // setValue ()
         
         

@@ -10,6 +10,8 @@
      *  @filter fuse_settings_form_email_sender_fields
      *  @filter fuse_settings_form_google_api_fields
      *  @filter fuse_settings_form_submit_text
+     *  @filter fuse_settings_contact_fields
+     *  @filter fuse_settings_contact_locations
      */
     
     namespace Fuse\Forms\Form;
@@ -71,7 +73,8 @@
                         'class' => 'full',
                         'description' => __ ('Please make sure that this Google API key is available for every Google API that is needed for your site.', 'fuse')
                     ))
-                )))
+                ))),
+                $this->_getContactPanel ()
             ));
             
             $args = array (
@@ -85,5 +88,60 @@
             
             parent::__construct ($panels, $args);
         } // __construct ()
+        
+        
+        
+        
+        /**
+         *  Get the contact details panel.
+         */
+        protected function _getContactPanel () {
+            $fields = array ();
+            
+            $contact_fields = apply_filters ('fuse_settings_contact_fields', array (
+                'phone' => array (
+                    'label' => __ ('Phone Number', 'fuse'),
+                    'type' => 'Text'
+                ),
+                'email' => array (
+                    'label' => __ ('Email Address', 'fuse'),
+                    'type' => 'Email'
+                ),
+                'street' => array (
+                    'label' => __ ('Street Address', 'fuse'),
+                    'type' => 'Textarea'
+                ),
+                'town' => array (
+                    'label' => __ ('Town/Suburb', 'fuse'),
+                    'type' => 'Text'
+                ),
+                'state' => array (
+                    'label' => __ ('State', 'fuse'),
+                    'type' => 'Text'
+                ),
+                'postcode' => array (
+                    'label' => __ ('Postcode', 'fuse'),
+                    'type' => 'Text'
+                )
+            ));
+            
+            $locations = apply_filters ('fuse_settings_contact_locations', array (
+                'default' => __ ('Default Location', 'm4')
+            ));
+            
+            foreach ($locations as $location_key => $location_label) {
+                $group_fields = array ();
+                
+                foreach ($contact_fields as $field_key => $field) {
+                    $field_type = '\\Fuse\\Forms\\Component\\Field\\'.$field ['type'];
+                    
+                    $group_fields [] = new $field_type ('contact_'.$location_key.'_'.$field_key, $field ['label'], get_fuse_option ('contact_'.$location_key.'_'.$field_key));
+                } // foreach ()
+                
+                $fields [] = new Component\Field\Group ('contact_'.$location_key, $location_label,$group_fields);
+            } // foreach ()
+            
+            return new Component\Panel ('contact_details', __ ('Contact Details', 'fuse'), $fields);
+        } // _getContactPanel ()
         
     } // class Settings

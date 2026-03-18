@@ -5,6 +5,8 @@
      *  @version 1.0
      *  
      *  This file contains our formatting functions.
+     *
+     *  @filter fuse_phone_number_link_remove
      */
     
     /**
@@ -70,4 +72,29 @@
                 return $attributes;
             } // else
         } // fuse_format_attributes ()
+    } // if ()
+    
+    /**
+     *  Fomat a phone number for a HTML link field.
+     *
+     *  @param string $phone The phone number to format.
+     *
+     *  @return string The formatted phone number.
+     */
+    if (function_exists ('fuse_format_phone_number_link') === false) {
+        function fuse_format_phone_number_link ($phone) {
+            // Remove bad characters
+            $remove = apply_filters ('fuse_phone_number_link_remove', array (
+                ' ',
+                '(',
+                ')',
+                '-'
+            ));
+            $phone = str_replace ($remove, '', $phone);
+            
+            // Remove alphabetical characters. eg: ext 43
+            $phone = preg_replace ('/[a-zA-Z].*/', '', $phone);
+            
+            return $phone;
+        } // fuse_format_phone_number_link ()
     } // if ()
