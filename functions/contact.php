@@ -13,7 +13,7 @@
      *  @return string The address data;
      */
     function fuse_get_contact_field ($field_name, $location = 'default') {
-        return get_fuse_option ('contact_'.$location.'_'.$name, '');
+        return get_fuse_option ('contact_'.$location.'_'.$field_name, '');
     } // fuse_get_contact_field ()
     
     /**
@@ -30,7 +30,7 @@
         $phone = fuse_get_contact_field ($field_name, $location);
         
         if (strlen ($phone) > 0 && $link === true) {
-            if (strlen ($link_text) > 0) {
+            if (strlen ($link_text) == 0) {
                 $link_text = $phone;
             } // if ()
             
@@ -54,7 +54,7 @@
         $phone = fuse_get_contact_field ($field_name, $location);
         
         if (strlen ($email) > 0 && $link === true) {
-            if (strlen ($link_text) > 0) {
+            if (strlen ($link_text) == 0) {
                 $link_text = $email;
             } // if ()
             

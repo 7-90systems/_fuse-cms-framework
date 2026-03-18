@@ -16,7 +16,7 @@
          *  Object constructor.
          */
         public function __construct () {
-            parent::__construct ('contact_field', 'content-field', array (
+            parent::__construct ('contact_field', 'contact-field', array (
                 'field' => '',
                 'location' => 'default',
                 'link_text' => '',
