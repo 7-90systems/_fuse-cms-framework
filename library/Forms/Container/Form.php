@@ -12,7 +12,7 @@
     use Fuse\Forms\Container;
     
     
-    class Form extends Container {
+    abstract class Form extends Container {
         
         /**
          *  @var string The form method. This deafaults to 'post'.
@@ -85,6 +85,16 @@
         
         
         /**
+         *  Get the panels for this form.
+         *
+         *  return @array An array of form panels.
+         */
+        abstract public function getPanels ();
+        
+        
+        
+        
+        /**
          *  Get the HTML code for this container.
          */
         public function render ($output = false) {
@@ -92,6 +102,7 @@
             ?>
                 <form class="fuse-form-container" action="<?php esc_attr_e ($this->action); ?>" method="<?php esc_attr_e ($this->method); ?>" enctype="<?php esc_attr_e ($this->enctype); ?>">
                     <?php
+                        $this->setItems ($this->getPanels ());
                         parent::render (true);
                         
                         wp_nonce_field ('fuse-forms', $this->id);
@@ -121,7 +132,7 @@
          */
         public function save ($values) {
             if ((empty ($this->_required_permission) === true || current_user_can ($this->_required_permission)) && wp_verify_nonce ($_REQUEST [$this->id], 'fuse-forms')) {
-                foreach ($this->_items as $panel) {
+                foreach ($this->getPanels () as $panel) {
                     foreach ($panel->getFields () as $field) {
                         $value = '';
                         
@@ -163,4 +174,4 @@
             return $this;
         } // save ()
         
-    } // class Form
+    } // abstract class Form

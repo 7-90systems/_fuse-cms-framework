@@ -37,7 +37,28 @@
                 $theme_style_options [] = new Component\Field\Toggle ('theme_css_woo', __ ('Disable WooCommerce stylesheets'), get_fuse_option ('theme_css_woo', false));
             } // if ()
             
-            $panels = apply_filters ('fuse_settings_form_panels', array (
+            
+            
+            $args = array (
+                'id' => 'fuse-settings-form',
+                'method' => 'post',
+                'action' => esc_url (admin_url ('admin.php?page=fusesettings')),
+                'action_bar' => new \Fuse\Forms\Component\ActionBar (array (
+                    new Component\Button (apply_filters ('fuse_settings_form_submit_text', __ ('Save settings', 'fuse')))
+                ))
+            );
+            
+            parent::__construct (array (), $args);
+        } // __construct ()
+        
+        
+        
+        
+        /**
+         *  Get the panels for this form.
+         */
+        public function getPanels () {
+           return apply_filters ('fuse_settings_form_panels', array (
                 new Component\Panel ('email_sender', __ ('Email Sender', 'fuse'), apply_filters ('fuse_settings_form_email_sender_fields', array (
                     new Component\Field\Text ('fuse_email_from_name', __ ('Send from name', 'fuse'), get_fuse_option ('fuse_email_from_name', get_bloginfo ('name')), array (
                         'placeholder' => 'Enter the senders name here',
@@ -75,19 +96,8 @@
                     ))
                 ))),
                 $this->_getContactPanel ()
-            ));
-            
-            $args = array (
-                'id' => 'fuse-settings-form',
-                'method' => 'post',
-                'action' => esc_url (admin_url ('admin.php?page=fusesettings')),
-                'action_bar' => new \Fuse\Forms\Component\ActionBar (array (
-                    new Component\Button (apply_filters ('fuse_settings_form_submit_text', __ ('Save settings', 'fuse')))
-                ))
-            );
-            
-            parent::__construct ($panels, $args);
-        } // __construct ()
+            )); 
+        } // getPanels ()
         
         
         
