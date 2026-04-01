@@ -35,6 +35,22 @@
                 $theme_style_options [] = new Component\Field\Toggle ('theme_css_woo', __ ('Disable WooCommerce stylesheets'), get_fuse_option ('theme_css_woo', false));
             } // if ()
             
+            $image_terms = NULL;
+            
+            if (get_fuse_option ('term_images', 0) == 'yes') {
+                $taxonomies = get_taxonomies (array (
+                    'public' => true
+                ), 'objects');
+                
+                $tax_fields = array ();
+                
+                foreach ($taxonomies as $tax) {
+                    $tax_fields [] = new Component\Field\Toggle ('tax_images_'.$tax->name, $tax->label, get_fuse_option ('tax_images_'.$tax->name, false));
+                } // foreach ()
+                
+                $image_terms = new Component\Field\Group ('taxonomys_for_images', __ ('Set taxonomies for featured images', 'fuse'), $tax_fields);
+            } // if ()
+            
             $panels = apply_filters ('fuse_settings_form_panels', array (
                 new Component\Panel ('email_sender', __ ('Email Sender', 'fuse'), apply_filters ('fuse_settings_form_email_sender_fields', array (
                     new Component\Field\Text ('fuse_email_from_name', __ ('Send from name', 'fuse'), get_fuse_option ('fuse_email_from_name', get_bloginfo ('name')), array (
@@ -54,7 +70,9 @@
                     new Component\Field\Toggle ('tabs_block', __ ('Enable Tabs editor block', 'fuse'), get_fuse_option ('tabs_block', false)),
                     new Component\Field\Toggle ('html_fragments', __ ('Enable HTML Fragments', 'fuse'), get_fuse_option ('html_fragments', false)),
                     new Component\Field\Toggle ('web_fonts', __ ('Auto-load web fonts', 'fuse'), get_fuse_option ('web_fonts', false)),
-                    new Component\Field\Image ('fallback_image', __ ('Fallback image', 'fuse'), get_fuse_option ('fallback_image', 0))
+                    new Component\Field\Image ('fallback_image', __ ('Fallback image', 'fuse'), get_fuse_option ('fallback_image', 0)),
+                    new Component\Field\Toggle ('term_images', __ ('Featured images for terms', 'fuse'), get_fuse_option ('term_images', false)),
+                    $image_terms
                 ))),
                 new Component\Panel ('development_features', __ ('Development Features', 'fuse'), apply_filters ('fuse_settings_form_development_features_fields', array (
                     new Component\Field\Toggle ('pagetype_builder', __ ('Enable Page Type Builder', 'fuse'), get_fuse_option ('pagetype_builder', false))

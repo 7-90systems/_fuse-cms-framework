@@ -77,6 +77,11 @@
                 $fonts = Theme\Font::getInstance ();
             } // if ()
             
+            // Are we adding taxonomy feature images?
+            if (get_fuse_option ('term_images', 'false') == 'yes') {
+                add_action ('init', array ($this, 'addTermImages'), PHP_INT_MAX);
+            }// if ()
+            
             // Menus
             add_action ('after_setup_theme', array ($this, 'registerNavMenus'));
             
@@ -260,6 +265,16 @@
                 wp_enqueue_style ($alias, $url);
             } // foreach ()
         } // gutenbergStyles ()
+        
+        
+        
+        
+        /**
+         *  This sets up our term featured images.
+         */
+        public function addTermImages () {
+            $taxonomy_images = new Theme\TaxonomyImages ();
+        } // addTermImages ()
         
         
         

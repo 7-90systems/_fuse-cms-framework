@@ -249,6 +249,23 @@
     } // if ()
     
     /**
+     *  Get the feature image for a term.
+     *
+     *  @param WP_Term|int $term The term or term ID.
+     *  @param string $size The image size.
+     *  @param bool $use_fallback Boolean 'true' to use a fallback image.
+     */
+    if (function_exists ('fuse_get_term_feature_image') === false) {
+        function fuse_get_term_feature_image ($term, $size = 'full', $fallback = true) {
+            if (is_numeric ($term) === false) {
+                $temr = $term->term_id;
+            } // if ()
+            
+            return fuse_get_image (get_term_meta ($term, 'fuse_term_featured_image', true), $size, $fallback);
+        } // fuse_get_term_feature_image ()
+    } // if ()
+    
+    /**
      *  Get an image URL given the image ID or return a fallback if none exists.
      *
      *  @param int $image_id the ID of the image.
