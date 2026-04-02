@@ -258,7 +258,7 @@
     if (function_exists ('fuse_get_term_feature_image') === false) {
         function fuse_get_term_feature_image ($term, $size = 'full', $fallback = true) {
             if (is_numeric ($term) === false) {
-                $temr = $term->term_id;
+                $term = $term->term_id;
             } // if ()
             
             return fuse_get_image (get_term_meta ($term, 'fuse_term_featured_image', true), $size, $fallback);
