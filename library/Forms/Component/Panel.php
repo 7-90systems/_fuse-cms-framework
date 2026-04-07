@@ -71,7 +71,9 @@
             $values = array ();
             
             foreach ($this->_fields as $field) {
-                $values = array_merge ($values, $field->getValues ());
+                if (empty ($field) === false) {
+                    $values = array_merge ($values, $field->getValues ());
+                } // if ()
             } // foreach ()
             
             return $values;
@@ -192,20 +194,22 @@
                         
                         <?php
                             foreach ($this->_fields as $field) {
-                                ?>
-                                    <div class="fuse-forms-panel-field-container">
-                                        <label for="<?php esc_attr_e ($field->getId ()); ?>"><?php echo $field->label; ?></label>
-                                        <div class="fuse-form-panel-field-block">
-                                            <?php
-                                                $field->render (true);
-                                            ?>
+                                if (empty ($field) === false) {
+                                    ?>
+                                        <div class="fuse-forms-panel-field-container">
+                                            <label for="<?php esc_attr_e ($field->getId ()); ?>"><?php echo $field->label; ?></label>
+                                            <div class="fuse-form-panel-field-block">
+                                                <?php
+                                                    $field->render (true);
+                                                ?>
+                                            </div>
+                                            <div class="fuse-form-panel-field-notice"></div>
+                                            <?php if (strlen ($field->description) > 0): ?>
+                                                <p class="fuse-field-description"><?php echo $field->description; ?></p>
+                                            <?php endif; ?>
                                         </div>
-                                        <div class="fuse-form-panel-field-notice"></div>
-                                        <?php if (strlen ($field->description) > 0): ?>
-                                            <p class="fuse-field-description"><?php echo $field->description; ?></p>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php
+                                    <?php
+                                } // if ()
                             } // foreach ()
                         ?>
                         

@@ -123,13 +123,15 @@
             if ((empty ($this->_required_permission) === true || current_user_can ($this->_required_permission)) && wp_verify_nonce ($_REQUEST [$this->id], 'fuse-forms')) {
                 foreach ($this->_items as $panel) {
                     foreach ($panel->getFields () as $field) {
-                        $value = '';
-                        
-                        if (array_key_exists ($field->name, $values)) {
-                            $value = $values [$field->name];
+                        if (empty ($field) === false) {
+                            $value = '';
+                            
+                            if (array_key_exists ($field->name, $values)) {
+                                $value = $values [$field->name];
+                            } // if ()
+        
+                            $field->setValue ($value);
                         } // if ()
-    
-                        $field->setValue ($value);
                     } // foreach ()
                     
                     foreach ($panel->getValues () as $key => $value) {

@@ -14,6 +14,9 @@
     
     abstract class Field {
         
+        protected $_name;
+        protected $_value;
+        
         /**
          *  Object constructor.
          *
