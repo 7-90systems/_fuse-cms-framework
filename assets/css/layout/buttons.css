@@ -71,6 +71,7 @@ button:hover,
 .wp-block-button .wp-block-button__link:hover,
 input[type="submit"]:hover  {
     background: var(--fuse-button-colour-background-hover);
+    color: var(--fuse-button-colour-text);
 }
 a.button.shadow,
 button.shadow,
