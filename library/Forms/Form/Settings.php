@@ -10,6 +10,9 @@
      *  @filter fuse_settings_form_email_sender_fields
      *  @filter fuse_settings_form_google_api_fields
      *  @filter fuse_settings_form_submit_text
+     *  @fitler fuse_contact_locations
+     *  @filter fuse_contact_location_fields
+     *  @filter fuse_contact_social_media_links
      */
     
     namespace Fuse\Forms\Form;
@@ -52,6 +55,7 @@
             } // if ()
             
             $panels = apply_filters ('fuse_settings_form_panels', array (
+                $this->_getContactPanel (),
                 new Component\Panel ('email_sender', __ ('Email Sender', 'fuse'), apply_filters ('fuse_settings_form_email_sender_fields', array (
                     new Component\Field\Text ('fuse_email_from_name', __ ('Send from name', 'fuse'), get_fuse_option ('fuse_email_from_name', get_bloginfo ('name')), array (
                         'placeholder' => 'Enter the senders name here',
@@ -103,5 +107,48 @@
             
             parent::__construct ($panels, $args);
         } // __construct ()
+        
+        
+        
+        
+        /**
+         *  Get the contact details panel.
+         */
+        protected function _getContactPanel () {
+            $locations = apply_filters ('fuse_contact_locations', array (
+                'default' => __ ('Contact details', 'fuse')
+            ));
+            
+            $location_panels = array ();
+            
+            foreach ($locations as $key => $label) {
+                $location_panels [] = new Component\Field\Group ('contact_location_'.$key, $label, $this->_getContactLocationFields ($key));
+            } // foreach ()
+            
+            $location_panels [] = new Component\Field\Group ('contact_social', __ ('Social Media Links', 'fuse'), apply_filters ('fuse_contact_social_media_links', array (
+                new Component\Field\Url ('contact_social_facebook', __ ('Facebook', 'fuse'), get_fuse_option ('contact_social_facebook')),
+                new Component\Field\Url ('contact_social_instagram', __ ('Instagram', 'fuse'), get_fuse_option ('contact_social_instagram')),
+                new Component\Field\Url ('contact_social_tiktok', __ ('TikTok', 'fuse'), get_fuse_option ('contact_social_tiktok')),
+                new Component\Field\Url ('contact_social_youtube', __ ('YouTube', 'fuse'), get_fuse_option ('contact_social_youtube')),
+                new Component\Field\Url ('contact_social_linkedin', __ ('Linkedin', 'fuse'), get_fuse_option ('contact_social_linkedin'))
+            )));
+            
+            return new Component\Panel ('contact_details', __ ('Contact Details', 'fuse'), $location_panels);
+        } // _getContactPanel ()
+        
+        /**
+         *  Get the fields for the given location.
+         */
+        protected function _getContactLocationFields ($location) {
+            return apply_filters ('fuse_contact_location_fields', array (
+                new Component\Field\Text ('contact_phone_'.$location, __ ('Phone number', 'fuse'), get_fuse_option ('contact_phone_'.$location)),
+                new Component\Field\Email ('contact_email_'.$location, __ ('Email address', 'fuse'), get_fuse_option ('contact_email_'.$location)),
+                new Component\Field\Textarea ('contact_street_'.$location, __ ('Street address', 'fuse'), get_fuse_option ('contact_street_'.$location)),
+                new Component\Field\Text ('contact_town_'.$location, __ ('Suburb/Town', 'fuse'), get_fuse_option ('contact_town_'.$location)),
+                new Component\Field\Text ('contact_state_'.$location, __ ('State', 'fuse'), get_fuse_option ('contact_state_'.$location)),
+                new Component\Field\Text ('contact_postcode_'.$location, __ ('Postcode', 'fuse'), get_fuse_option ('contact_postcode_'.$location)),
+                new Component\Field\Text ('contact_country_'.$location, __ ('Country', 'fuse'), get_fuse_option ('contact_country_'.$location))
+            ), $location);
+        } // _getContactLocationFields ()
         
     } // class Settings

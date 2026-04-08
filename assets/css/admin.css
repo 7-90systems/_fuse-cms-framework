@@ -122,3 +122,12 @@ table.fuse-post-type-table tr {
    color: var(--fuse-admin-colour-red);
    cursor: pointer;
 }
+
+
+
+
+/*  *********  Forms  *********  */
+
+.fuse-forms-panel-field-container > label {
+   font-weight: bold;
+}
