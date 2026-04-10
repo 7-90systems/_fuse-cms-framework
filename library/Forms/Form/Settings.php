@@ -24,10 +24,17 @@
     
     class Settings extends Form {
         
+        protected $_gsap_modules;
+        
+        
+        
+        
         /**
          *  Object constructor.
          */
         public function __construct () {
+            $gsap_modules = array ();
+            
             $theme_style_options = array (
                     new Component\Field\Toggle ('theme_css_layout', __ ('Enable layout CSS styles'), get_fuse_option ('theme_css_layout', false)),
                     new Component\Field\Toggle ('theme_css_buttons', __ ('Enable button CSS styles'), get_fuse_option ('theme_css_buttons', false)),
@@ -36,22 +43,6 @@
             
             if (function_exists ('WC')) {
                 $theme_style_options [] = new Component\Field\Toggle ('theme_css_woo', __ ('Disable WooCommerce stylesheets'), get_fuse_option ('theme_css_woo', false));
-            } // if ()
-            
-            $image_terms = NULL;
-            
-            if (get_fuse_option ('term_images', 0) == 'yes') {
-                $taxonomies = get_taxonomies (array (
-                    'public' => true
-                ), 'objects');
-                
-                $tax_fields = array ();
-                
-                foreach ($taxonomies as $tax) {
-                    $tax_fields [] = new Component\Field\Toggle ('tax_images_'.$tax->name, $tax->label, get_fuse_option ('tax_images_'.$tax->name, false));
-                } // foreach ()
-                
-                $image_terms = new Component\Field\Group ('taxonomys_for_images', __ ('Set taxonomies for featured images', 'fuse'), $tax_fields);
             } // if ()
             
             $panels = apply_filters ('fuse_settings_form_panels', array (
@@ -74,9 +65,11 @@
                     new Component\Field\Toggle ('tabs_block', __ ('Enable Tabs editor block', 'fuse'), get_fuse_option ('tabs_block', false)),
                     new Component\Field\Toggle ('html_fragments', __ ('Enable HTML Fragments', 'fuse'), get_fuse_option ('html_fragments', false)),
                     new Component\Field\Toggle ('web_fonts', __ ('Auto-load web fonts', 'fuse'), get_fuse_option ('web_fonts', false)),
-                    new Component\Field\Image ('fallback_image', __ ('Fallback image', 'fuse'), get_fuse_option ('fallback_image', 0)),
                     new Component\Field\Toggle ('term_images', __ ('Featured images for terms', 'fuse'), get_fuse_option ('term_images', false)),
-                    $image_terms
+                    $this->_getImageTerms (),
+                    new Component\Field\Toggle ('gsap', __ ('Add GSAP animations', 'fuse'), get_fuse_option ('gsap', false)),
+                    $this->_getGSAPModules (),
+                    new Component\Field\Image ('fallback_image', __ ('Fallback image', 'fuse'), get_fuse_option ('fallback_image', 0))
                 ))),
                 new Component\Panel ('development_features', __ ('Development Features', 'fuse'), apply_filters ('fuse_settings_form_development_features_fields', array (
                     new Component\Field\Toggle ('pagetype_builder', __ ('Enable Page Type Builder', 'fuse'), get_fuse_option ('pagetype_builder', false))
@@ -150,5 +143,53 @@
                 new Component\Field\Text ('contact_country_'.$location, __ ('Country', 'fuse'), get_fuse_option ('contact_country_'.$location))
             ), $location);
         } // _getContactLocationFields ()
+        
+        /**
+         *  Get the image terms.
+         */
+        protected function _getImageTerms () {
+            $image_terms = NULL;
+            
+            if (get_fuse_option ('term_images', 0) == 'yes') {
+                $taxonomies = get_taxonomies (array (
+                    'public' => true
+                ), 'objects');
+                
+                $tax_fields = array ();
+                
+                foreach ($taxonomies as $tax) {
+                    $tax_fields [] = new Component\Field\Toggle ('tax_images_'.$tax->name, $tax->label, get_fuse_option ('tax_images_'.$tax->name, false));
+                } // foreach ()
+                
+                $image_terms = new Component\Field\Group ('taxonomys_for_images', __ ('Set taxonomies for featured images', 'fuse'), $tax_fields, array (
+                    'columns' => 4
+                ));
+            } // if ()
+            
+            return $image_terms;
+        } // _getImageTerms ()
+        
+        /**
+         *  Get the image terms.
+         */
+        protected function _getGSAPModules () {
+            $modules = NULL;
+            
+            if (get_fuse_option ('gsap', 0) == 'yes') {
+                $settings = \Fuse\Settings\Form\GSAP::getInstance ();
+                
+                $fields = array ();
+                
+                foreach ($settings->modules as $key => $label) {
+                    $fields [] = new Component\Field\Toggle ('gsap_module_'.$key, $label, get_fuse_option ('gsap_module_'.$key, false));
+                } // foreach ()
+                
+                $modules = new Component\Field\Group ('gsap_modules', __ ('Enable optional GSAP modules', 'fuse'), $fields, array (
+                    'columns' => 4
+                ));
+            } // if ()
+            
+            return $modules;
+        } // _getGSAPModules ()
         
     } // class Settings

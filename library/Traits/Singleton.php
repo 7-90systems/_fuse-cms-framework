@@ -47,7 +47,7 @@
          */
         static public function getInstance () {
             if (is_null (self::$_instance)) {
-                $class = get_class ();
+                $class = static::class;
                 self::$_instance = new $class ();
             } // if ()
             
