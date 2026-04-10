@@ -33,8 +33,6 @@
          *  Object constructor.
          */
         public function __construct () {
-            $gsap_modules = array ();
-            
             $theme_style_options = array (
                     new Component\Field\Toggle ('theme_css_layout', __ ('Enable layout CSS styles'), get_fuse_option ('theme_css_layout', false)),
                     new Component\Field\Toggle ('theme_css_buttons', __ ('Enable button CSS styles'), get_fuse_option ('theme_css_buttons', false)),
