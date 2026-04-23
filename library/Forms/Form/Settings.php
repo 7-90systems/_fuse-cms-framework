@@ -27,18 +27,6 @@
          *  Object constructor.
          */
         public function __construct () {
-            $theme_style_options = array (
-                    new Component\Field\Toggle ('theme_css_layout', __ ('Enable layout CSS styles'), get_fuse_option ('theme_css_layout', false)),
-                    new Component\Field\Toggle ('theme_css_buttons', __ ('Enable button CSS styles'), get_fuse_option ('theme_css_buttons', false)),
-                    new Component\Field\Toggle ('theme_css_block', __ ('Disable Gutenberg block editor stylesheets'), get_fuse_option ('theme_css_block', false))
-            );
-            
-            if (function_exists ('WC')) {
-                $theme_style_options [] = new Component\Field\Toggle ('theme_css_woo', __ ('Disable WooCommerce stylesheets'), get_fuse_option ('theme_css_woo', false));
-            } // if ()
-            
-            
-            
             $args = array (
                 'id' => 'fuse-settings-form',
                 'method' => 'post',
@@ -58,7 +46,17 @@
          *  Get the panels for this form.
          */
         public function getPanels () {
-           return apply_filters ('fuse_settings_form_panels', array (
+            $theme_style_options = array (
+                new Component\Field\Toggle ('theme_css_layout', __ ('Enable layout CSS styles'), get_fuse_option ('theme_css_layout', false)),
+                new Component\Field\Toggle ('theme_css_buttons', __ ('Enable button CSS styles'), get_fuse_option ('theme_css_buttons', false)),
+                new Component\Field\Toggle ('theme_css_block', __ ('Disable Gutenberg block editor stylesheets'), get_fuse_option ('theme_css_block', false))
+            );
+            
+            if (function_exists ('WC')) {
+                $theme_style_options [] = new Component\Field\Toggle ('theme_css_woo', __ ('Disable WooCommerce stylesheets'), get_fuse_option ('theme_css_woo', false));
+            } // if ()
+            
+            return apply_filters ('fuse_settings_form_panels', array (
                 new Component\Panel ('email_sender', __ ('Email Sender', 'fuse'), apply_filters ('fuse_settings_form_email_sender_fields', array (
                     new Component\Field\Text ('fuse_email_from_name', __ ('Send from name', 'fuse'), get_fuse_option ('fuse_email_from_name', get_bloginfo ('name')), array (
                         'placeholder' => 'Enter the senders name here',
