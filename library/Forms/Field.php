@@ -13,6 +13,16 @@
     
     
     abstract class Field {
+
+        /**
+         *  @var string The name for the field.
+         */
+        protected $_name;
+
+        /**
+         *  @var string The fields value.
+         */
+        protected $_value;
         
         /**
          *  Object constructor.
