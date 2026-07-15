@@ -31,6 +31,7 @@
          */
         public function __construct () {
             add_filter ('pre_set_site_transient_update_plugins', array ($this, 'checkForPluginUpdate'));
+            add_filter ('pre_set_site_transient_update_plugins', array ($this, 'checkForTranslations'), 11);
             add_filter ('plugins_api', array ($this, 'pluginApiCall'), 10, 3);
         } // __construct ()
         
@@ -52,9 +53,11 @@
                     );
                     $request_string = array (
                         'body' => array (
-                            'action' => 'basic_check', 
+                            'action' => 'basic_check',
                             'request' => serialize ($args),
-                            'api-key' => md5 (get_bloginfo ('url'))
+                            'api-key' => md5 (get_bloginfo ('url')),
+                            'wp-version' => $wp_version,
+                            'php-version' => phpversion ()
                         ),
                         'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url'),
                         'timeout' => 60,
@@ -102,16 +105,23 @@
             
             $result = false;
             
-            foreach ($this->getPlugins () as $slug => $update_server) {
-                if (property_exists ($args, 'slug') && $slug == $args->slug) {
-                    $plugin_data = get_plugin_data (trailingslashit (WP_PLUGIN_DIR).$slug);
+            foreach ($this->getPlugins () as $plugin_file => $update_server) {
+                // WordPress asks for plugin information by the plugin's folder
+                // slug, but the update server identifies a plugin by its
+                // "folder/file.php" path (as the update check does), so match on
+                // either and send the full path the server expects.
+                if (property_exists ($args, 'slug') && (dirname ($plugin_file) == $args->slug || $plugin_file == $args->slug)) {
+                    $plugin_data = get_plugin_data (trailingslashit (WP_PLUGIN_DIR).$plugin_file);
+                    $args->slug = $plugin_file;
                     $args->version = $plugin_data ['Version'];
                     
                     $request_string = array (
                         'body' => array (
-                            'action' => $action, 
+                            'action' => $action,
                             'request' => serialize ($args),
-                            'api-key' => md5 (get_bloginfo ('url'))
+                            'api-key' => md5 (get_bloginfo ('url')),
+                            'wp-version' => $wp_version,
+                            'php-version' => phpversion ()
                         ),
                         'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url'),
                         'timeout' => 60,
@@ -180,5 +190,99 @@
             
             return $this->_plugins;
         } // getPlugins ()
-        
+
+
+
+
+        /**
+         *  Ask each update server for available language packs and feed the ones
+         *  this site wants (and that are newer than what is installed) into the
+         *  update transient's translations list.
+         */
+        public function checkForTranslations ($checked_data) {
+            global $wp_version;
+
+            // WordPress fires this filter with null when the transient is being
+            // cleared; only act on a real transient object.
+            if (is_object ($checked_data) === false) {
+                return $checked_data;
+            } // if ()
+
+            if (isset ($checked_data->translations) === false) {
+                $checked_data->translations = array ();
+            } // if ()
+
+            // Group our plugins by their update server.
+            $servers = array ();
+
+            foreach ($this->getPlugins () as $plugin_file => $server) {
+                $servers [$server][] = $plugin_file;
+            } // foreach ()
+
+            $installed = wp_get_installed_translations ('plugins');
+            $languages = get_available_languages ();
+            $locale = get_locale ();
+
+            if (in_array ($locale, $languages, true) === false) {
+                $languages [] = $locale;
+            } // if ()
+
+            foreach ($servers as $server => $plugin_files) {
+                $request_string = array (
+                    'body' => array (
+                        'action' => 'plugin_translations',
+                        'request' => serialize (array ('slugs' => $plugin_files)),
+                        'api-key' => md5 (get_bloginfo ('url')),
+                        'wp-version' => $wp_version,
+                        'php-version' => phpversion ()
+                    ),
+                    'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url'),
+                    'timeout' => 60,
+                    'httpversion' => '1.1',
+                    'method' => 'POST'
+                );
+
+                if (defined ('WP_DEBUG') && WP_DEBUG === true) {
+                    $request_string ['sslverify'] = false;
+                } // if ()
+
+                $raw_response = wp_remote_post ($this->_getServerUrl ($server), $request_string);
+
+                if (is_wp_error ($raw_response) || wp_remote_retrieve_response_code ($raw_response) != 200) {
+                    continue;
+                } // if ()
+
+                $packs = json_decode (wp_remote_retrieve_body ($raw_response), true);
+
+                if (is_array ($packs) === false) {
+                    continue;
+                } // if ()
+
+                foreach ($packs as $pack) {
+                    if (is_array ($pack) === false || isset ($pack ['language'], $pack ['slug'], $pack ['updated']) === false) {
+                        continue;
+                    } // if ()
+
+                    // Only offer languages this site actually uses.
+                    if (in_array ($pack ['language'], $languages, true) === false) {
+                        continue;
+                    } // if ()
+
+                    // Skip if the installed translation is the same age or newer.
+                    if (isset ($installed [$pack ['slug']][$pack ['language']])) {
+                        $existing = $installed [$pack ['slug']][$pack ['language']];
+                        $existing_date = isset ($existing ['PO-Revision-Date']) ? $existing ['PO-Revision-Date'] : '';
+
+                        if ($existing_date !== '' && strtotime ($pack ['updated']) <= strtotime ($existing_date)) {
+                            continue;
+                        } // if ()
+                    } // if ()
+
+                    $checked_data->translations [] = $pack;
+                } // foreach ()
+            } // foreach ()
+
+            return $checked_data;
+        } // checkForTranslations ()
+
     } // class Plugin

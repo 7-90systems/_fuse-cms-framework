@@ -32,6 +32,7 @@
            // add_action ('init', array ($this, 'getThemes'));
            
            add_filter ('pre_set_site_transient_update_themes', array ($this, 'checkForUpdate'));
+           add_filter ('pre_set_site_transient_update_themes', array ($this, 'checkForTranslations'), 11);
            add_filter ('themes_api', 'themeApiCall', 10, 3);
         } // __construct ()
         
@@ -53,9 +54,11 @@
                 // Start checking for an update
                 $send_for_check = array(
                     'body' => array(
-                        'action' => 'theme_update', 
+                        'action' => 'theme_update',
                         'request' => serialize($request),
-                        'api-key' => md5(get_bloginfo('url'))
+                        'api-key' => md5(get_bloginfo('url')),
+                        'wp-version' => $wp_version,
+                        'php-version' => phpversion()
                     ),
                     'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url')
                 );
@@ -91,9 +94,11 @@
                     
                     $request_string = array (
                         'body' => array (
-                            'action' => $action, 
+                            'action' => $action,
                             'request' => serialize ($args),
-                            'api-key' => md5 (get_bloginfo ('url'))
+                            'api-key' => md5 (get_bloginfo ('url')),
+                            'wp-version' => $wp_version,
+                            'php-version' => phpversion ()
                         ),
                         'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url')
                     );
@@ -155,5 +160,94 @@
             
             return $this->_themes;
         } // getThemes ()
-        
+
+
+
+
+        /**
+         *  Ask each update server for available theme language packs and feed
+         *  the ones this site wants (and that are newer than installed) into the
+         *  update transient's translations list.
+         */
+        public function checkForTranslations ($checked_data) {
+            global $wp_version;
+
+            // WordPress fires this filter with null when the transient is being
+            // cleared; only act on a real transient object.
+            if (is_object ($checked_data) === false) {
+                return $checked_data;
+            } // if ()
+
+            if (isset ($checked_data->translations) === false) {
+                $checked_data->translations = array ();
+            } // if ()
+
+            // Group our themes by their update server.
+            $servers = array ();
+
+            foreach ($this->getThemes () as $slug => $theme) {
+                $servers [$theme ['server']][] = $slug;
+            } // foreach ()
+
+            $installed = wp_get_installed_translations ('themes');
+            $languages = get_available_languages ();
+            $locale = get_locale ();
+
+            if (in_array ($locale, $languages, true) === false) {
+                $languages [] = $locale;
+            } // if ()
+
+            foreach ($servers as $server => $theme_slugs) {
+                $request_string = array (
+                    'body' => array (
+                        'action' => 'theme_translations',
+                        'request' => serialize (array ('slugs' => $theme_slugs)),
+                        'api-key' => md5 (get_bloginfo ('url')),
+                        'wp-version' => $wp_version,
+                        'php-version' => phpversion ()
+                    ),
+                    'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url')
+                );
+
+                if (defined ('WP_DEBUG') && WP_DEBUG === true) {
+                    $request_string ['sslverify'] = false;
+                } // if ()
+
+                $raw_response = wp_remote_post ($this->_getServerUrl ($server), $request_string);
+
+                if (is_wp_error ($raw_response) || wp_remote_retrieve_response_code ($raw_response) != 200) {
+                    continue;
+                } // if ()
+
+                $packs = json_decode (wp_remote_retrieve_body ($raw_response), true);
+
+                if (is_array ($packs) === false) {
+                    continue;
+                } // if ()
+
+                foreach ($packs as $pack) {
+                    if (is_array ($pack) === false || isset ($pack ['language'], $pack ['slug'], $pack ['updated']) === false) {
+                        continue;
+                    } // if ()
+
+                    if (in_array ($pack ['language'], $languages, true) === false) {
+                        continue;
+                    } // if ()
+
+                    if (isset ($installed [$pack ['slug']][$pack ['language']])) {
+                        $existing = $installed [$pack ['slug']][$pack ['language']];
+                        $existing_date = isset ($existing ['PO-Revision-Date']) ? $existing ['PO-Revision-Date'] : '';
+
+                        if ($existing_date !== '' && strtotime ($pack ['updated']) <= strtotime ($existing_date)) {
+                            continue;
+                        } // if ()
+                    } // if ()
+
+                    $checked_data->translations [] = $pack;
+                } // foreach ()
+            } // foreach ()
+
+            return $checked_data;
+        } // checkForTranslations ()
+
     } // class Theme
