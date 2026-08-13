@@ -34,12 +34,12 @@
         private $_slug;
         
         /**
-         *  @param string This is the singular name for this post type.
+         *  @var string This is the singular name for this post type.
          */
         private $_name_singular;
         
         /**
-         *  @param string This is the plural name for this post type.
+         *  @var string This is the plural name for this post type.
          */
         private $_name_plural;
         
@@ -56,7 +56,7 @@
          *
          *  @param string $slug The post type slug for this post type.
          *  @param string $name_singular The singular name for this post type.
-         *  @param string $plural The plural name for this post type.
+         *  @param string $name_plural The plural name for this post type.
          *  @param array $args The arguments for this post type.
          */
         public function __construct ($slug, $name_singular, $name_plural = '', $args = array ()) {
@@ -173,7 +173,7 @@
          *  Check if we should save the posts values.
          *
          *  @param int $post_id The ID of the post object.
-         *  @param WP_Post $post The post object.
+         *  @param \WP_Post $post The post object.
          */
         final public function savePostValues ($post_id, $post) {
             if (defined ('DOING_AUTOSAVE') === false || DOING_AUTOSAVE !== true) {
@@ -194,7 +194,7 @@
         /**
          *  Set up our parent post type meta box.
          *
-         *  @param WP_Post $post The post object.
+         *  @param \WP_Post $post The post object.
          */
         final public function parentMeta ($post) {
             $parent = $post->post_parent;
@@ -227,7 +227,7 @@
          *  Save the parent ID for this post object.
          *
          *  @param int $post_id The ID of the post object.
-         *  @param WP_Post $post The post object.
+         *  @param \WP_Post $post The post object.
          */
         final public function saveParentPostType ($post_id, $post) {
             if (defined ('DOING_AUTOSAVE') === false || DOING_AUTOSAVE !== true) {
@@ -316,6 +316,8 @@
         
         /**
          *  Add the list of children for this parent post.
+         * 
+         *  @param \WP_Post $post The post object.
          */
         public function listChildren ($post) {
             $orderby = 'title';
@@ -388,8 +390,8 @@
          *  Save the posts values.
          *
          *  @param int $post_id The ID of the post being updated.
-         *  @param WP_Post $post The post being updated
-         *  @param bool $update True if this is an existing post.
+         *  @param \WP_Post $post The post being updated
+         *  @param bool True if this is an existing post.
          */
         public function savePost ($post_id, $post) {
             /**
@@ -424,7 +426,7 @@
         /**
          *  Add the required columns to the parent post type.
          *
-         *  @param array $columns The existing columns.
+         *  @param array $cols The existing columns.
          *
          *  @return array The completed column list.
          */
@@ -451,7 +453,7 @@
         /**
          *  Add the required columns to the child post type.
          *
-         *  @param array $columns The existing columns.
+         *  @param array $cols The existing columns.
          *
          *  @return array The completed column list.
          */
@@ -497,6 +499,8 @@
         
         /**
          *  Get the count of child items for the given post ID.
+         * 
+         *  @param int $parent_id The parent ID of the child items.
          */
         protected function _getChildCount ($parent_id) {
             global $wpdb;
