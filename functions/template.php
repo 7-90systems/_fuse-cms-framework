@@ -228,7 +228,7 @@
      *  As an example, if the size of 'bigsquare' the fallback will be called
      *  'bigsquare.jpg'.
      *
-     *  @param WP_Post|int $post The post object or ID.
+     *  @param \WP_Post|int $post The post object or ID.
      *  @param string $size The image size.
      *  @param bool $use_fallback Boolean 'true' to use a fallback image.
      *
