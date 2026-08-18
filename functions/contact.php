@@ -51,15 +51,15 @@
      *  return string The phone number.
      */
     function fuse_get_contact_email ($field_name = 'email',$location = 'default', $link = true, $link_text = NULL) {
-        $phone = fuse_get_contact_field ($field_name, $location);
+        $email = fuse_get_contact_field ($field_name, $location);
         
         if (strlen ($email) > 0 && $link === true) {
             if (strlen ($link_text) == 0) {
                 $link_text = $email;
             } // if ()
             
-            $phone = '<a href="mailto:'.esc_attr_ ($email).'">'.$link_text.'</a>';
+            $email = '<a href="mailto:'.esc_attr ($email).'">'.$link_text.'</a>';
         } // if ()
         
-        return $phone;
+        return $email;
     } // fuse_get_contact_phone ()

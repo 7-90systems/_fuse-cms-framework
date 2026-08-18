@@ -17,11 +17,9 @@
      *
      *  @return mixed Returns the value.
      */
-    if (function_exists ('get_fuse_option') === false) {
-        function get_fuse_option ($name, $default = '') {
-            return get_option ('fuse_setting_'.$name, $default);
-        } // get_fuse_option ()
-    } // if ()
+    function get_fuse_option ($name, $default = '') {
+        return get_option ('fuse_setting_'.$name, $default);
+    } // get_fuse_option ()
     
     /**
      *  Save an option value.
@@ -29,11 +27,9 @@
      *  @param string $name The name of the option to save.
      *  @param mixed $value The value to save.
      */
-    if (function_exists ('update_fuse_option') === false) {
-        function update_fuse_option ($name, $value) {
-            update_option ('fuse_setting_'.$name, $value);
-        } // update_fuse_option ()
-    } // if ()
+    function update_fuse_option ($name, $value) {
+        update_option ('fuse_setting_'.$name, $value);
+    } // update_fuse_option ()
     
     
     
@@ -45,11 +41,9 @@
      *  @param string $meta_name The name of the meta value to retrieve.
      *  @param bool $single True to return a single value.
      */
-    if (function_exists ('get_fuse_post_meta') === false) {
-        function get_fuse_post_meta ($post_id, $meta_name, $single = true) {
-            return get_post_meta ($post_id, 'fuse_form_'.$meta_name, $single);
-        } // _get_fuse_post_meta ()
-    } // if ()
+    function get_fuse_post_meta ($post_id, $meta_name, $single = true) {
+        return get_post_meta ($post_id, 'fuse_form_'.$meta_name, $single);
+    } // _get_fuse_post_meta ()
     
     /**
      *  Save a post meta value.
@@ -59,8 +53,6 @@
      *  @param mixed $value The value to set.
      *  @param mixed $prev_value The previous value.
      */
-    if (function_exists ('update_fuse_post_meta') === false) {
-        function update_fuse_post_meta ($post_id, $meta_name, $value, $prev_value = '') {
-            update_post_meta ($post_id, 'fuse_form_'.$meta_name, $value, $prev_value);
-        } // update_fuse_post_meta ()
-    } // if ()
+    function update_fuse_post_meta ($post_id, $meta_name, $value, $prev_value = '') {
+        update_post_meta ($post_id, 'fuse_form_'.$meta_name, $value, $prev_value);
+    } // update_fuse_post_meta ()
