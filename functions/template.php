@@ -294,9 +294,11 @@
                 'orderby' => 'menu_order title',
                 'order' => 'ASC',
                 'tax_query' => array (
-                    'taxonomy' => 'fuse_faq-section',
-                    'field' => 'term_id',
-                    'terms' => $section_id
+                    array (
+                        'taxonomy' => 'fuse_faq_section',
+                        'field' => 'term_id',
+                        'terms' => $section_id
+                    )
                 )
             ));
             

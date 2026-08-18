@@ -87,12 +87,6 @@
                 ob_end_clean ();
             } // if ()
             
-            
-            
-            
-            
-            
-            
             return $output;
         } // render ()
         
