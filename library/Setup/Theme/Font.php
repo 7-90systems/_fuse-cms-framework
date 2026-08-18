@@ -65,8 +65,8 @@
             
             $font_directories = apply_filters ('fuse_font_folder_locations', $directories);
 
-            foreach ($font_directories as $dir) {
-                $dirs = glob ($dir.DIRECTORY_SEPARATOR.'*');
+            foreach ($font_directories as $out_dir) {
+                $dirs = glob ($out_dir.DIRECTORY_SEPARATOR.'*');
 
                 foreach ($dirs as $dir) {
                     if (is_dir ($dir) && file_exists ($dir.DIRECTORY_SEPARATOR.'font.css')) {
@@ -80,6 +80,11 @@
         
         /**
          *  Get the name of the font. The name is part of the header of the font.css stylesheet.
+         * 
+         *  @param string $key The key or name of this font.
+         *  @param string $dir The font directory URI.
+         * 
+         *  @return string The font name;
          */
         public function getFontName ($key, $dir) {
             $name = $key;

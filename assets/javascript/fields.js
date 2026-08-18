@@ -22,10 +22,14 @@ function fuseAdminFormFieldImage () {
     
         // Uploading files
         var file_frame;
+        var previous_post_id = null;
             
         container.find ('.choose-image-link').on ('click', function (e) {
             e.preventDefault ();
             
+            // Attach anything uploaded or saved from the media window to this post.
+            previous_post_id = _fuseAdminMediaSetPostId ();
+
             // If the media frame already exists, reopen it.
             if (file_frame) {
                 // Open frame
@@ -62,6 +66,11 @@ function fuseAdminFormFieldImage () {
                 container.find ('input').val (id);
             });
             
+            // Put the media library back the way we found it.
+            file_frame.on ('close', function () {
+                _fuseAdminMediaRestorePostId (previous_post_id);
+            });
+
             // Finally, open the modal
             file_frame.open ();
         });
@@ -95,10 +104,14 @@ function fuseAdminFormFieldFile () {
     
         // Uploading files
         var file_frame;
+        var previous_post_id = null;
             
         container.find ('.choose-file-link').on ('click', function (e) {
             e.preventDefault ();
             
+            // Attach anything uploaded or saved from the media window to this post.
+            previous_post_id = _fuseAdminMediaSetPostId ();
+
             // If the media frame already exists, reopen it.
             if (file_frame) {
                 // Open frame
@@ -130,6 +143,11 @@ function fuseAdminFormFieldFile () {
                 container.find ('input').val (id);
             });
             
+            // Put the media library back the way we found it.
+            file_frame.on ('close', function () {
+                _fuseAdminMediaRestorePostId (previous_post_id);
+            });
+
             // Finally, open the modal
             file_frame.open ();
         });
@@ -179,6 +197,7 @@ function fuseAdminFormFieldGallery () {
     
         // Uploading files
         var file_frame;
+        var previous_post_id = null;
                         
         var btn;
         var cell;
@@ -189,6 +208,9 @@ function fuseAdminFormFieldGallery () {
             // Get our surrondings
             btn = jQuery (this);
             
+            // Attach anything uploaded or saved from the media window to this post.
+            previous_post_id = _fuseAdminMediaSetPostId ();
+
             // If the media frame already exists, reopen it.
             if (file_frame) {
                 // Open frame
@@ -236,6 +258,11 @@ function fuseAdminFormFieldGallery () {
                 _fuseAdminGallerySetIds (container);
             });
             
+            // Put the media library back the way we found it.
+            file_frame.on ('close', function () {
+                _fuseAdminMediaRestorePostId (previous_post_id);
+            });
+
             // Finally, open the modal
             file_frame.open ();
         });
@@ -274,3 +301,76 @@ function fuseAdminFormFieldIconGroup () {
         el.blur ().addClass ('selected');
     });
 } // fuseAdminFormFieldIconGroup ()
+
+
+
+/**
+ *  Point the media window at the post being edited, so that anything uploaded or
+ *  saved from it is attached to that post. Returns the ID that was set before, to
+ *  hand back to _fuseAdminMediaRestorePostId (), or NULL when there is nothing to
+ *  change.
+ */
+function _fuseAdminMediaSetPostId () {
+    var post = _fuseAdminMediaPostSettings ();
+    var post_id = _fuseAdminMediaPostId ();
+
+    if (!post || post_id === 0) {
+        return null;
+    } // if ()
+
+    var previous_post_id = post.id;
+
+    post.id = post_id;
+
+    return previous_post_id;
+} // _fuseAdminMediaSetPostId ()
+
+
+
+
+/**
+ *  Put the media window's post ID back to what it was before we opened it, so we
+ *  leave the rest of the page as we found it.
+ */
+function _fuseAdminMediaRestorePostId (previous_post_id) {
+    var post = _fuseAdminMediaPostSettings ();
+
+    if (!post || previous_post_id === null) {
+        return;
+    } // if ()
+
+    post.id = previous_post_id;
+} // _fuseAdminMediaRestorePostId ()
+
+
+
+
+/**
+ *  Get the ID of the post being edited, or 0 when we are not editing one (on a
+ *  settings page, for example).
+ */
+function _fuseAdminMediaPostId () {
+    var post_id = parseInt (jQuery ('#post_ID').val (), 10);
+
+    if (isNaN (post_id) || post_id < 1) {
+        return 0;
+    } // if ()
+
+    return post_id;
+} // _fuseAdminMediaPostId ()
+
+
+
+
+/**
+ *  The media library's post settings. wp.media.model and wp.media.view share the
+ *  one object, so the ID set here covers uploads, attachment saves and gallery
+ *  ordering. Missing on screens that have not loaded the media library.
+ */
+function _fuseAdminMediaPostSettings () {
+    if (typeof wp == 'undefined' || !wp.media || !wp.media.model || !wp.media.model.settings) {
+        return null;
+    } // if ()
+
+    return wp.media.model.settings.post || null;
+} // _fuseAdminMediaPostSettings ()
