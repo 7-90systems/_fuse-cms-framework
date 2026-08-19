@@ -67,10 +67,29 @@
             add_action ('admin_head', array ($this, 'googleApiKeyLink'));
             
             /**
-             *  When we are finished we can call the action related to Fuse.
+             *  Announce that Fuse is ready, on plugins_loaded rather than here.
+             *
+             *  This used to fire straight away, while this file was still being
+             *  loaded. WordPress keeps active_plugins sorted, so every plugin
+             *  whose folder sorts after 'fuse-cms' was loaded afterwards and
+             *  registered its listener for an action that had already run --
+             *  which is to say no companion plugin could ever hook fuse_init,
+             *  the one thing it exists for.
              */
-            do_action ('fuse_init');
+            add_action ('plugins_loaded', array ($this, 'fuseReady'));
         } // _init ()
+        
+        
+        
+        
+        /**
+         *  Announce that the Fuse framework is loaded and ready.
+         *
+         *  @action fuse_init
+         */
+        public function fuseReady () {
+            do_action ('fuse_init');
+        } // fuseReady ()
         
         
         

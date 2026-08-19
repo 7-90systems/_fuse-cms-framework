@@ -158,9 +158,14 @@ not break the request.
 **Function files.** Every `.php` file in `functions/` is loaded automatically, except
 `index.php`. Add your own directories with the `fuse_load_functions_from` filter.
 
-**Getting in early.** `fuse_init` fires once the framework is set up and is the hook
-a companion plugin should use. `fuse_register_posttypes` fires when post types are
+**Getting in early.** `fuse_init` is the hook a companion plugin should use. It fires
+on `plugins_loaded`, so every plugin has been loaded and had the chance to register a
+listener before it runs. `fuse_register_posttypes` fires later, when post types are
 being registered.
+
+A theme cannot use `fuse_init` -- theme files load after `plugins_loaded`. A theme
+should call its own setup directly from `functions.php`, after defining its
+`FUSE_THEME_*_BASE_URI` constant.
 
 **Hooks.** The main extension points, all documented in the docblock of the class
 that fires them:
