@@ -203,5 +203,5 @@ stylesheet is kept, because core registers no full jQuery UI theme stylesheet.
 
 ## Licence
 
-See the licence of each bundled library in `assets/external/`. The framework itself is
-© 7-90 Systems.
+The framework is GPL-3 -- see `LICENSE`. The libraries bundled under
+`assets/external/` carry their own licences; check each one there.
