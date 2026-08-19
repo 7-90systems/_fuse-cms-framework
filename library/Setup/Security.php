@@ -109,9 +109,10 @@
         /**
          *  Add our panel to the settings form.
          *
-         *  Every field sits directly on the panel rather than inside a Field
-         *  Group. A grouped field is never handed its posted value when the
-         *  form saves, so anything put in one silently keeps its old setting.
+         *  The two halves are separate groups: the protections that work
+         *  everywhere, and the ones that need the server's co-operation. They
+         *  behave very differently, and reading them as one list of twenty-odd
+         *  switches hides that.
          *
          *  @param array $panels The panels already on the form.
          *
@@ -122,9 +123,17 @@
                 $panels = array ();
             } // if ()
 
-            $panels [] = new Component\Panel ('security', __ ('Security', 'fuse'), array_merge (
-                $this->_applicationFields (),
-                $this->_serverFields ()
+            $panels [] = new Component\Panel ('security', __ ('Security', 'fuse'), array (
+                new Component\Field\Group (
+                    'security_application',
+                    __ ('Applied by WordPress', 'fuse'),
+                    $this->_applicationFields ()
+                ),
+                new Component\Field\Group (
+                    'security_server',
+                    __ ('Server rules', 'fuse'),
+                    $this->_serverFields ()
+                )
             ));
 
             return $panels;
