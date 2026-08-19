@@ -269,6 +269,38 @@ Note that a full URL passed to `add_editor_style ()` makes WordPress fetch it ba
 HTTP on every editor load, so the framework hands it theme-relative paths and reads the
 files from disk instead.
 
+**Switching fields off.** Any field can be rendered disabled, and switched on or off
+again from JavaScript afterwards:
+
+```php
+new Component\Field\Toggle ('a_setting', __ ('A setting'), $value, array (
+    'disabled' => true
+));
+
+$field->setDisabled (true);
+$field->isDisabled ();
+```
+
+Every field carries `data-fuse-field` with its own name, so a script can find one without
+knowing how its id was built:
+
+```js
+fuseForms.disableField ('security_header_hsts');
+fuseForms.enableField ('security_header_hsts');
+fuseForms.setFieldDisabled ('security_header_hsts', on === false);
+fuseForms.isFieldDisabled ('security_header_hsts');
+fuseForms.fieldValue ('security_header_hsts');
+```
+
+A disabled field keeps its setting. A disabled control is not submitted, and the settings
+form saves an empty value for anything missing from the request — so a field switched off
+would otherwise wipe what was behind it. Disabling leaves a hidden copy of the value
+instead, both in PHP and when done from the script. A toggle needs no copy: only the list
+the user clicks is switched off, and its hidden input keeps posting.
+
+Covers Text (and Email, Number, Url), TextArea, Select, Checkbox and Toggle. The media
+fields — File, Gallery, Image — and IconGroup, Date and DateTime are not wired up yet.
+
 **Hooks.** The main extension points, all documented in the docblock of the class
 that fires them:
 

@@ -500,10 +500,20 @@
             wp_register_script ('fuse_posttype_builder', FUSE_BASE_URL.'/assets/javascript/admin/posttype-builder.js', array (
                 'jquery'
             ));
-            
+
+            /**
+             *  Switching fields on and off. Loaded after the container script,
+             *  which is what decides whether a toggle responds to a click.
+             */
+            wp_register_script ('fuse_fields_state', FUSE_BASE_URL.'/assets/javascript/admin/fields-state.js', array (
+                'jquery',
+                'fuse_container'
+            ));
+
             $deps = apply_filters ('fuse_javascript_admin_dependencies', array (
                 'fuse_container',
                 'fuse_form_fields',
+                'fuse_fields_state',
                 'fuse_posttype_builder',
                 'jquery'
             ));

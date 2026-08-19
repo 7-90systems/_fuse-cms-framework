@@ -330,3 +330,25 @@
 .fuse-forms-field-toggle ul li.yes.selected {
     background: #3791D9;
 }
+
+
+
+/*  ********************************************************************************  **
+
+    Disabled fields
+
+    A field switched off, either rendered that way or turned off later by
+    fuseForms.setFieldDisabled (). The toggle is a list rather than a control,
+    so it needs the pointer stopping by hand.
+
+**  ********************************************************************************  */
+
+.fuse-forms-field-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fuse-forms-field-toggle.fuse-forms-field-disabled li {
+    cursor: not-allowed;
+    pointer-events: none;
+}

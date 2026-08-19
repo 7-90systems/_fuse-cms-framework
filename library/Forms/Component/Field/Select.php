@@ -75,14 +75,7 @@
                 'name' => $this->getName ()
             ));
             
-            if (array_key_exists ('required', $attributes)) {
-                if ($attributes ['required'] === true) {
-                    $attributes ['required'] = 'required';
-                } // if ()
-                else {
-                    unset ($attributes ['required']);
-                } // else
-            } // if ()
+            $attributes = $this->applyState ($attributes);
             
             ob_start ();
             ?>
@@ -99,6 +92,7 @@
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </select>
+                <?php $this->renderDisabledValue (); ?>
             <?php
             $html = ob_get_contents ();
             ob_end_clean ();

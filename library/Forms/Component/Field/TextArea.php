@@ -44,18 +44,12 @@
                 'name' => $this->getName ()
             ));
             
-            if (array_key_exists ('required', $attributes)) {
-                if ($attributes ['required'] === true) {
-                    $attributes ['required'] = 'required';
-                } // if ()
-                else {
-                    unset ($attributes ['required']);
-                } // else
-            } // if ()
+            $attributes = $this->applyState ($attributes);
             
             ob_start ();
             ?>
                 <textarea<?php echo fuse_format_attributes ($attributes); ?>><?php echo $this->getValue (); ?></textarea>
+                <?php $this->renderDisabledValue (); ?>
             <?php
             $html = ob_get_contents ();
             ob_end_clean ();

@@ -96,14 +96,7 @@
                 'name' => $this->getName ()
             ));
             
-            if (array_key_exists ('required', $attributes)) {
-                if ($attributes ['required'] === true) {
-                    $attributes ['required'] = 'required';
-                } // if ()
-                else {
-                    unset ($attributes ['required']);
-                } // else
-            } // if ()
+            $attributes = $this->applyState ($attributes);
             
             $values = explode (',', $this->_value);
             

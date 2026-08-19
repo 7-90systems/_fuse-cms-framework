@@ -66,20 +66,27 @@
                 'value' => $this->_value
             ));
             
-            if (array_key_exists ('required', $attributes)) {
-                if ($attributes ['required'] === true) {
-                    $attributes ['required'] = 'required';
-                } // if ()
-                else {
-                    unset ($attributes ['required']);
-                } // else
-            } // if ()
+            $attributes = $this->applyState ($attributes);
+            
+            /**
+             *  The hidden input carries the value and is left enabled, so a
+             *  disabled toggle still posts what it is holding. Only the control
+             *  the user clicks is switched off, on the wrapper below.
+             *
+             *  The wrapper takes the state and the data hook as well, so that a
+             *  script looking the field up finds one element and cannot disable
+             *  this input by accident -- which would stop the value posting.
+             */
+            unset ($attributes ['disabled']);
+            unset ($attributes ['data-fuse-field']);
+            
+            $attributes ['class'] = trim (str_replace (self::DISABLED_CLASS, '', $attributes ['class']));
             
             $first = true;
             
             ob_start ();
             ?>
-                <div class="fuse-forms-field-toggle" data-field="<?php echo esc_attr ($this->getId ()); ?>" data-value="<?php echo esc_attr ($this->getValue ()); ?>">
+                <div class="fuse-forms-field-toggle<?php echo $this->isDisabled () ? ' '.self::DISABLED_CLASS : ''; ?>" data-field="<?php echo esc_attr ($this->getId ()); ?>" data-fuse-field="<?php echo esc_attr ($this->name); ?>" data-value="<?php echo esc_attr ($this->getValue ()); ?>"<?php echo $this->isDisabled () ? ' aria-disabled="true"' : ''; ?>>
                     <ul>
                         <?php foreach ($this->_options as $key => $label): ?>
                             <?php

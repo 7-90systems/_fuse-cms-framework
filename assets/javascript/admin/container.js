@@ -124,8 +124,13 @@ function _fuseFormsSetupToggleFields () {
     // Set up listeners
     jQuery ('.fuse-forms-container').on ('click', '.fuse-forms-field-toggle li', function (e) {
         e.preventDefault ();
-// confirm ("Clicked on option '" + jQuery (this).data ('value') + "'");
+        
         let btn = jQuery (this);
+        
+        // A disabled toggle keeps whatever it is holding.
+        if (btn.closest ('.fuse-forms-field-toggle').hasClass ('fuse-forms-field-disabled')) {
+            return;
+        }
         
         if (btn.hasClass ('selected') === false) {
             let container = btn.closest ('.fuse-forms-field-toggle');
@@ -143,6 +148,10 @@ function _fuseFormsSetupToggleFields () {
     // Check for a default value
     jQuery ('.fuse-forms-field-toggle').each (function () {
         let set_value = jQuery (this).data ('value');
+        
+        if (jQuery (this).hasClass ('fuse-forms-field-disabled')) {
+            return;
+        }
         
         if (set_value.length == 0) {
             jQuery (this).find ('li').first ().trigger ('click');
