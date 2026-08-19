@@ -219,14 +219,24 @@
                 'jquery'
             );
             
-            // Are we using a child theme?
+            /**
+             *  The child theme's functions.js.
+             *
+             *  The handle registered here used to be spelled 'functons' while
+             *  the dependency added was 'functions'. WordPress refuses to
+             *  enqueue anything whose dependency was never registered, and that
+             *  refusal cascades -- so on a child theme site the theme's
+             *  functions.js, every discovered script and fuse_cms_base itself
+             *  were all silently dropped. Register and depend on one name.
+             */
             if (is_child_theme ()) {
                 if (file_exists (get_stylesheet_directory ().DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'javascript'.DIRECTORY_SEPARATOR.'functions.js')) {
-                    wp_register_script ('fuse_parent_theme_functons', trailingslashit (get_stylesheet_directory_uri ()).'assets/javascript/functions.js');
-                    $deps [] = 'fuse_parent_theme_functions';
+                    wp_register_script ('fuse_child_theme_functions', trailingslashit (get_stylesheet_directory_uri ()).'assets/javascript/functions.js');
+                    $deps [] = 'fuse_child_theme_functions';
                 } // if ()
             } // if ()
-            
+
+            // The parent theme's functions.js.
             if (file_exists (get_template_directory ().DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'javascript'.DIRECTORY_SEPARATOR.'functions.js')) {
                 wp_register_script ('fuse_theme_functions', trailingslashit (get_template_directory_uri ()).'assets/javascript/functions.js', $deps);
                 $deps [] = 'fuse_theme_functions';
@@ -240,9 +250,18 @@
                 $deps [] = $alias;
             } // foreach ()
             
-            // Finalise dependencies
+            /**
+             *  Finalise dependencies.
+             *
+             *  fuse_javscript_dependencies is a misspelling of the documented
+             *  filter. It is still applied first so anything already hooked to
+             *  it keeps working, but fuse_javascript_dependencies is the one to
+             *  use and it has the final say.
+             */
             $deps = apply_filters ('fuse_javscript_dependencies', $deps);
-            wp_enqueue_script ('fuse_cms_base', FUSE_BASE_URL.'/assets/javascript/functions.js', apply_filters ('fuse_javascript_dependencies', $deps));
+            $deps = apply_filters ('fuse_javascript_dependencies', $deps);
+
+            wp_enqueue_script ('fuse_cms_base', FUSE_BASE_URL.'/assets/javascript/functions.js', $deps);
             
             do_action ('fuse_after_enqueue_javascript');
         } // _enqueueJavaScript ()
@@ -391,10 +410,10 @@
             // Are we using a child theme?
             if (is_child_theme ()) {
                 if (file_exists (get_stylesheet_directory ().DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'javascript'.DIRECTORY_SEPARATOR.'login.js')) {
-                    wp_enqueue_script ('fuse_parent_login_editor_functons', trailingslashit (get_stylesheet_directory_uri ()).'assets/javascript/login.js');
+                    wp_enqueue_script ('fuse_child_login_functions', trailingslashit (get_stylesheet_directory_uri ()).'assets/javascript/login.js');
                 } // if ()
             } // if ()
-            
+
             if (file_exists (get_template_directory ().DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'javascript'.DIRECTORY_SEPARATOR.'login.js')) {
                 $deps = apply_filters ('fuse_javascript_login_dependencies', $deps);
                 wp_enqueue_script ('fuse_login_functions', trailingslashit (get_template_directory_uri ()).'assets/javascript/login.js', $deps);
@@ -492,12 +511,18 @@
             // Are we using a child theme?
             if (is_child_theme ()) {
                 if (file_exists (get_stylesheet_directory ().DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'javascript'.DIRECTORY_SEPARATOR.'admin.js')) {
-                    wp_enqueue_script ('fuse_parent_login_editor_functons', trailingslashit (get_stylesheet_directory_uri ()).'assets/javascript/admin.js');
+                    wp_enqueue_script ('fuse_child_admin_functions', trailingslashit (get_stylesheet_directory_uri ()).'assets/javascript/admin.js');
                 } // if ()
             } // if ()
-            
+
+            /**
+             *  These used to be registered under the login handles. A handle
+             *  can only be claimed once, so the admin scripts were relying on
+             *  the login screen and the admin screen never being the same
+             *  request to avoid colliding with each other.
+             */
             if (file_exists (get_template_directory ().DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'javascript'.DIRECTORY_SEPARATOR.'admin.js')) {
-                wp_enqueue_script ('fuse_login_functions', trailingslashit (get_template_directory_uri ()).'assets/javascript/admin.js', $deps);
+                wp_enqueue_script ('fuse_admin_functions', trailingslashit (get_template_directory_uri ()).'assets/javascript/admin.js', $deps);
             } // if ()
             
             wp_enqueue_script ('fuse-core-admin', FUSE_BASE_URL.'/assets/javascript/admin.js', $deps);
