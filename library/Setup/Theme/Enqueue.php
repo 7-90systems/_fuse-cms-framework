@@ -120,10 +120,10 @@
                         } // if ()
                         elseif (substr ($file, -4, 4) == '.dep') {
                             if (array_key_exists ($id, $this->_files)) {
-                                $this->_files [$id]['deps'] = explode ('|', file_get_contents ($path.$file));
+                                $this->_files [$id]['deps'] = $this->_readDependencyFile ($path.$file);
                             } // if ()
                             elseif ($id == 'default' && array_key_exists ('default_1', $this->_files)) {
-                                $this->_files ['default_1']['deps'] = explode ('|', file_get_contents ($path.$file));
+                                $this->_files ['default_1']['deps'] = $this->_readDependencyFile ($path.$file);
                             } // elseif ()
                         } // elseif ()
                     } // foreach ()
@@ -132,10 +132,85 @@
             
             return $this;
         } // load ()
-        
-        
-        
-        
+
+
+
+
+        /**
+         *  Read a .dep file and return the handles it lists.
+         *
+         *  @param string $file The full path to the .dep file.
+         *
+         *  @return array The dependency handles, or an empty array if the file
+         *  cannot be read.
+         */
+        protected function _readDependencyFile ($file) {
+            if (file_exists ($file) === false || is_readable ($file) === false) {
+                return array ();
+            } // if ()
+
+            return $this->_parseDependencies (file_get_contents ($file));
+        } // _readDependencyFile ()
+
+        /**
+         *  Parse the contents of a .dep file into a list of handles.
+         *
+         *  A .dep file may separate its handles with pipes, with line breaks,
+         *  or with both:
+         *
+         *      superfish|mmenulight
+         *
+         *      superfish
+         *      mmenulight
+         *
+         *      superfish|mmenulight
+         *      colorbox
+         *
+         *  All three give the same result. Every line is still split on the
+         *  pipe, so the original single-line format keeps working exactly as it
+         *  did, and a file written either way -- or both ways at once -- is
+         *  read correctly.
+         *
+         *  Handles are trimmed, so a trailing newline or a stray space no
+         *  longer produces a broken handle, and blanks and duplicates are
+         *  dropped.
+         *
+         *  @param string $contents The raw contents of the file.
+         *
+         *  @return array The dependency handles.
+         */
+        protected function _parseDependencies ($contents) {
+            // file_get_contents () returns false on failure.
+            if (is_string ($contents) === false) {
+                return array ();
+            } // if ()
+
+            /**
+             *  Split on pipes and on either kind of line ending, treating a run
+             *  of separators as one so blank lines and empty entries fall out.
+             */
+            $handles = preg_split ('/[|\r\n]+/', $contents);
+
+            if (is_array ($handles) === false) {
+                return array ();
+            } // if ()
+
+            $dependencies = array ();
+
+            foreach ($handles as $handle) {
+                $handle = trim ($handle);
+
+                if ($handle !== '' && in_array ($handle, $dependencies, true) === false) {
+                    $dependencies [] = $handle;
+                } // if ()
+            } // foreach ()
+
+            return $dependencies;
+        } // _parseDependencies ()
+
+
+
+
         /**
          *  Get the files that we have loaded.
          *

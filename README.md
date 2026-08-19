@@ -167,6 +167,33 @@ A theme cannot use `fuse_init` -- theme files load after `plugins_loaded`. A the
 should call its own setup directly from `functions.php`, after defining its
 `FUSE_THEME_*_BASE_URI` constant.
 
+**Stylesheets and scripts.** The framework walks the theme's asset directories and
+registers what it finds, so a stylesheet or script is picked up by being put in the
+right folder rather than by being enqueued by hand. Files are registered in sorted
+order, and any file named `default` is always enqueued.
+
+To give a file dependencies, put a `.dep` file beside it with the same name — so
+`slider.js` is given its dependencies by `slider.dep`. The file lists the handles that
+must load first, separated by pipes, by line breaks, or by both:
+
+```
+superfish|mmenulight
+```
+
+```
+superfish
+mmenulight
+```
+
+```
+superfish|mmenulight
+colorbox
+```
+
+All three are read the same way. Handles are trimmed, and blanks and duplicates are
+dropped, so a trailing newline or a stray space is harmless. Order is preserved,
+because it is the load order.
+
 **Hooks.** The main extension points, all documented in the docblock of the class
 that fires them:
 
