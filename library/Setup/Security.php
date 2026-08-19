@@ -46,6 +46,16 @@
          */
         protected $_rules_queued = false;
 
+        /**
+         *  @var bool Whether DISALLOW_FILE_EDIT was already defined before we
+         *  looked -- by wp-config.php, or by something loading ahead of us.
+         *
+         *  Recorded because by the time the settings screen renders, this class
+         *  may have defined it itself, and the panel has to be able to tell the
+         *  difference to say anything useful about it.
+         */
+        protected $_file_edit_external = false;
+
 
 
 
@@ -157,6 +167,9 @@
                 )),
                 new Component\Field\Toggle (self::PREFIX.'version_assets', __ ('Also strip it from asset URLs', 'fuse'), $this->option ('version_assets'), array (
                     'description' => __ ('Only removes the version WordPress adds to its own files. A plugin that sets its own keeps it, because that is its cache busting.', 'fuse')
+                )),
+                new Component\Field\Toggle (self::PREFIX.'file_edit', __ ('Disable the file editor', 'fuse'), $this->option ('file_edit'), array (
+                    'description' => $this->_fileEditDescription ()
                 ))
             );
         } // _applicationFields ()
@@ -234,6 +247,9 @@
                 )),
                 new Component\Field\Toggle (self::PREFIX.'indexes', __ ('Disable directory browsing', 'fuse'), $this->option ('indexes'), array (
                     'description' => __ ('Stops a folder with no index file listing what is inside it.', 'fuse')
+                )),
+                new Component\Field\Toggle (self::PREFIX.'uploads_php', __ ('Block PHP in the uploads folder', 'fuse'), $this->option ('uploads_php'), array (
+                    'description' => $this->_uploadsDescription ()
                 ))
             );
         } // _serverFields ()
@@ -254,18 +270,50 @@
             $environment = Security\Environment::getInstance ();
             $reason = $environment->blockedReason ();
 
+            /**
+             *  The opening line only holds where a block is actually written.
+             *  Where it is not, the reason already names the server, so
+             *  leading with it said the same thing twice and promised a file
+             *  that is never touched.
+             */
+            if ($reason !== '') {
+                $description = $reason;
+                $config = $this->serverConfig ();
+
+                if ($config !== '') {
+                    $description .= '<br /><br /><code class="fuse-security-config">'.
+                        nl2br (esc_html ($config)).'</code>';
+                } // if ()
+
+                return $description;
+            } // if ()
+
             $description = sprintf (
                 /* translators: %s: the web server name. */
                 __ ('Adds a block to the .htaccess file. This site runs on %s.', 'fuse'),
                 $environment->serverName ()
             );
 
-            if ($reason !== '') {
-                return $description.' '.$reason;
-            } // if ()
-
             return $description.' '.__ ('The rules are rewritten whenever these settings are saved, and taken out again when this is switched off.', 'fuse');
         } // _serverDescription ()
+
+        /**
+         *  The server configuration to hand over, for a server that cannot be
+         *  written to from here.
+         *
+         *  Only nginx, because that is the only other syntax generated. The
+         *  settings still record what is wanted, so the block reflects the
+         *  switches above it and changes as they do.
+         *
+         *  @return string The configuration, or '' when there is none to give.
+         */
+        protected function serverConfig () {
+            if (Security\Environment::getInstance ()->serverType () != 'nginx') {
+                return '';
+            } // if ()
+
+            return Security\Rules::getInstance ()->nginx ($this->settings ());
+        } // serverConfig ()
 
         /**
          *  What to say about XML-RPC, given what is installed.
@@ -311,6 +359,27 @@
             return __ ('Refuses to serve the files that give away what a site is running or hold its credentials, such as readme.html, .env, debug.log and any copy of wp-config.', 'fuse');
         } // _filesDescription ()
 
+        /**
+         *  What to say about blocking PHP in uploads.
+         *
+         *  @return string The description.
+         */
+        protected function _uploadsDescription () {
+            $description = __ ('Refuses to run PHP found under the uploads folder. An upload that slips past validation is only dangerous if the server will execute it, and nothing legitimate in uploads is ever meant to run.', 'fuse');
+
+            $path = Security\Rules::getInstance ()->uploadsPath ();
+
+            if ($path === '') {
+                return $description.' '.__ ('The uploads folder on this site is not inside the WordPress directory, so it cannot be covered by a rule in the root .htaccess. It needs a rule where it actually lives.', 'fuse');
+            } // if ()
+
+            return $description.' '.sprintf (
+                /* translators: %s: the uploads path, relative to the site root. */
+                __ ('Covers %s and everything under it.', 'fuse'),
+                $path
+            );
+        } // _uploadsDescription ()
+
 
 
 
@@ -333,6 +402,7 @@
                 'author_enum' => 'no',
                 'version' => 'no',
                 'version_assets' => 'no',
+                'file_edit' => 'no',
 
                 // Written to .htaccess; Apache and LiteSpeed only.
                 'htaccess' => 'no',
@@ -352,7 +422,8 @@
                 'header_csp_mode' => 'report',
                 'header_csp_value' => "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'self';",
                 'files' => 'no',
-                'indexes' => 'no'
+                'indexes' => 'no',
+                'uploads_php' => 'no'
             ));
         } // defaults ()
 
@@ -417,6 +488,16 @@
          *  These need no help from the server, so they work everywhere.
          */
         public function protect () {
+            /**
+             *  Read before anything below defines it, so the panel can tell
+             *  wp-config.php having set it from this setting having set it.
+             */
+            $this->_file_edit_external = defined ('DISALLOW_FILE_EDIT');
+
+            if ($this->isOn ('file_edit') === true) {
+                $this->stopFileEditor ();
+            } // if ()
+
             if ($this->isOn ('xmlrpc') === true) {
                 $this->stopXmlrpc ();
             } // if ()
@@ -440,6 +521,49 @@
                 } // if ()
             } // if ()
         } // protect ()
+
+        /**
+         *  Turn the built-in plugin and theme file editor off.
+         *
+         *  The editor writes straight to disk with no revision and no backup,
+         *  so one stolen administrator password becomes arbitrary PHP on the
+         *  server without needing a file transfer of any kind. Almost nobody
+         *  uses it deliberately; leaving it on is a foothold kept for nothing.
+         *
+         *  after_setup_theme is early enough. WordPress reads the constant when
+         *  it maps the edit_plugins and edit_themes capabilities and when the
+         *  editor screens load, both of which happen later.
+         *
+         *  A definition already in place wins: wp-config.php is the documented
+         *  home for this, and a site that has deliberately set it false there
+         *  is not overridden from a settings screen.
+         */
+        protected function stopFileEditor () {
+            if (defined ('DISALLOW_FILE_EDIT') === true) {
+                return;
+            } // if ()
+
+            define ('DISALLOW_FILE_EDIT', true);
+        } // stopFileEditor ()
+
+        /**
+         *  What to say about the file editor, given how it is already set.
+         *
+         *  @return string The description.
+         */
+        protected function _fileEditDescription () {
+            $description = __ ('Removes Appearance > Theme File Editor and Plugins > Plugin File Editor. The editor writes PHP straight to the server, so a stolen administrator password becomes running code without needing file access.', 'fuse');
+
+            if ($this->_file_edit_external === true) {
+                if (constant ('DISALLOW_FILE_EDIT') == true) {
+                    return $description.' '.__ ('Already switched off in wp-config.php, so this setting changes nothing.', 'fuse');
+                } // if ()
+
+                return $description.' '.__ ('wp-config.php sets DISALLOW_FILE_EDIT to false, which wins. Remove it there before this setting can do anything.', 'fuse');
+            } // if ()
+
+            return $description;
+        } // _fileEditDescription ()
 
         /**
          *  Turn XML-RPC off.

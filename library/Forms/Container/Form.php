@@ -133,10 +133,25 @@
         public function save ($values) {
             $nonce = array_key_exists ($this->id, $_REQUEST) ? $_REQUEST [$this->id] : '';
             $permitted = empty ($this->_required_permission) === true || current_user_can ($this->_required_permission);
-            
+
             if (is_array ($values) === false) {
                 $values = array ();
             } // if ()
+
+            /**
+             *  These values come from $_POST, and WordPress slashes the whole
+             *  superglobal on the way in. The metadata API takes that back out
+             *  again, which is why the meta box path is unaffected, but the
+             *  options API does not -- update_option () stores exactly what it
+             *  is handed.
+             *
+             *  Without this, every quote in a setting gains a backslash, and
+             *  gains another one each time the form is saved after that. It
+             *  went unnoticed because almost every Fuse setting is a toggle, a
+             *  number or a short piece of plain text; the Content-Security-
+             *  Policy is the first one with quotes in it.
+             */
+            $values = wp_unslash ($values);
             
             if ($permitted && wp_verify_nonce ($nonce, 'fuse-forms') !== false) {
                 foreach ($this->getPanels () as $panel) {

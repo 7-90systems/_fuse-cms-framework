@@ -50,6 +50,27 @@ stored as options prefixed `fuse_setting_`, read and written with
 The three script fields are printed unescaped by design, which is why the settings
 screen and its save handler both require `manage_options`.
 
+### Slashes
+
+`Form::save ()` unslashes what it is given before storing it. WordPress slashes the
+whole of `$_POST` on the way in; the metadata API takes that back out again, which is
+why the meta box path never needed it, but the options API does not — `update_option ()`
+stores exactly what it is handed.
+
+Without the unslashing, every quote in a setting gained a backslash, and gained another
+one on each save after that. It went unnoticed because almost every Fuse setting is a
+toggle, a number or a short piece of plain text; the Content-Security-Policy value is
+the first one with quotes in it, and `Rules::safeValue ()` turns each stray backslash
+into a space — so an enabled CSP was written to `.htaccess` as
+`default-src 'self '; script-src 'self '`, which is not a valid policy.
+
+Settings stored before the fix are repaired once by `Install::repairSlashedOptions ()`,
+run on `admin_init` and flagged with the `fuse_settings_unslashed` option. It only
+unwinds a value where **every** backslash is one `addslashes ()` could have put there —
+in front of a quote, another backslash or a NUL. A backslash in front of anything else,
+such as a Windows path or a regular expression, was typed deliberately, and the value is
+left alone rather than quietly corrupted.
+
 Contact locations default to a single `default` location. Add more with the
 `fuse_settings_contact_locations` filter, and change the per-location fields with
 `fuse_settings_contact_fields`.
@@ -72,21 +93,84 @@ rather than by being read about here.
 | `security_author_enum` | Turns `?author=1` into a 404 and drops users from the sitemap |
 | `security_version` | Removes the WordPress version from the head and the feeds |
 | `security_version_assets` | Also strips it from asset URLs — only WordPress's own |
+| `security_file_edit` | Defines `DISALLOW_FILE_EDIT`, removing the plugin and theme file editors |
 
 **Written to `.htaccess` — Apache and LiteSpeed only**
 
 Behind `security_htaccess`, off by default. Covers the security headers
 (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS, and
 CSP in report or enforce mode), blocking the files that give a site away —
-`readme.html`, `.env`, `debug.log`, any copy of `wp-config` — and turning off directory
-listings.
+`readme.html`, `.env`, `debug.log`, any copy of `wp-config` — refusing to run PHP under
+the uploads folder (`security_uploads_php`), and turning off directory listings.
+
+**The uploads rule is a rewrite, not a `FilesMatch`.** A `FilesMatch` in a root
+`.htaccess` cannot be scoped to one folder — it would match those file names everywhere
+and take the whole site down with it. The rewrite tests the request path, so it stops at
+uploads. It covers every extension a server is commonly configured to hand to PHP
+(`.php`, `.php5`, `.phtml`, `.phar`, `.phps`), because a handler for one of those is
+ordinary and an upload named to suit it would otherwise walk straight past.
+
+The uploads path is read from `wp_upload_dir ()` rather than assumed — the `UPLOADS`
+constant, an `upload_path` option and some hosts all move it. A folder outside the
+WordPress directory cannot be reached from the root `.htaccess` at all, and the field
+says so instead of writing a rule that does nothing.
+
+**`security_file_edit` is applied in PHP, not here.** It defines `DISALLOW_FILE_EDIT` on
+`after_setup_theme`, which is early enough: WordPress reads the constant when it maps the
+`edit_plugins` and `edit_themes` capabilities and when the editor screens load, both
+later. A definition already in place wins — `wp-config.php` is the documented home for it
+— and the field description says which is in force.
 
 The block is rewritten whenever the settings are saved, and taken out again when the
 switch goes off or the plugin is deactivated. `Setup\Security\Environment` works out what
 the server can actually do and says so in the field descriptions, so an nginx site is
 told the rules will not apply rather than being left to wonder.
 
-`Setup\Security\Rules` also builds the nginx equivalent for pasting into a server config.
+### Which server does what
+
+The protections split cleanly: the first group is PHP and runs anywhere, the second is
+server directives and depends on what the server reads.
+
+| Setting | Apache | LiteSpeed | nginx | IIS |
+| --- | --- | --- | --- | --- |
+| `security_xmlrpc` | yes | yes | yes | yes |
+| `security_rest_users` | yes | yes | yes | yes |
+| `security_author_enum` | yes | yes | yes | yes |
+| `security_version` | yes | yes | yes | yes |
+| `security_version_assets` | yes | yes | yes | yes |
+| `security_file_edit` | yes | yes | yes | yes |
+| `security_headers` | .htaccess | .htaccess | block to paste | by hand |
+| `security_files` | .htaccess | .htaccess | block to paste | by hand |
+| `security_uploads_php` | .htaccess | .htaccess | block to paste | by hand |
+| `security_indexes` | .htaccess | .htaccess | block to paste | by hand |
+
+**LiteSpeed reads `.htaccess` and implements the Apache directives used here** —
+`mod_headers`, `mod_rewrite`, `mod_alias` and `FilesMatch` — so it is written to exactly
+as Apache is. `Environment` checks for it before Apache, since LiteSpeed identifies as
+both. Every directive is wrapped in `<IfModule>`, so a server missing a module ignores
+that block rather than throwing a 500.
+
+**nginx never reads `.htaccess`,** so the same rules are generated as nginx syntax and
+shown in the panel under the **Write server rules to .htaccess** field, ready to paste
+into the `server { }` block. The switches above it still record what is wanted, so the
+block changes as they do. Two things travel with it as comments, because whoever pastes
+it is usually not whoever read the settings screen:
+
+- It has to go **above** any `location ~ \.php$` block. nginx uses the first regex
+  location that matches, so a PHP handler placed first would run the very files the
+  uploads rule exists to stop.
+- `add_header` is not inherited by a `location` that sets its own, so any such block
+  needs these repeated inside it.
+
+The nginx block includes HSTS whether or not the site is currently on HTTPS, since it is
+written to be applied later; the `.htaccess` version holds it back until the site is
+actually secure. The field description warns when the site is not on HTTPS either way.
+
+**IIS gets neither.** Only Apache and nginx syntax is generated, so the panel says the
+rules have to be translated by hand rather than promising a block that does not exist.
+
+`Setup\Security\Rules` builds all of it, and `Setup\Security\Environment` works out
+which case applies.
 
 ## Layouts
 

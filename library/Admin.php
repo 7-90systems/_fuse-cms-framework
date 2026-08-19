@@ -26,6 +26,14 @@
             
             // Add in our functionality to save the Fuse Form values for post types
             add_action ('save_post', array ($this, 'saveFuseFormMetaBoxValues'), 10, 2);
+
+            /**
+             *  Settings saved before the unslashing fix are still in the
+             *  database with backslashes on them. Repaired once, here rather
+             *  than on activation, because an existing site updates the plugin
+             *  without ever deactivating it.
+             */
+            add_action ('admin_init', array ('\Fuse\Install', 'repairSlashedOptions'));
         } // __construct ()
         
         

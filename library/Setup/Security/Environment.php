@@ -336,9 +336,18 @@
             } // if ()
 
             if ($this->readsHtaccess () === false) {
+                if ($this->serverType () == 'nginx') {
+                    return __ ('This site runs on nginx, which does not read .htaccess files. The rules below have to go in the server configuration instead - the block underneath is the same rules written for nginx, ready to paste in.', 'fuse');
+                } // if ()
+
+                /**
+                 *  Everything else that does not read .htaccess. Only Apache
+                 *  and nginx syntax is generated, so promising a block that
+                 *  can be pasted straight in would not be true here.
+                 */
                 return sprintf (
-                    /* translators: %s: the web server name, e.g. nginx. */
-                    __ ('This site runs on %s, which does not read .htaccess files. The rules below have to be added to the server configuration instead - the block underneath can be copied straight across.', 'fuse'),
+                    /* translators: %s: the web server name, e.g. Microsoft IIS. */
+                    __ ('This site runs on %s, which does not read .htaccess files. The rules below cannot be applied from here and have to be translated into the server configuration by hand.', 'fuse'),
                     $this->serverName ()
                 );
             } // if ()

@@ -108,6 +108,7 @@
             $lines = array_merge (
                 $this->headerLines ($settings),
                 $this->fileLines ($settings),
+                $this->uploadsLines ($settings),
                 $this->indexLines ($settings)
             );
 
@@ -278,6 +279,76 @@
         } // fileLines ()
 
         /**
+         *  Where the uploads folder sits, relative to the WordPress root.
+         *
+         *  Read from WordPress rather than assumed, because the folder moves:
+         *  the UPLOADS constant, an upload_path option and some hosts all put
+         *  it somewhere other than wp-content/uploads.
+         *
+         *  @return string The relative path with no leading or trailing slash,
+         *  or an empty string when the folder is outside the WordPress
+         *  directory and so cannot be reached by a rule in the root .htaccess.
+         */
+        public function uploadsPath () {
+            if (function_exists ('wp_upload_dir') === false) {
+                return '';
+            } // if ()
+
+            $uploads = wp_upload_dir ();
+
+            if (is_array ($uploads) === false || array_key_exists ('basedir', $uploads) === false) {
+                return '';
+            } // if ()
+
+            // Windows hands back backslashes; the rules are always URL paths.
+            $base = str_replace ('\\', '/', untrailingslashit ($uploads ['basedir']));
+            $root = str_replace ('\\', '/', untrailingslashit (ABSPATH));
+
+            if ($base === '' || $root === '' || strpos ($base, $root.'/') !== 0) {
+                return '';
+            } // if ()
+
+            return trim (substr ($base, strlen ($root)), '/');
+        } // uploadsPath ()
+
+        /**
+         *  The directives refusing to run PHP in the uploads folder.
+         *
+         *  Written as a rewrite rather than a FilesMatch, because FilesMatch in
+         *  a root .htaccess has no way to say "only in this folder" -- it would
+         *  match the same file names everywhere and take the whole site down
+         *  with it. The rewrite tests the request path, so it stops at uploads.
+         *
+         *  Every extension Apache is commonly configured to hand to PHP is
+         *  covered, not just .php: a handler for .phtml or .php5 is ordinary,
+         *  and an upload named to suit it would otherwise walk straight past.
+         *
+         *  @param array $settings The security settings.
+         *
+         *  @return array The lines, empty when it is switched off.
+         */
+        protected function uploadsLines ($settings) {
+            if ($settings ['uploads_php'] != 'yes') {
+                return array ();
+            } // if ()
+
+            $path = $this->uploadsPath ();
+
+            if ($path === '') {
+                return array ();
+            } // if ()
+
+            return array (
+                '# No PHP execution in the uploads folder.',
+                '<IfModule mod_rewrite.c>',
+                '    RewriteEngine On',
+                '    RewriteRule ^'.$path.'/.*\.(?i:ph(?:p[0-9]?|tml|ar|ps))$ - [F,L]',
+                '</IfModule>',
+                ''
+            );
+        } // uploadsLines ()
+
+        /**
          *  The directive turning directory browsing off.
          *
          *  @param array $settings The security settings.
@@ -432,6 +503,30 @@
             $lines = array ();
             $headers = $this->headerSet ($settings, false);
 
+            /**
+             *  The two ways this gets pasted in and quietly does nothing. They
+             *  travel with the block rather than sitting in a README, because
+             *  the person pasting it into a server block is usually not the
+             *  person who read the settings screen.
+             */
+            $notes = array (
+                '# '.self::MARKER.'. Paste inside the server { } block.',
+                '#',
+                '# Put this ABOVE any "location ~ .php$" block. nginx uses the first',
+                '# regex location that matches, so a PHP handler placed before these',
+                '# would run the very files the uploads rule is here to stop.',
+                '#'
+            );
+
+            if (count ($headers) > 0) {
+                $notes [] = '# add_header is not inherited by a location that sets its own, so';
+                $notes [] = '# any location block with add_header directives of its own needs';
+                $notes [] = '# these repeated inside it.';
+                $notes [] = '#';
+            } // if ()
+
+            $notes [] = '';
+
             foreach ($headers as $name => $value) {
                 $lines [] = 'add_header '.$name.' "'.self::safeValue ($value).'" always;';
             } // foreach ()
@@ -452,11 +547,20 @@
                 $lines [] = '';
             } // if ()
 
+            if ($settings ['uploads_php'] == 'yes' && $this->uploadsPath () !== '') {
+                $lines [] = 'location ~* ^/'.$this->uploadsPath ().'/.*\.(ph(p[0-9]?|tml|ar|ps))$ { deny all; }';
+                $lines [] = '';
+            } // if ()
+
             if ($settings ['indexes'] == 'yes') {
                 $lines [] = 'autoindex off;';
             } // if ()
 
-            return trim (implode (PHP_EOL, $lines));
+            if (count ($lines) === 0) {
+                return '';
+            } // if ()
+
+            return trim (implode (PHP_EOL, array_merge ($notes, $lines)));
         } // nginx ()
 
     } // class Rules
