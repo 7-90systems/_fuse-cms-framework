@@ -100,7 +100,7 @@
         public function render ($output = false) {
             ob_start ();
             ?>
-                <form class="fuse-form-container" action="<?php esc_attr_e ($this->action); ?>" method="<?php esc_attr_e ($this->method); ?>" enctype="<?php esc_attr_e ($this->enctype); ?>">
+                <form class="fuse-form-container" action="<?php echo esc_attr ($this->action); ?>" method="<?php echo esc_attr ($this->method); ?>" enctype="<?php echo esc_attr ($this->enctype); ?>">
                     <?php
                         $this->setItems ($this->getPanels ());
                         parent::render (true);
@@ -131,7 +131,14 @@
          *  @return Fuse\Forms\Container\Form This form object.
          */
         public function save ($values) {
-            if ((empty ($this->_required_permission) === true || current_user_can ($this->_required_permission)) && wp_verify_nonce ($_REQUEST [$this->id], 'fuse-forms')) {
+            $nonce = array_key_exists ($this->id, $_REQUEST) ? $_REQUEST [$this->id] : '';
+            $permitted = empty ($this->_required_permission) === true || current_user_can ($this->_required_permission);
+            
+            if (is_array ($values) === false) {
+                $values = array ();
+            } // if ()
+            
+            if ($permitted && wp_verify_nonce ($nonce, 'fuse-forms') !== false) {
                 foreach ($this->getPanels () as $panel) {
                     foreach ($panel->getFields () as $field) {
                         $value = '';

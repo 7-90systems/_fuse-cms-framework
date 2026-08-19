@@ -46,7 +46,7 @@
                         </a>
                     </div>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->name) ?>" value="<?php echo intval ($this->value); ?>" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->name) ?>" value="<?php echo intval ($this->value); ?>" />
                 </div>
             <?php
         } // render ()

@@ -34,7 +34,7 @@
         $clear = true;
     } // if ()
 ?>
-<div<?php echo $id; ?> class="<?php esc_attr_e (implode (' ', $classes)); ?>">
+<div<?php echo $id; ?> class="<?php echo esc_attr (implode (' ', $classes)); ?>">
     <div class="wrap">
         
         <?php echo apply_filters ('the_content', $content); ?>

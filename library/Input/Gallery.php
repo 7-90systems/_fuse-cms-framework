@@ -56,7 +56,7 @@
                 
                     <button class="button"><?php _e ('Add gallery images', 'fuse'); ?></button>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->name); ?>" value="<?php esc_attr_e ($this->value); ?>" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->name); ?>" value="<?php echo esc_attr ($this->value); ?>" />
                     
                     <template>
                         <div class="image-container" data-id="%%ID%%">

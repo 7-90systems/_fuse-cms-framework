@@ -27,18 +27,18 @@
                 $src = wp_get_attachment_image_url ($value, 'thumbnail');
             } // if ()
             ?>
-                <div id="<?php esc_attr_e ($id); ?>" class="fuse-image-field">
+                <div id="<?php echo esc_attr ($id); ?>" class="fuse-image-field">
                     
                     <div class="fuse-image-image"<?php if ($value == 0) echo ' style="display: none;"'; ?>>
                         <span class="dashicons dashicons-no"></span>
-                        <img src="<?php echo $src; ?>" alt="<?php _e ('Selected image', 'fuse'); ?>" width="150" height="150" />
+                        <img src="<?php echo esc_url ($src); ?>" alt="<?php _e ('Selected image', 'fuse'); ?>" width="150" height="150" />
                     </div>
                     
                     <p class="select-image-container"<?php if ($value > 0) echo ' style="display: none;"'; ?>>
                         <a href="#" class="choose-image-link button"><?php _e ('Select Image', 'fuse'); ?></a>
                     </p>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->_name); ?>" value="<?php echo $value; ?>" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->_name); ?>" value="<?php echo esc_attr ($value); ?>" />
                 </div>
             <?php
         } // render ()

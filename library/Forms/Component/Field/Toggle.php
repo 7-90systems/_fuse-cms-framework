@@ -79,7 +79,7 @@
             
             ob_start ();
             ?>
-                <div class="fuse-forms-field-toggle" data-field="<?php esc_attr_e ($this->getId ()); ?>" data-value="<?php esc_attr_e ($this->getValue ()); ?>">
+                <div class="fuse-forms-field-toggle" data-field="<?php echo esc_attr ($this->getId ()); ?>" data-value="<?php echo esc_attr ($this->getValue ()); ?>">
                     <ul>
                         <?php foreach ($this->_options as $key => $label): ?>
                             <?php
@@ -90,7 +90,7 @@
                                     $first = false;
                                 } // if ()
                             ?>
-                            <li class="<?php echo $class; ?><?php if ($this->getValue () == $key) echo ' selected'; ?>" data-value="<?php esc_attr_e ($key); ?>"><?php echo $label; ?></li>
+                            <li class="<?php echo esc_attr ($class); ?><?php if ($this->getValue () == $key) echo ' selected'; ?>" data-value="<?php echo esc_attr ($key); ?>"><?php echo wp_kses_post ($label); ?></li>
                         <?php endforeach; ?>
                     </ul>
                     <input<?php echo fuse_format_attributes ($attributes); ?> />

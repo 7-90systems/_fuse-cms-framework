@@ -136,6 +136,10 @@
          *  Save the posts values.
          */
         public function savePost ($post_id, $post) {
+            if (fuse_can_save_post_meta ($post_id) === false) {
+                return;
+            } // if ()
+            
             $post_types = get_posts (array (
                 'numberposts' => -1,
                 'post_type' => 'fuse_posttype'
@@ -150,8 +154,10 @@
                     if (is_array ($metaboxes)) {
                         foreach ($metaboxes as $metabox) {
                             foreach ($metabox->fields as $field) {
-                                if (array_key_exists ($field->key, $_POST)) {
-                                    update_post_meta ($post_id, $field->key, $_POST [$field->key]);
+                                $field_key = sanitize_key ($field->key);
+                                
+                                if ($field_key !== '' && array_key_exists ($field_key, $_POST)) {
+                                    update_post_meta ($post_id, $field_key, fuse_sanitise_meta ($_POST [$field_key]));
                                 } // if ()
                             } // foreach ()
                         } // foreach ()
@@ -255,7 +261,7 @@
          */
         protected function _showTextField ($post_id, $field) {
             ?>
-                <input type="<?php esc_attr_e ($field->type); ?>" name="<?php esc_attr_e ($field->key); ?>" value="<?php esc_attr_e (get_post_meta ($post_id, $field->key, true)); ?>" class="large-text" />
+                <input type="<?php echo esc_attr ($field->type); ?>" name="<?php echo esc_attr ($field->key); ?>" value="<?php echo esc_attr (get_post_meta ($post_id, $field->key, true)); ?>" class="large-text" />
             <?php
         } // _showTextField ()
         
@@ -269,7 +275,7 @@
                 $rows = $field->settings->rows;
             } // if ()
             ?>
-                <textarea name="<?php esc_attr_e ($field->key); ?>" class="large-text" rows="<?php echo intval ($rows); ?>"><?php echo stripslashes (get_post_meta ($post_id, $field->key, true)); ?></textarea>
+                <textarea name="<?php echo esc_attr ($field->key); ?>" class="large-text" rows="<?php echo intval ($rows); ?>"><?php echo stripslashes (get_post_meta ($post_id, $field->key, true)); ?></textarea>
             <?php
         } // _showTextAreaField ()
         
@@ -286,7 +292,7 @@
                 } // if ()
             } // foreach ()
             ?>
-                <input type="number" name="<?php esc_attr_e ($field->key); ?>" value="<?php esc_attr_e (get_post_meta ($post_id, $field->key, true)); ?>" class="regular-text" <?php echo implode (' ', $atts); ?> />
+                <input type="number" name="<?php echo esc_attr ($field->key); ?>" value="<?php echo esc_attr (get_post_meta ($post_id, $field->key, true)); ?>" class="regular-text" <?php echo implode (' ', $atts); ?> />
             <?php
         } // _showNumberField ()
         
@@ -366,7 +372,7 @@
          */
         protected function _buildSelect ($name, $options, $value = '') {
             ?>
-                <select name="<?php esc_attr_e ($name); ?>">
+                <select name="<?php echo esc_attr ($name); ?>">
                     <option value="">&nbsp;</option>
                     <?php
                         foreach ($options as $key => $val) {
@@ -385,7 +391,7 @@
                 $values = array ();
             } // if 
             ?>
-                <select name="<?php esc_attr_e ($name); ?>[]" class="widefat" multiple>
+                <select name="<?php echo esc_attr ($name); ?>[]" class="widefat" multiple>
                     <?php
                         foreach ($options as $key => $val) {
                             $selected = in_array ($key, $values) ? ' selected="selected"' : '';

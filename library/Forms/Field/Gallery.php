@@ -23,7 +23,7 @@
             $image_ids = explode (',', $this->_value);
             $image_ids = array_filter ($image_ids);
             ?>
-                <div id="<?php esc_attr_e ($id); ?>" class="fuse-gallery-field">
+                <div id="<?php echo esc_attr ($id); ?>" class="fuse-gallery-field">
                 
                     <div class="gallery-images">
                         
@@ -54,7 +54,7 @@
                 
                     <a href="#" class="choose-gallery-images-link button"><?php _e ('Add images to gallery', 'fuse'); ?></a>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->_name); ?>" value="<?php echo implode (',', $image_ids); ?>" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->_name); ?>" value="<?php echo esc_attr (implode (',', array_map ('intval', $image_ids))); ?>" />
                     
                     <template class="fuse-gallery-image">
                         <?php
@@ -85,7 +85,7 @@
             ?>
                 <div class="fuse-gallery-image">
                     <span class="dashicons dashicons-no"></span>
-                    <img src="<?php echo $src; ?>" alt="<?php _e ('Gallery image', 'fuse'); ?>" width="150" height="150" data-id="<?php echo $image_id; ?>" />
+                    <img src="<?php echo esc_url ($src); ?>" alt="<?php _e ('Gallery image', 'fuse'); ?>" width="150" height="150" data-id="<?php echo intval ($image_id); ?>" />
                 </div>
             <?php
         } // _imageHtml ()

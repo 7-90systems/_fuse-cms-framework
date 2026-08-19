@@ -183,18 +183,18 @@
             
             ob_start ();
             ?>
-                <div id="fuse-form-panel-<?php esc_attr_e ($this->id); ?>" class="fuse-forms-panel label-position-<?php esc_attr_e ($this->_args ['label_position']); ?>" data-conditions="<?php esc_attr_e ($conditions); ?>">
+                <div id="fuse-form-panel-<?php echo esc_attr ($this->id); ?>" class="fuse-forms-panel label-position-<?php echo esc_attr ($this->_args ['label_position']); ?>" data-conditions="<?php echo esc_attr ($conditions); ?>">
                     <div class="fuse-forms-panel-inner">
                         
                         <?php if (empty ($this->label) === false): ?>
-                            <h2 class="fuse-forms-container-title"><?php echo $this->label; ?></h2>
+                            <h2 class="fuse-forms-container-title"><?php echo esc_html ($this->label); ?></h2>
                         <?php endif; ?>
                         
                         <?php
                             foreach ($this->_fields as $field) {
                                 ?>
                                     <div class="fuse-forms-panel-field-container">
-                                        <label for="<?php esc_attr_e ($field->getId ()); ?>"><?php echo $field->label; ?></label>
+                                        <label for="<?php echo esc_attr ($field->getId ()); ?>"><?php echo wp_kses_post ($field->label); ?></label>
                                         <div class="fuse-form-panel-field-block">
                                             <?php
                                                 $field->render (true);
@@ -202,7 +202,7 @@
                                         </div>
                                         <div class="fuse-form-panel-field-notice"></div>
                                         <?php if (strlen ($field->description) > 0): ?>
-                                            <p class="fuse-field-description"><?php echo $field->description; ?></p>
+                                            <p class="fuse-field-description"><?php echo wp_kses_post ($field->description); ?></p>
                                         <?php endif; ?>
                                     </div>
                                 <?php

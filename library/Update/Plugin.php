@@ -44,6 +44,12 @@
         public function checkForPluginUpdate ($checked_data) {
             global $api_url, $plugin_slug, $wp_version;
             
+            // WordPress fires this filter with null when the transient is being
+            // cleared; only act on a real transient object.
+            if (is_object ($checked_data) === false) {
+                return $checked_data;
+            } // if ()
+            
             if (empty ($checked_data->checked) === false) {
                 foreach ($this->getPlugins () as $plugin_file => $update_server) {
                     $version = array_key_exists ($plugin_file, $checked_data->checked) ? $checked_data->checked [$plugin_file] : '0';
@@ -64,10 +70,6 @@
                         'httpversion' => '1.1',
                         'method' => 'POST'
                     );
-                    
-                    if (defined ('WP_DEBUG') && WP_DEBUG === true) {
-                        $request_string ['sslverify'] = false;
-                    } // if ()
                     
                     // Start checking for an update
                     $raw_response = wp_remote_post ($this->_getServerUrl ($update_server), $request_string);
@@ -241,10 +243,6 @@
                     'httpversion' => '1.1',
                     'method' => 'POST'
                 );
-
-                if (defined ('WP_DEBUG') && WP_DEBUG === true) {
-                    $request_string ['sslverify'] = false;
-                } // if ()
 
                 $raw_response = wp_remote_post ($this->_getServerUrl ($server), $request_string);
 

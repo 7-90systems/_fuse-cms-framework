@@ -93,20 +93,57 @@
                 // Check that we have an address est!
                 if (strlen ($this->_address) > 0) {
                     $this->_point = NULL;
-                    $url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode ($this->_address).'&key='.urlencode ($geo_key);
-
-                    $ch = curl_init ($url);
-                    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
                     
-                    $result = json_decode (curl_exec ($ch));
-                    curl_close ($ch);
+                    /**
+                     *  Geocoding the same address over and over is both slow
+                     *  and billable, so the answer is cached for a day.
+                     */
+                    $cache_key = 'fuse_geocode_'.md5 ($this->_address);
+                    $cached = get_transient ($cache_key);
+                    
+                    if (is_array ($cached) && array_key_exists ('lat', $cached) && array_key_exists ('lng', $cached)) {
+                        $this->_point = new Point ($cached ['lat'], $cached ['lng']);
+                        
+                        return $this->_point;
+                    } // if ()
+                    
+                    $url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.urlencode ($this->_address).'&key='.urlencode ($geo_key);
+                    
+                    /**
+                     *  This used to call cURL directly, with no timeout and no
+                     *  error handling at all -- a failed or refused request
+                     *  came back as null and then fatally errored on count ().
+                     */
+                    $response = wp_remote_get ($url, array (
+                        'timeout' => 15
+                    ));
+                    
+                    if (is_wp_error ($response) || wp_remote_retrieve_response_code ($response) != 200) {
+                        return false;
+                    } // if ()
+                    
+                    $result = json_decode (wp_remote_retrieve_body ($response));
+                    
+                    if (is_object ($result) === false || isset ($result->results) === false || is_array ($result->results) === false) {
+                        return false;
+                    } // if ()
                     
                     if (count ($result->results) > 0) {
                         $record = $result->results [0];
+                        
+                        if (isset ($record->geometry->location->lat, $record->geometry->location->lng) === false) {
+                            return false;
+                        } // if ()
+                        
                         $geometry = $record->geometry->location;
                         
                         $point = new Point ($geometry->lat, $geometry->lng);
                         $this->_point = $point;
+                        
+                        set_transient ($cache_key, array (
+                            'lat' => $geometry->lat,
+                            'lng' => $geometry->lng
+                        ), DAY_IN_SECONDS);
                     } // if ()
                 } // if ()
             } // if ()

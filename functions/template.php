@@ -317,17 +317,26 @@
 		} // if ()
 
 		$image = wp_get_attachment_image_src ($args ['image'], $args ['size']);
+		
+		/**
+		 *  wp_get_attachment_image_src () returns false when the attachment has
+		 *  gone (or when there is no fallback set, since that defaults to 0),
+		 *  so there is nothing to render.
+		 */
+		if (is_array ($image) === false || empty ($image [0])) {
+			return;
+		} // if ()
 		?>
-			<figure class="fuse-responsive-image <?php esc_attr_e ($args ['class']); ?>">
-
-				<img src="<?php echo esc_url ($image [0]); ?>" alt="<?php esc_attr_e ($args ['alt']); ?>" width="<?php echo $image [1]; ?>" height="<?php echo $image [2]; ?>" />
-
-				<?php if (strlen ($args ['caption']) > 0): ?>
-
-					<figcaption><?php echo $args ['caption']; ?></figcaption>
-
+			<figure class="fuse-responsive-image <?php echo esc_attr ($args ['class']); ?>">
+				
+				<img src="<?php echo esc_url ($image [0]); ?>" alt="<?php echo esc_attr ($args ['alt']); ?>" width="<?php echo intval ($image [1]); ?>" height="<?php echo intval ($image [2]); ?>" />
+				
+				<?php if (strlen (strval ($args ['caption'])) > 0): ?>
+					
+					<figcaption><?php echo wp_kses_post ($args ['caption']); ?></figcaption>
+				
 				<?php endif; ?>
-
+			
 			</figure>
 		<?php
 	} // fuse_responsive_image ()

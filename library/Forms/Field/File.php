@@ -27,7 +27,7 @@
                 $file = wp_get_attachment_url ($value);
             } // if ()
             ?>
-                <div id="<?php esc_attr_e ($id); ?>" class="fuse-file-field">
+                <div id="<?php echo esc_attr ($id); ?>" class="fuse-file-field">
                     
                     <div class="fuse-file-file"<?php if ($value == 0) echo ' style="display: none;"'; ?>>
                         <span class="dashicons dashicons-no"></span>
@@ -38,7 +38,7 @@
                         <a href="#" class="choose-file-link button"><?php _e ('Select File', 'fuse'); ?></a>
                     </p>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->_name); ?>" value="<?php echo $value; ?>" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->_name); ?>" value="<?php echo esc_attr ($value); ?>" />
                 </div>
             <?php
         } // render ()

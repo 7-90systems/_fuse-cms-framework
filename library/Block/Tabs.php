@@ -26,17 +26,18 @@
                 ]
             );
         
+            /**
+             *  There is no 'stb-style' handle registered anywhere -- it came in
+             *  with the block this one was based on. The block's styles are
+             *  enqueued by enqueueScriptsAndStyles () below.
+             */
             register_block_type( 'fuse/tabs', [
                 'editor_script' => 'fuse-tab-block',
-                'editor_style'  => 'stb-style',
-                'style'         => 'stb-style',
                 'render_callback' => array ($this, 'renderTabs')
             ] );
-        
+            
             register_block_type( 'fuse/tab', [
-                'editor_script' => 'fuse-tab-block',
-                'editor_style'  => 'stb-style',
-                'style'         => 'stb-style'
+                'editor_script' => 'fuse-tab-block'
             ] );
         } // registerBlock ()
         

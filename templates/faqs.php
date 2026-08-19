@@ -10,7 +10,7 @@
         <?php foreach ($questions AS $faq): ?>
                 
             <div class="fuse-faq-container">
-                <h6 class="fuse-faq-question"><?php echo $faq->post_title; ?></h6>
+                <h6 class="fuse-faq-question"><?php echo esc_html ($faq->post_title); ?></h6>
                 <div class="fuse-faq-answer">
                     <?php
                         echo apply_filters ('the_title', $faq->post_content);

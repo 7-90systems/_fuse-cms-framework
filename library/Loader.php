@@ -49,12 +49,25 @@
                     $theme_name = array_shift ($class);
                     $const = 'FUSE_THEME_'.strtoupper ($theme_name).'_BASE_URI';
                     
+                    /**
+                     *  A missing constant means this simply is not one of ours
+                     *  to load. In PHP 8 constant () throws on an undefined
+                     *  name, so it has to be checked rather than attempted.
+                     */
+                    if (defined ($const) === false) {
+                        return;
+                    } // if ()
+                    
                     $file = constant ($const).DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.implode (DIRECTORY_SEPARATOR, $class).'.php';
                 } // if ()
                 elseif (count ($class) > 1 && $class [0] == 'Plugin') {
                     array_shift ($class);
                     $plugin_name = array_shift ($class);
                     $const = 'FUSE_PLUGIN_'.strtoupper ($plugin_name).'_BASE_URI';
+                    
+                    if (defined ($const) === false) {
+                        return;
+                    } // if ()
                     
                     $file = constant ($const).DIRECTORY_SEPARATOR.'library'.DIRECTORY_SEPARATOR.implode (DIRECTORY_SEPARATOR, $class).'.php';
                 } // elseif ()

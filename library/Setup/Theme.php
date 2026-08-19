@@ -379,6 +379,17 @@
          *  Enqueue our CSS files.
          */
         protected function _adminEnqueueCss () {
+            /**
+             *  Stylesheet only. Every jQuery UI *script* comes from WordPress
+             *  core ('jquery-ui-core', 'jquery-ui-datepicker' and
+             *  'jquery-ui-sortable', declared below in
+             *  _adminEnqueueJavaScript ()), so the bundled jquery-ui.js has
+             *  been removed rather than shipped unused and unpatched.
+             *
+             *  The CSS has to stay bundled: core registers no full jQuery UI
+             *  theme stylesheet, only the dialog-specific
+             *  'wp-jquery-ui-dialog'. Do not add the script back.
+             */
             wp_register_style ('fuse-jquery-ui', FUSE_BASE_URL.'/assets/external/jquery-ui-1.12.1/jquery-ui.min.css');
             wp_register_style ('fuse_container', FUSE_BASE_URL.'/assets/css/admin/container.css', array (
                 'fuse-jquery-ui'
@@ -552,10 +563,29 @@
             
             $parts = get_post_meta ($layout->getLayout (), 'fuse_layout_parts', true);
             
+            /**
+             *  A layout that has never been saved has no parts meta at all, and
+             *  get_post_meta () hands back an empty string for that. Normalise
+             *  it into the full set of keys before anything reads them --
+             *  otherwise every front-end page dies on a missing offset.
+             */
+            if (is_array ($parts) === false) {
+                $parts = array ();
+            } // if ()
+            
+            $parts = array_merge (array (
+                'header' => false,
+                'left_1' => false,
+                'left_2' => false,
+                'right_1' => false,
+                'right_2' => false,
+                'footer' => false
+            ), $parts);
+            
             // Do we have any additional CSS classes to add?
             $additional_css = get_post_meta ($layout->getLayout (), 'fuse_layout_advanced_css', true);
             
-            if (strlen ($additional_css) > 0) {
+            if (is_string ($additional_css) && strlen ($additional_css) > 0) {
                 $classes [] = $additional_css;
             } // if ()
 
@@ -602,7 +632,10 @@
              *  Set the layout class.
              */
             $post = get_post ($layout->getLayout ());
-            $classes [] = 'fuse-layout-template-'.$post->post_name;
+            
+            if ($post instanceof \WP_Post) {
+                $classes [] = 'fuse-layout-template-'.$post->post_name;
+            } // if ()
 
             /**
              *  Header
@@ -700,9 +733,12 @@
          *  Set up our themes features.
          */
         public function setupThemeFeatures () {
-            // HTML Fragments
-            if (get_fuse_option ('html_fragments', false)) {
-                
+            /**
+             *  The toggle stores the string 'no' when it is off, and 'no' is
+             *  truthy, so this has to compare against 'yes' the way every other
+             *  feature check in this class does.
+             */
+            if (get_fuse_option ('html_fragments', false) == 'yes') {
                 $themes_fragments = new Theme\Fragments ();
             } // if ()
         } // setupThemeFeatures ()
@@ -714,21 +750,47 @@
          *  Output the head scripts.
          */
         public function wpHead () {
-            echo stripslashes (get_fuse_option ('header_scripts'));
+            echo $this->_getScriptOption ('header_scripts');
         } // wpHead ()
         
         /**
          *  Output the body scripts.
          */
         public function wpBodyOpen () {
-            echo stripslashes (get_fuse_option ('body_scripts'));
+            echo $this->_getScriptOption ('body_scripts');
         } // wpBodyOpen ()
         
         /**
          *  Output the head scripts.
          */
         public function wpFooter () {
-            echo stripslashes (get_fuse_option ('footer_scripts'));
+            echo $this->_getScriptOption ('footer_scripts');
         } // wpFooter ()
+        
+        
+        
+        
+        /**
+         *  Read one of the raw script settings.
+         *
+         *  These fields exist to hold analytics snippets and the like, so their
+         *  contents are printed as-is by design. Only administrators can set
+         *  them, and the settings form now checks that capability on save. The
+         *  guard here is against the option holding something that is not a
+         *  string at all, which would make stripslashes () throw.
+         *
+         *  @param string $name The Fuse option to read.
+         *
+         *  @return string The script markup, or an empty string.
+         */
+        protected function _getScriptOption ($name) {
+            $value = get_fuse_option ($name, '');
+            
+            if (is_string ($value) === false) {
+                return '';
+            } // if ()
+            
+            return stripslashes ($value);
+        } // _getScriptOption ()
         
     } // class Theme

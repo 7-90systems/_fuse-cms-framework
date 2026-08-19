@@ -30,11 +30,11 @@
         $phone = fuse_get_contact_field ($field_name, $location);
         
         if (strlen ($phone) > 0 && $link === true) {
-            if (strlen ($link_text) == 0) {
+            if (strlen (strval ($link_text)) == 0) {
                 $link_text = $phone;
             } // if ()
             
-            $phone = '<a href="tel:'.fuse_format_phone_number_link ($phone).'">'.$link_text.'</a>';
+            $phone = '<a href="tel:'.esc_attr (fuse_format_phone_number_link ($phone)).'">'.esc_html ($link_text).'</a>';
         } // if ()
         
         return $phone;
@@ -54,11 +54,11 @@
         $email = fuse_get_contact_field ($field_name, $location);
         
         if (strlen ($email) > 0 && $link === true) {
-            if (strlen ($link_text) == 0) {
+            if (strlen (strval ($link_text)) == 0) {
                 $link_text = $email;
             } // if ()
             
-            $email = '<a href="mailto:'.esc_attr ($email).'">'.$link_text.'</a>';
+            $email = '<a href="mailto:'.esc_attr ($email).'">'.esc_html ($link_text).'</a>';
         } // if ()
         
         return $email;

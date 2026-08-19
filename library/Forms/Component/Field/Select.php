@@ -89,13 +89,13 @@
                 <select<?php echo fuse_format_attributes ($attributes); ?>>
                     <?php foreach ($this->_options as $key => $label): ?>
                         <?php if (is_array ($label)): ?>
-                            <optgroup label="<?php esc_attr_e ($label ['label']); ?>">
+                            <optgroup label="<?php echo esc_attr ($label ['label']); ?>">
                                 <?php foreach ($label ['values'] as $opt_key => $opt_label): ?>
-                                    <option value="<?php esc_attr_e ($opt_key); ?>"<?php selected ($this->getValue (), $opt_key); ?>><?php echo $opt_label; ?></option>
+                                    <option value="<?php echo esc_attr ($opt_key); ?>"<?php selected ($this->getValue (), $opt_key); ?>><?php echo wp_kses_post ($opt_label); ?></option>
                                 <?php endforeach; ?>
                             </optgroup>
                         <?php else: ?>
-                            <option value="<?php esc_attr_e ($key); ?>"<?php selected ($this->getValue (), $key); ?>><?php echo $label; ?></option>
+                            <option value="<?php echo esc_attr ($key); ?>"<?php selected ($this->getValue (), $key); ?>><?php echo wp_kses_post ($label); ?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </select>

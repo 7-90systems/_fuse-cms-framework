@@ -55,7 +55,13 @@
                     <h1><?php _e ('Site Settings', 'fuse'); ?></h1>
                     
                     <?php
-                        if (count ($_POST) > 0) {
+                        /**
+                         *  add_menu_page () already gates this screen on
+                         *  'manage_options', but the save path is checked again
+                         *  here so it can never run off the back of a stray
+                         *  POST to this callback.
+                         */
+                        if (current_user_can ('manage_options') && array_key_exists ('fuseform', $_POST)) {
                             $form->save ($_POST ['fuseform']);
                         } // if ()
                         
@@ -78,21 +84,32 @@
          *  @param WP_Post $post The post object.
          */
         public function saveFuseFormMetaBoxValues ($post_id, $post) {
-            // Don't update on autosave.
-            if (defined ('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            if (fuse_can_save_post_meta ($post_id) === false) {
                 return;
             } // if ()
-            else {
-                // Let's see if we have any Fuse form fields.
-                if (array_key_exists ('fuseform', $_POST) && is_array ($_POST ['fuseform'])) {
-                    // Save the values for each form field that we've got.
-                    foreach ($_POST ['fuseform'] as $field_name => $value) {
-                        update_post_meta ($post_id, 'fuse_form_'.$field_name, $value);
-                        
-                        do_action ('fuse_form_metabox_'.$field_name.'_save', $value, $post);
-                    } // forech ()
-                } // if ()
-            } // else
+            
+            // Let's see if we have any Fuse form fields.
+            if (array_key_exists ('fuseform', $_POST) && is_array ($_POST ['fuseform'])) {
+                // Save the values for each form field that we've got.
+                foreach ($_POST ['fuseform'] as $field_name => $value) {
+                    /**
+                     *  The field name becomes part of the meta key, so it has
+                     *  to be reduced to a key-safe string. Anything else would
+                     *  let a request invent meta keys of its own.
+                     */
+                    $field_name = sanitize_key ($field_name);
+                    
+                    if ($field_name === '') {
+                        continue;
+                    } // if ()
+                    
+                    $value = fuse_sanitise_meta ($value);
+                    
+                    update_post_meta ($post_id, 'fuse_form_'.$field_name, $value);
+                    
+                    do_action ('fuse_form_metabox_'.$field_name.'_save', $value, $post);
+                } // forech ()
+            } // if ()
         } // saveFuseFormMetaBoxValues ()
         
     } // class Admin

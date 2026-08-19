@@ -20,7 +20,7 @@
         wp_enqueue_script ('slick');
         wp_enqueue_style ('slick');
     ?>
-    <div id="<?php echo $id; ?>" class="fuse-slider">
+    <div id="<?php echo esc_attr ($id); ?>" class="fuse-slider">
         <?php
             foreach ($slides as $slide) {
                 include ($slide_template);
@@ -29,7 +29,7 @@
     </div>
     <script type="text/javascript">
         jQuery (document).ready (function () {
-            jQuery ('#<?php echo $id; ?>').slick ({
+            jQuery ('#<?php echo esc_js ($id); ?>').slick ({
                 <?php
                     echo stripslashes (get_post_meta ($this->_post->ID, 'fuse_slider_settings', true));
                 ?>

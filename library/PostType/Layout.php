@@ -160,7 +160,7 @@
                             <br />
                             <select name="fuse_parts_sidebar_left_1">
                                 <?php foreach ($wp_registered_sidebars as $alias => $sidebar): ?>
-                                    <option value="<?php esc_attr_e ($sidebar ['id']); ?>"<?php selected ($sidebar_left_1, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
+                                    <option value="<?php echo esc_attr ($sidebar ['id']); ?>"<?php selected ($sidebar_left_1, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -175,7 +175,7 @@
                             <br />
                             <select name="fuse_parts_sidebar_left_2">
                                 <?php foreach ($wp_registered_sidebars as $alias => $sidebar): ?>
-                                    <option value="<?php esc_attr_e ($sidebar ['id']); ?>"<?php selected ($sidebar_left_2, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
+                                    <option value="<?php echo esc_attr ($sidebar ['id']); ?>"<?php selected ($sidebar_left_2, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -194,7 +194,7 @@
                             <br/>
                             <select name="fuse_parts_sidebar_right_1">
                                 <?php foreach ($wp_registered_sidebars as $alias => $sidebar): ?>
-                                    <option value="<?php esc_attr_e ($sidebar ['id']); ?>"<?php selected ($sidebar_right_1, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
+                                    <option value="<?php echo esc_attr ($sidebar ['id']); ?>"<?php selected ($sidebar_right_1, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -209,7 +209,7 @@
                             <br />
                             <select name="fuse_parts_sidebar_right_2">
                                 <?php foreach ($wp_registered_sidebars as $alias => $sidebar): ?>
-                                    <option value="<?php esc_attr_e ($sidebar ['id']); ?>"<?php selected ($sidebar_right_2, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
+                                    <option value="<?php echo esc_attr ($sidebar ['id']); ?>"<?php selected ($sidebar_right_2, $sidebar ['id']); ?>><?php echo $sidebar ['name']; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -335,7 +335,7 @@
                     <tr>
                         <th><?php _e ('Additional CSS classes', 'fuse'); ?></th>
                         <td>
-                            <input type="text" name="fuse_layout_advanced_css" value="<?php esc_attr_e (get_post_meta ($post->ID, 'fuse_layout_advanced_css', true)); ?>" class="large-text" />
+                            <input type="text" name="fuse_layout_advanced_css" value="<?php echo esc_attr (get_post_meta ($post->ID, 'fuse_layout_advanced_css', true)); ?>" class="large-text" />
                         </td>
                     </tr>
                 </table>
@@ -384,21 +384,31 @@
          */
         public function savePost ($post_id, $post) {
             if (array_key_exists ('fuse_parts_header', $_POST)) {
+                /**
+                 *  Each of these is a checkbox-style value, so a missing key
+                 *  means 'not shown' rather than an error.
+                 */
+                $is_shown = function ($key) {
+                    return array_key_exists ($key, $_POST) && $_POST [$key] == 'show';
+                };
+                
                 $parts = array (
-                    'header' => $_POST ['fuse_parts_header'] == 'show' ? true : false,
-                    'left_1' => $_POST ['fuse_parts_left_1'] == 'show' ? true : false,
-                    'left_2' => $_POST ['fuse_parts_left_2'] == 'show' ? true : false,
-                    'right_1' => $_POST ['fuse_parts_right_1'] == 'show' ? true : false,
-                    'right_2' => $_POST ['fuse_parts_right_2'] == 'show' ? true : false,
-                    'footer' => $_POST ['fuse_parts_footer'] == 'show' ? true : false
+                    'header' => $is_shown ('fuse_parts_header'),
+                    'left_1' => $is_shown ('fuse_parts_left_1'),
+                    'left_2' => $is_shown ('fuse_parts_left_2'),
+                    'right_1' => $is_shown ('fuse_parts_right_1'),
+                    'right_2' => $is_shown ('fuse_parts_right_2'),
+                    'footer' => $is_shown ('fuse_parts_footer')
                 );
                 
                 update_post_meta ($post_id, 'fuse_layout_parts', $parts);
                 
-                update_post_meta ($post_id, 'fuse_parts_sidebar_left_1', $_POST ['fuse_parts_sidebar_left_1']);
-                update_post_meta ($post_id, 'fuse_parts_sidebar_left_2', $_POST ['fuse_parts_sidebar_left_2']);
-                update_post_meta ($post_id, 'fuse_parts_sidebar_right_1', $_POST ['fuse_parts_sidebar_right_1']);
-                update_post_meta ($post_id, 'fuse_parts_sidebar_right_2', $_POST ['fuse_parts_sidebar_right_2']);
+                foreach (array ('left_1', 'left_2', 'right_1', 'right_2') as $sidebar) {
+                    $key = 'fuse_parts_sidebar_'.$sidebar;
+                    $value = array_key_exists ($key, $_POST) ? sanitize_text_field ($_POST [$key]) : '';
+                    
+                    update_post_meta ($post_id, $key, $value);
+                } // foreach ()
                 
                 /**
                  *  Check for defaults
@@ -493,7 +503,14 @@
                 } // foreach ()
                 
                 if (array_key_exists ('fuse_layout_advanced_css', $_POST)) {
-                    update_post_meta ($post_id, 'fuse_layout_advanced_css', $_POST ['fuse_layout_advanced_css']);
+                    /**
+                     *  These land in the body class attribute, so they can only
+                     *  ever be a space-separated list of CSS class names.
+                     */
+                    $css_classes = explode (' ', $_POST ['fuse_layout_advanced_css']);
+                    $css_classes = array_filter (array_map ('sanitize_html_class', $css_classes));
+
+                    update_post_meta ($post_id, 'fuse_layout_advanced_css', implode (' ', $css_classes));
                 } // if ()
             } // if ()
         } // savePost ()
@@ -502,15 +519,14 @@
          *  Save the post layout option.
          */
         public function savePostLayout ($post_id) {
-            if (defined ('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            if (fuse_can_save_post_meta ($post_id) === false) {
                 return;
             } // if ()
-            else {
-                // Post layout
-                if (array_key_exists ('fuse_post_layout', $_POST)) {
-                    update_post_meta ($post_id, 'fuse_post_layout', $_POST ['fuse_post_layout']);
-                } // if ()s
-            } // else
+
+            // Post layout
+            if (array_key_exists ('fuse_post_layout', $_POST)) {
+                update_post_meta ($post_id, 'fuse_post_layout', intval ($_POST ['fuse_post_layout']));
+            } // if ()
         } // savePostLayout ()
         
         

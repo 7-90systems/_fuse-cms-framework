@@ -12,7 +12,7 @@
      *  Requires at least: 6.0
      *  Requires PHP: 7.4
      *  Text Domain: fuse
-     *  Fuse Update Server: http://fusecms.org
+     *  Fuse Update Server: https://fusecms.org
      */
     
     namespace Fuse;

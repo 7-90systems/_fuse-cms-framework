@@ -79,10 +79,10 @@
                     
                     <?php foreach ($model->getLabels () as $key => $label): ?>
 
-                        <tr class="label-<?php echo $label ['type']; ?>"<?php if ($label ['type'] == 'advanced' && $use_advanced == 'no') echo ' style="display: none;"'; ?>>
-                            <th><?php echo $label ['label']; ?></th>
+                        <tr class="label-<?php echo esc_attr ($label ['type']); ?>"<?php if ($label ['type'] == 'advanced' && $use_advanced == 'no') echo ' style="display: none;"'; ?>>
+                            <th><?php echo wp_kses_post ($label ['label']); ?></th>
                             <td>
-                                <input type="text" name="fuse_posttype_builder_labels[<?php esc_attr_e ($key); ?>]" value="<?php esc_attr_e ($label ['value']); ?>" class="regular-text"<?php if (array_key_exists ('placeholder', $label)) echo ' placeholder="'.esc_attr ($label ['placeholder']).'"'; ?> />
+                                <input type="text" name="fuse_posttype_builder_labels[<?php echo esc_attr ($key); ?>]" value="<?php echo esc_attr ($label ['value']); ?>" class="regular-text"<?php if (array_key_exists ('placeholder', $label)) echo ' placeholder="'.esc_attr ($label ['placeholder']).'"'; ?> />
                             </td>
                         </tr>
                     
@@ -118,7 +118,7 @@
                     <tr>
                         <th><?php _e ('Post type slug', 'fuse'); ?></th>
                         <td>
-                            <input type="text" name="fuse_posttype_builder_slug" value="<?php esc_attr_e (get_post_meta ($post->ID, 'fuse_posttype_builder_slug', true)); ?>" maxlength="20" />
+                            <input type="text" name="fuse_posttype_builder_slug" value="<?php echo esc_attr (get_post_meta ($post->ID, 'fuse_posttype_builder_slug', true)); ?>" maxlength="20" />
                             <p class="description"><?php _e ('Must not exceed 20 characters and may only contain lowercase alphanumeric characters, dashes, and underscores.', 'fuse'); ?></p>
                         </td>
                     </tr>
@@ -226,8 +226,8 @@
             
             // Labels
             if (array_key_exists ('fuse_posttype_builder_labels_advanced', $_POST)) {
-                $advanced = $_POST ['fuse_posttype_builder_labels_advanced'];
-                $labels = $_POST ['fuse_posttype_builder_labels'];
+                $advanced = sanitize_key ($_POST ['fuse_posttype_builder_labels_advanced']);
+                $labels = array_key_exists ('fuse_posttype_builder_labels', $_POST) ? fuse_sanitise_meta ($_POST ['fuse_posttype_builder_labels']) : array ();
                 
                 if ($advanced != 'yes') {
                     $advanced = 'no';
@@ -262,8 +262,19 @@
                     )
                 ));
                 
-                if (count ($existing_post_types) == 0) {
-                    if ($new_slug != $current_slug) {
+                if (count ($existing_post_types) == 0 && $this->_isUsableSlug ($new_slug)) {
+                    if ($new_slug != $current_slug && strlen ($current_slug) > 0) {
+                        /**
+                         *  Moving every post across to the new type is a direct
+                         *  table write, so the affected IDs are collected first
+                         *  and their caches cleaned afterwards. Without that the
+                         *  posts keep reporting their old type until the cache
+                         *  expires.
+                         */
+                        $moved_ids = $wpdb->get_col ($wpdb->prepare (
+                            "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s",
+                            $current_slug
+                        ));
                         
                         $wpdb->update ($wpdb->posts, array (
                             'post_type' => $new_slug
@@ -275,19 +286,72 @@
                             '%s'
                         ));
                         
+                        foreach ($moved_ids as $moved_id) {
+                            clean_post_cache ($moved_id);
+                        } // foreach ()
+                        
                         update_post_meta ($post_id, 'fuse_posttype_builder_slug', $new_slug);
                     } // if ()
+                    elseif (strlen ($current_slug) == 0) {
+                        // First save, so there is nothing to move across yet.
+                        update_post_meta ($post_id, 'fuse_posttype_builder_slug', $new_slug);
+                    } // elseif ()
                 } // if ()
                 
                 // Save settings
-                update_post_meta ($post_id, 'fuse_posttype_builder_settings', $_POST ['fuse_posttype_builder_settings']);
+                if (array_key_exists ('fuse_posttype_builder_settings', $_POST)) {
+                    update_post_meta ($post_id, 'fuse_posttype_builder_settings', fuse_sanitise_meta ($_POST ['fuse_posttype_builder_settings']));
+                } // if ()
                 
                 // Metaboxes
                 if (array_key_exists ('fuse_builder_metaboxes', $_POST)) {
-                    update_post_meta ($post_id, 'fuse_builder_metaboxes', $_POST ['fuse_builder_metaboxes']);
+                    update_post_meta ($post_id, 'fuse_builder_metaboxes', fuse_sanitise_meta ($_POST ['fuse_builder_metaboxes']));
                 } // if ()
             } // if ()
         } // savePost ()
+        
+        
+        
+        
+        /**
+         *  Check whether a slug can be used for a built post type.
+         *
+         *  WordPress caps post type names at 20 characters and reserves a set
+         *  of its own, so a slug that breaks either rule would register badly
+         *  or collide with core content.
+         *
+         *  @param string $slug The slug to check.
+         *
+         *  @return bool True when the slug is safe to use.
+         */
+        protected function _isUsableSlug ($slug) {
+            if (strlen ($slug) < 1 || strlen ($slug) > 20) {
+                return false;
+            } // if ()
+            
+            $reserved = array (
+                'post',
+                'page',
+                'attachment',
+                'revision',
+                'nav_menu_item',
+                'custom_css',
+                'customize_changeset',
+                'oembed_cache',
+                'user_request',
+                'wp_block',
+                'wp_template',
+                'wp_template_part',
+                'wp_global_styles',
+                'wp_navigation',
+                'action',
+                'author',
+                'order',
+                'theme'
+            );
+            
+            return in_array ($slug, $reserved, true) === false;
+        } // _isUsableSlug ()
         
         
         
@@ -308,9 +372,9 @@
                 $value = $setting ['default'];
             } // if ()
             ?>
-                <select name="fuse_posttype_builder_settings[<?php esc_attr_e ($key); ?>]">
+                <select name="fuse_posttype_builder_settings[<?php echo esc_attr ($key); ?>]">
                     <?php foreach ($options as $op_key => $op_label): ?>
-                        <option value="<?php esc_attr_e ($op_key); ?>"<?php selected ($value, $op_key); ?>><?php echo $op_label; ?></option>
+                        <option value="<?php echo esc_attr ($op_key); ?>"<?php selected ($value, $op_key); ?>><?php echo $op_label; ?></option>
                     <?php endforeach; ?>
                 </select>
             <?php
@@ -333,7 +397,7 @@
                     <?php foreach ($setting ['options'] as $op_key => $op_label): ?>
                         <li>
                             <label>
-                                <input type="checkbox" name="fuse_posttype_builder_settings[<?php esc_attr_e ($key); ?>][]" value="<?php esc_attr_e ($op_key); ?>"<?php if (in_array ($op_key, $values)) echo ' checked="checked"'; ?> />
+                                <input type="checkbox" name="fuse_posttype_builder_settings[<?php echo esc_attr ($key); ?>][]" value="<?php echo esc_attr ($op_key); ?>"<?php if (in_array ($op_key, $values)) echo ' checked="checked"'; ?> />
                                 <?php echo $op_label; ?>
                             </label>
                         </li>
@@ -348,7 +412,7 @@
         protected function _fieldSetting ($key, $setting) {
             $value = $setting ['value'];
             ?>
-                <input type="<?php esc_attr_e ($setting ['type']); ?>" name="fuse_posttype_builder_settings[<?php esc_attr_e ($key); ?>]" value="<?php esc_attr_e ($value); ?>" class="regular-text" />
+                <input type="<?php echo esc_attr ($setting ['type']); ?>" name="fuse_posttype_builder_settings[<?php echo esc_attr ($key); ?>]" value="<?php echo esc_attr ($value); ?>" class="regular-text" />
             <?php
         } // _fieldsetting ()
         
@@ -392,7 +456,7 @@
                             <tr>
                                 <th><?php _e ('Metabox Name', 'fuse'); ?></th>
                                 <td>
-                                    <input type="text" name="metabox-name" value="<?php esc_attr_e ($name); ?>" class="widefat metabox-name" />
+                                    <input type="text" name="metabox-name" value="<?php echo esc_attr ($name); ?>" class="widefat metabox-name" />
                                 </td>
                             </tr>
                         </table>
@@ -462,13 +526,13 @@
                             <tr>
                                 <th><?php _e ('Field Name', 'fuse'); ?></th>
                                 <td>
-                                    <input type="text" name="" value="<?php esc_attr_e ($name); ?>" class="widefat metabox-field-name" />
+                                    <input type="text" name="" value="<?php echo esc_attr ($name); ?>" class="widefat metabox-field-name" />
                                 </td>
                             </tr>
                             <tr>
                                 <th><?php _e ('Data Key', 'fuse'); ?></th>
                                 <td>
-                                    <input type="text" name="" value="<?php esc_attr_e ($key); ?>" class="widefat metabox-data-key" />
+                                    <input type="text" name="" value="<?php echo esc_attr ($key); ?>" class="widefat metabox-data-key" />
                                 </td>
                             </tr>
                         </table>
@@ -479,7 +543,7 @@
                                     <td>
                                         <select name="field_type" class="fuse_builder_field_type widefat">
                                             <?php foreach ($field_types as $key => $label): ?>
-                                                <option value="<?php esc_attr_e ($key); ?>"<?php selected ($key, $type); ?>><?php echo $label; ?></option>
+                                                <option value="<?php echo esc_attr ($key); ?>"<?php selected ($key, $type); ?>><?php echo wp_kses_post ($label); ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
@@ -531,7 +595,7 @@
                                     <td>
                                         <select name="posttype" class="widefat">
                                             <?php foreach ($post_types as $op_type): ?>
-                                                <option value="<?php esc_attr_e ($op_type->name); ?>"<?php selected ($op_type->name, $selected_post_type); ?>><?php echo $op_type->label; ?></option>
+                                                <option value="<?php echo esc_attr ($op_type->name); ?>"<?php selected ($op_type->name, $selected_post_type); ?>><?php echo $op_type->label; ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
@@ -546,7 +610,7 @@
                                     <td>
                                         <select name="taxonomy" class="widefat">
                                             <?php foreach ($taxonomies as $op_type): ?>
-                                                <option value="<?php esc_attr_e ($op_type->name); ?>"<?php selected ($op_type->name, $selected_taxonomy); ?>><?php echo $op_type->label; ?></option>
+                                                <option value="<?php echo esc_attr ($op_type->name); ?>"<?php selected ($op_type->name, $selected_taxonomy); ?>><?php echo $op_type->label; ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>

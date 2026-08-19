@@ -96,13 +96,21 @@
             $section = 'default';
             
             if (array_key_exists ('section', $_POST)) {
-                $section = $_POST ['section'];
+                /**
+                 *  This is passed straight on to whatever is hooked to the
+                 *  filter below, so it is reduced to a plain key here rather
+                 *  than handed on as arbitrary request input.
+                 */
+                $section = sanitize_key ($_POST ['section']);
+            } // if ()
+            
+            if ($section === '') {
+                $section = 'default';
             } // if ()
             
             $fragments = apply_filters ('fuse_theme_fragments', array (), $section);
             
-            echo json_encode ($fragments);
-            wp_die ();
+            wp_send_json ($fragments);
         } // sendFragments ()
         
     } // class Fragments

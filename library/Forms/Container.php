@@ -208,14 +208,14 @@
             
             ob_start ();
             ?>
-                <div id="<?php esc_attr_e ($this->id); ?>" class="<?php esc_attr_e ($this->class); ?><?php echo $tabbed === true ? ' tabbed' : ' not-tabbed'; ?>">
+                <div id="<?php echo esc_attr ($this->id); ?>" class="<?php echo esc_attr ($this->class); ?><?php echo $tabbed === true ? ' tabbed' : ' not-tabbed'; ?>">
                     <div class="fuse-forms-container-inner">
                         
                         <?php if ($tabbed === true): ?>
                             <ul class="fuse-form-panel-tabs">
                                 <?php foreach ($this->_items as $item): ?>
                                     <li>
-                                        <a href="#fuse-form-panel-<?php esc_attr_e ($item->id); ?>"><?php echo $item->label; ?></a>
+                                        <a href="#fuse-form-panel-<?php echo esc_attr ($item->id); ?>"><?php echo wp_kses_post ($item->label); ?></a>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>

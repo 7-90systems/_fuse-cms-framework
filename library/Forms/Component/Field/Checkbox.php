@@ -115,8 +115,8 @@
                     
                         <li>
                             <label>
-                                <input type="checkbox" name="fuseform[<?php esc_attr_e ($this->name); ?>][]" value="<?php esc_attr_e ($key); ?>"<?php if (in_array ($key, $values)) echo ' checked="checked"'; ?> />
-                                <?php echo $label; ?>
+                                <input type="checkbox" name="fuseform[<?php echo esc_attr ($this->name); ?>][]" value="<?php echo esc_attr ($key); ?>"<?php if (in_array ($key, $values)) echo ' checked="checked"'; ?> />
+                                <?php echo esc_html ($label); ?>
                             </label>
                         </li>
                     

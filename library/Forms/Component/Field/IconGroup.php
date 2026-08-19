@@ -79,12 +79,12 @@
                 <div class="fuse-form-field-icongroup">
                     
                     <?php foreach ($this->_options as $option): ?>
-                        <a href="#" class="fuse-form-field-icongroup-image<?php if ($option ['value'] == $value) echo ' selected'; ?>" title="<?php esc_attr_e ($option ['label']); ?>" data-value="<?php esc_attr_e ($option ['value']); ?>">
+                        <a href="#" class="fuse-form-field-icongroup-image<?php if ($option ['value'] == $value) echo ' selected'; ?>" title="<?php echo esc_attr ($option ['label']); ?>" data-value="<?php echo esc_attr ($option ['value']); ?>">
                             <span class="image" style="background-image: url('<?php echo esc_url ($option ['image']); ?>');">&nbsp;</span>
                         </a>
                     <?php endforeach; ?>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->getName ()); ?>" value="<?php esc_attr_e ($value); ?>" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->getName ()); ?>" value="<?php echo esc_attr ($value); ?>" />
                     
                 </div>
             <?php

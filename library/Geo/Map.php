@@ -129,26 +129,26 @@
             $point = $this->_points [0];
             
             ?>
-                <div id="<?php esc_attr_e ($map_id); ?>" class="fuse-map-container" style="width: 100%; height: 100%;"></div>
+                <div id="<?php echo esc_attr ($map_id); ?>" class="fuse-map-container" style="width: 100%; height: 100%;"></div>
                 <script type="text/javascript">
                     function <?php echo $map_id; ?>_initMap () {
                         var marker_point = {
-                            lat: <?php echo $point->lat; ?>,
-                            lng: <?php echo $point->lng; ?>
+                            lat: <?php echo floatval ($point->lat); ?>,
+                            lng: <?php echo floatval ($point->lng); ?>
                         };
                         
                         var map = new google.maps.Map (
-                            document.getElementById ('<?php echo $map_id; ?>'),
+                            document.getElementById ('<?php echo esc_js ($map_id); ?>'),
                             {
-                                zoom: <?php echo $map_zoom; ?>,
+                                zoom: <?php echo intval ($map_zoom); ?>,
                                 center: marker_point
                             }
                         );
-                            
+                        
                         var marker = new google.maps.Marker ({
                             position: marker_point,
                             <?php if (strlen ($point->label) > 0): ?>
-                                title: '<?php esc_attr_e ($point->label); ?>',
+                                title: '<?php echo esc_js ($point->label); ?>',
                             <?php endif; ?>
                             map: map
                         });
@@ -156,7 +156,7 @@
                         jQuery (document).trigger ('fuse_geo_maps_callback');
                     } // <?php echo $map_id; ?>_initMap ()
                 </script>
-                <script defer src="https://maps.googleapis.com/maps/api/js?key=<?php esc_attr_e ($geo_key); ?>&callback=<?php esc_attr_e ($map_id); ?>_initMap"></script>
+                <script defer src="<?php echo esc_url ('https://maps.googleapis.com/maps/api/js?key='.$geo_key.'&callback='.$map_id.'_initMap'); ?>"></script>
             <?php
         } // _displaySinglePointMap ()
         
@@ -195,13 +195,13 @@
             } // foreach ()
 // \Fuse\Debug::dump ($bounds, 'Bounds');
             ?>
-                <div id="<?php esc_attr_e ($map_id); ?>" class="fuse-map-container" style="width: 100%; height: 100%;"></div>
+                <div id="<?php echo esc_attr ($map_id); ?>" class="fuse-map-container" style="width: 100%; height: 100%;"></div>
                 <script type="text/javascript">
                     function <?php echo $map_id; ?>_initMap () {
-                        var map = new google.maps.Map (document.getElementById ('<?php echo $map_id; ?>'));
+                        var map = new google.maps.Map (document.getElementById ('<?php echo esc_js ($map_id); ?>'));
                         map.fitBounds (new google.maps.LatLngBounds (
-                            {lat: <?php echo $bounds ['south']; ?>, lng: <?php echo $bounds ['west']; ?>},
-                            {lat: <?php echo $bounds ['north']; ?>, lng: <?php echo $bounds ['east']; ?>}
+                            {lat: <?php echo floatval ($bounds ['south']); ?>, lng: <?php echo floatval ($bounds ['west']); ?>},
+                            {lat: <?php echo floatval ($bounds ['north']); ?>, lng: <?php echo floatval ($bounds ['east']); ?>}
                         ));
                         
                         var locations = [
@@ -209,7 +209,7 @@
                                 $sep = '';
                                 
                                 foreach ($this->_points as $point) {
-                                    echo $sep.'{lat: '.$point->lat.', lng: '.$point->lng.'}';
+                                    echo $sep.'{lat: '.floatval ($point->lat).', lng: '.floatval ($point->lng).'}';
                                     
                                     $sep = ', ';
                                 } // foreach ()
@@ -221,7 +221,7 @@
                                 $sep = '';
                                 
                                 foreach ($this->_points as $point) {
-                                    echo $sep.'"'.esc_attr ($point->label).'"';
+                                    echo $sep.'"'.esc_js ($point->label).'"';
                                     
                                     $sep = ', ';
                                 } // foreach ()
@@ -237,7 +237,7 @@
                         });
                     } // <?php echo $map_id; ?>_initMap ()
                 </script>
-                <script defer src="https://maps.googleapis.com/maps/api/js?key=<?php esc_attr_e ($geo_key); ?>&callback=<?php esc_attr_e ($map_id); ?>_initMap"></script>
+                <script defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr ($geo_key); ?>&callback=<?php echo esc_attr ($map_id); ?>_initMap"></script>
             <?php
         } // _displayMultipointMap ()
         
@@ -276,13 +276,13 @@
             } // foreach ()
 // \Fuse\Debug::dump ($bounds, 'Bounds');
             ?>
-                <div id="<?php esc_attr_e ($map_id); ?>" class="fuse-map-container" style="width: 100%; height: 100%;"></div>
+                <div id="<?php echo esc_attr ($map_id); ?>" class="fuse-map-container" style="width: 100%; height: 100%;"></div>
                 <script type="text/javascript">
                     function <?php echo $map_id; ?>_initMap () {
-                        var map = new google.maps.Map (document.getElementById ('<?php echo $map_id; ?>'));
+                        var map = new google.maps.Map (document.getElementById ('<?php echo esc_js ($map_id); ?>'));
                         map.fitBounds (new google.maps.LatLngBounds (
-                            {lat: <?php echo $bounds ['south']; ?>, lng: <?php echo $bounds ['west']; ?>},
-                            {lat: <?php echo $bounds ['north']; ?>, lng: <?php echo $bounds ['east']; ?>}
+                            {lat: <?php echo floatval ($bounds ['south']); ?>, lng: <?php echo floatval ($bounds ['west']); ?>},
+                            {lat: <?php echo floatval ($bounds ['north']); ?>, lng: <?php echo floatval ($bounds ['east']); ?>}
                         ));
                         
                         var locations = [
@@ -290,7 +290,7 @@
                                 $sep = '';
                                 
                                 foreach ($this->_points as $point) {
-                                    echo $sep.'{lat: '.$point->lat.', lng: '.$point->lng.'}';
+                                    echo $sep.'{lat: '.floatval ($point->lat).', lng: '.floatval ($point->lng).'}';
                                     
                                     $sep = ', ';
                                 } // foreach ()
@@ -302,7 +302,7 @@
                                 $sep = '';
                                 
                                 foreach ($this->_points as $point) {
-                                    echo $sep.'"'.esc_attr ($point->label).'"';
+                                    echo $sep.'"'.esc_js ($point->label).'"';
                                     
                                     $sep = ', ';
                                 } // foreach ()
@@ -323,7 +323,7 @@
                                     $sep = '';
                                     
                                     foreach ($this->_points as $point) {
-                                        echo $sep.'{lat: '.$point->lat.', lng: '.$point->lng.'}';
+                                        echo $sep.'{lat: '.floatval ($point->lat).', lng: '.floatval ($point->lng).'}';
                                         $sep = ', ';
                                     } // foreach ()
                                 ?>
@@ -345,7 +345,7 @@
                         map_path.setMap (map);
                     } // <?php echo $map_id; ?>_initMap ()
                 </script>
-                <script defer src="https://maps.googleapis.com/maps/api/js?key=<?php esc_attr_e ($geo_key); ?>&callback=<?php esc_attr_e ($map_id); ?>_initMap"></script>
+                <script defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr ($geo_key); ?>&callback=<?php echo esc_attr ($map_id); ?>_initMap"></script>
             <?php
         } // _displayDirectionMap ()
         

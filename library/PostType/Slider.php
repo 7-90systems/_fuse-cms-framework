@@ -69,7 +69,7 @@ slidesToShow: 1';
                         <td>
                             <select name="fuse_slider_template_slider">
                                 <?php foreach ($this->_getTemplateFiles ('slider') as $template): ?>
-                                    <option value="<?php esc_attr_e ($template); ?>"<?php selected ($template, $slider); ?>><?php echo $template; ?></option>
+                                    <option value="<?php echo esc_attr ($template); ?>"<?php selected ($template, $slider); ?>><?php echo $template; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -79,7 +79,7 @@ slidesToShow: 1';
                         <td>
                             <select name="fuse_slider_template_slide">
                                 <?php foreach ($this->_getTemplateFiles ('slide') as $template): ?>
-                                    <option value="<?php esc_attr_e ($template); ?>"<?php selected ($template, $slide); ?>><?php echo $template; ?></option>
+                                    <option value="<?php echo esc_attr ($template); ?>"<?php selected ($template, $slide); ?>><?php echo $template; ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </td>
@@ -100,13 +100,15 @@ slidesToShow: 1';
         public function savePost ($post_id, $post) {
             // Settings
             if (array_key_exists ('fuse_slider_settings', $_POST)) {
-                update_post_meta ($post_id, 'fuse_slider_settings', $_POST ['fuse_slider_settings']);
+                update_post_meta ($post_id, 'fuse_slider_settings', fuse_sanitise_meta ($_POST ['fuse_slider_settings']));
             } // if ()
             
             // Templates
             if (array_key_exists ('fuse_slider_template_slider', $_POST)) {
-                update_post_meta ($post_id, 'fuse_slider_template_slider', $_POST ['fuse_slider_template_slider']);
-                update_post_meta ($post_id, 'fuse_slider_template_slide', $_POST ['fuse_slider_template_slide']);
+                $slide_template = array_key_exists ('fuse_slider_template_slide', $_POST) ? $_POST ['fuse_slider_template_slide'] : '';
+                
+                update_post_meta ($post_id, 'fuse_slider_template_slider', sanitize_text_field ($_POST ['fuse_slider_template_slider']));
+                update_post_meta ($post_id, 'fuse_slider_template_slide', sanitize_text_field ($slide_template));
             } // if ()
         } // savePost ()
         

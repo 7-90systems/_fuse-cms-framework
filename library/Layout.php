@@ -333,15 +333,21 @@
          *  @return Fuse\Layout\Layout The default layout.
          */
         protected function _getDefaultLayout () {
-            global $wpdb;
-
             $layout = intval (get_option ('fuse_layout_defaults_global', 0));
-
+            
             if ($layout == 0) {
-                trigger_error (__ ('No default layout is set', 'fuse'), E_USER_ERROR);
+                /**
+                 *  This used to be an E_USER_ERROR, which took the whole site
+                 *  down over a missing setting. Log it and let the caller carry
+                 *  on with no layout instead.
+                 */
+                if (defined ('WP_DEBUG') && WP_DEBUG === true) {
+                    error_log ('Fuse CMS: '.__ ('No default layout is set', 'fuse'));
+                } // if ()
+                
                 $layout = false;
             } // if ()
-
+            
             return $layout;
         } // _getDefaultLayout ()
 

@@ -123,13 +123,13 @@
                         
                     </table>
                     
-                    <input type="hidden" name="<?php esc_attr_e ($this->_field_name); ?>" value="<?php echo implode (',', $current_items); ?>" class="fuse-post-type-table-ids" />
+                    <input type="hidden" name="<?php echo esc_attr ($this->_field_name); ?>" value="<?php echo esc_attr (implode (',', array_map ('intval', $current_items))); ?>" class="fuse-post-type-table-ids" />
                     
                     <p class="fuse-post-type-table-add">
                         <select name="fuse-post-type-add-select">
                             <option value="">&nbsp;</option>
                             <?php foreach ($items as $item): ?>
-                                <option value="<?php echo $item->ID; ?>"<?php if (in_array ($item->ID, $current_items)) echo ' disabled="disabled"'; ?>><?php echo $item->post_title; ?></option>
+                                <option value="<?php echo intval ($item->ID); ?>"<?php if (in_array ($item->ID, $current_items)) echo ' disabled="disabled"'; ?>><?php echo esc_html ($item->post_title); ?></option>
                             <?php endforeach; ?>
                         </select>
                         <button class="button fuse-post-type-table-add-button">

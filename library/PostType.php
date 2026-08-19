@@ -176,7 +176,7 @@
          *  @param \WP_Post $post The post object.
          */
         final public function savePostValues ($post_id, $post) {
-            if (defined ('DOING_AUTOSAVE') === false || DOING_AUTOSAVE !== true) {
+            if (fuse_can_save_post_meta ($post_id)) {
                 $this->savePost ($post_id, $post);
             } // if ()
         } // savePostValues ()
@@ -208,7 +208,7 @@
             } // if ()
             
             if (empty ($parent) === false) {
-                echo '<p class="admin-bold" style="font-size: 1.3em;"><a href="'.esc_url (admin_url ('post.php?post='.$parent->ID.'&action=edit')).'">'.$parent->post_title.'</a></p>';
+                echo '<p class="admin-bold" style="font-size: 1.3em;"><a href="'.esc_url (admin_url ('post.php?post='.$parent->ID.'&action=edit')).'">'.esc_html ($parent->post_title).'</a></p>';
                 echo '<input type="hidden" name="fuse_posttype_parent" value="'.intval ($parent->ID).'" />';
             } // if ()
             else {
@@ -216,7 +216,7 @@
                     <select name="fuse_posttype_parent">
                         <option value="">&nbsp;</option>
                         <?php foreach ($this->_getParentPosts () as $row): ?>
-                            <option value="<?php echo $row->ID; ?>"<?php selected ($row->ID, $parent); ?>><?php echo $row->post_title; ?></option>
+                            <option value="<?php echo intval ($row->ID); ?>"<?php selected ($row->ID, $parent); ?>><?php echo esc_html ($row->post_title); ?></option>
                         <?php endforeach; ?>
                     </select>
                 <?php
@@ -230,20 +230,35 @@
          *  @param \WP_Post $post The post object.
          */
         final public function saveParentPostType ($post_id, $post) {
-            if (defined ('DOING_AUTOSAVE') === false || DOING_AUTOSAVE !== true) {
-                if (array_key_exists ('fuse_posttype_parent', $_POST)) {
-                    global $wpdb;
-                    
-                    $wpdb->update ($wpdb->posts, array (
-                        'post_parent' => $_POST ['fuse_posttype_parent']
-                    ), array (
-                        'ID' => $post_id
-                    ), array (
-                        '%d'
-                    ), array (
-                        '%d'
-                    ));
+            if (fuse_can_save_post_meta ($post_id) === false) {
+                return;
+            } // if ()
+            
+            if (array_key_exists ('fuse_posttype_parent', $_POST)) {
+                /**
+                 *  This used to write straight to the posts table, which left
+                 *  the post caches holding the old parent. wp_update_post ()
+                 *  does the same job and cleans up after itself.
+                 */
+                $parent_id = intval ($_POST ['fuse_posttype_parent']);
+                
+                // Never let a post become its own parent.
+                if ($parent_id === $post_id) {
+                    $parent_id = 0;
                 } // if ()
+                
+                if ($parent_id > 0 && get_post ($parent_id) === null) {
+                    $parent_id = 0;
+                } // if ()
+                
+                remove_action ('save_post_'.$this->_slug, array ($this, 'saveParentPostType'), 10);
+                
+                wp_update_post (array (
+                    'ID' => $post_id,
+                    'post_parent' => $parent_id
+                ));
+                
+                add_action ('save_post_'.$this->_slug, array ($this, 'saveParentPostType'), 10, 2);
             } // if ()
         } // saveParentPostType ()
         

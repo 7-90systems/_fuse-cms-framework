@@ -33,7 +33,7 @@
            
            add_filter ('pre_set_site_transient_update_themes', array ($this, 'checkForUpdate'));
            add_filter ('pre_set_site_transient_update_themes', array ($this, 'checkForTranslations'), 11);
-           add_filter ('themes_api', 'themeApiCall', 10, 3);
+           add_filter ('themes_api', array ($this, 'themeApiCall'), 10, 3);
         } // __construct ()
         
         
@@ -208,10 +208,6 @@
                     ),
                     'user-agent' => 'WordPress/'.$wp_version.'; '.get_bloginfo ('url')
                 );
-
-                if (defined ('WP_DEBUG') && WP_DEBUG === true) {
-                    $request_string ['sslverify'] = false;
-                } // if ()
 
                 $raw_response = wp_remote_post ($this->_getServerUrl ($server), $request_string);
 

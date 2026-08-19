@@ -165,7 +165,7 @@
                 <div <?php echo fuse_format_attributes ($this->_args, true, true); ?>">
                     <?php foreach ($this->_fields as $field): ?>
                         <div class="fuse-field-group-column">
-                            <label for="<?php echo $field->getId (); ?>"><?php echo $field->label; ?></label>
+                            <label for="<?php echo esc_attr ($field->getId ()); ?>"><?php echo esc_html ($field->label); ?></label>
                             <?php
                                 echo $field->render ();
                             ?> 

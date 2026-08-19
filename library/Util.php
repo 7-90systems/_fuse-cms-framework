@@ -31,44 +31,72 @@
 		 */
 		static public function saveAttachmentFile ($file, $title = 'Attachment', $post = NULL) {
 			$id = NULL;
-
+			
+			/**
+			 *  wp_handle_upload () and the metadata helpers only exist in the
+			 *  admin by default, so make sure they are loaded before we reach
+			 *  for them. Without this, calling this from the front end is a
+			 *  fatal error.
+			 */
+			require_once (ABSPATH.'wp-admin/includes/file.php');
+			require_once (ABSPATH.'wp-admin/includes/image.php');
+			require_once (ABSPATH.'wp-admin/includes/media.php');
+			
+			if (is_array ($file) === false || array_key_exists ('name', $file) === false) {
+				return NULL;
+			} // if ()
+			
 			$arr_file_type = wp_check_filetype (basename ($file ['name']));
 			$uploaded_file_type = $arr_file_type ['type'];
-
+			
+			// Refuse anything WordPress cannot identify as an allowed type.
+			if (empty ($uploaded_file_type)) {
+				return NULL;
+			} // if ()
+			
 			$upload_overrides = array ('test_form' => false);
-
+			
 			$uploaded_file = wp_handle_upload ($file, $upload_overrides);
-
-			if (isset ($uploaded_file ['file'])) {
+			
+			if (is_array ($uploaded_file) && isset ($uploaded_file ['file'])) {
 				$file_name_and_location = $uploaded_file ['file'];
-				$file_title_for_media_library = $title;
-
+				
 				$attachment = array (
-					'post_mime_type' => $uploaded_file_type,
-					'post_title' => addslashes ($file_title_for_media_library),
+					/**
+					 *  Trust the type wp_handle_upload () settled on rather
+					 *  than the one guessed from the original file name.
+					 */
+					'post_mime_type' => isset ($uploaded_file ['type']) ? $uploaded_file ['type'] : $uploaded_file_type,
+					/**
+					 *  wp_insert_attachment () escapes this itself, so the old
+					 *  addslashes () call here left backslashes in the title.
+					 */
+					'post_title' => sanitize_text_field ($title),
 					'post_content' => '',
 					'post_status' => 'inherit'
 				);
-
+				
 				if (!is_null ($post)) {
 					if (!is_numeric ($post)) {
 						$post = $post->ID;
 					} // if ()
-
-					$attachment ['post_parent'] = $post;
+					
+					$attachment ['post_parent'] = intval ($post);
 				} // if ()
-
+				
 				$id = wp_insert_attachment ($attachment, $file_name_and_location);
-
-				require_once (ABSPATH.'wp-admin/includes/image.php');
-
+				
+				if (is_wp_error ($id) || $id === 0) {
+					return NULL;
+				} // if ()
+				
 				$attach_data = wp_generate_attachment_metadata ($id, $file_name_and_location);
 				wp_update_attachment_metadata ($id, $attach_data);
 			} // if ()
 			else {
-				\Fuse\Debug::dump ($uploaded_file);
+				\Fuse\Debug::dump ($uploaded_file, 'Fuse attachment upload failed');
 			} // if ()
-
+			
 			return $id;
 		} // saveAttachmentFile ()
 
@@ -104,14 +132,14 @@
 
             $string = '';
 
-            while (strlen ($string) > $length) {
+            while (strlen ($string) < $length) {
                 if (function_exists ('random_int')) {
                     // PHP 7 function, generates cryptographically secure pseudo-random integers
-                    $index = random_int (0, $char_count);
+                    $index = random_int (0, $char_count - 1);
                 } // if ()
                 else {
                     // Older PHP versions
-                    $index = mt_rand (0, $char_count);
+                    $index = mt_rand (0, $char_count - 1);
                 } // else
 
                 $string.= $chars [$index];

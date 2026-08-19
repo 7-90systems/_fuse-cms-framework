@@ -30,6 +30,7 @@
             $args = array (
                 'id' => 'fuse-settings-form',
                 'method' => 'post',
+                'permission' => 'manage_options',
                 'action' => esc_url (admin_url ('admin.php?page=fusesettings')),
                 'action_bar' => new \Fuse\Forms\Component\ActionBar (array (
                     new Component\Button (apply_filters ('fuse_settings_form_submit_text', __ ('Save settings', 'fuse')))

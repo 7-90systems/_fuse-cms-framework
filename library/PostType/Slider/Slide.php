@@ -81,14 +81,14 @@
                         ?>
                     
                         <tr>
-                            <th><?php echo $label; ?></th>
+                            <th><?php echo wp_kses_post ($label); ?></th>
                             <td>
                                 <label>
-                                    <input type="checkbox" class="fuse_slide_set_date" name="fuse_slide_set_<?php esc_attr_e ($key); ?>" value="set"<?php if (strlen ($time) > 0) echo ' checked="checked"'; ?> />
+                                    <input type="checkbox" class="fuse_slide_set_date" name="fuse_slide_set_<?php echo esc_attr ($key); ?>" value="set"<?php if (strlen ($time) > 0) echo ' checked="checked"'; ?> />
                                     <?php printf (__ ('Set %s for this slide', 'fuse'), strtolower ($label)); ?>
                                 </label>
                                 <p>
-                                    <input type="datetime-local" name="fuse_slide_<?php esc_attr_e ($key); ?>" value="<?php esc_attr_e ($time); ?>" />
+                                    <input type="datetime-local" name="fuse_slide_<?php echo esc_attr ($key); ?>" value="<?php echo esc_attr ($time); ?>" />
                                 </p>
                             </td>
                         </tr>
@@ -129,13 +129,13 @@
         public function savePost ($post_id, $post) {
             // Details
             if (array_key_exists ('fuse_slider_slide_link', $_POST)) {
-                update_post_meta ($post_id, 'fuse_slider_slide_link', $_POST ['fuse_slider_slide_link']);
+                update_post_meta ($post_id, 'fuse_slider_slide_link', esc_url_raw ($_POST ['fuse_slider_slide_link']));
             } // if ()
             
             // Display dates
             foreach ($this->_dates as $key => $label) {
-                if (array_key_exists ('fuse_slide_set_'.$key, $_POST) && $_POST ['fuse_slide_set_'.$key] == 'set') {
-                    update_post_meta ($post_id, 'fuse_slide_'.$key, $_POST ['fuse_slide_'.$key]);
+                if (array_key_exists ('fuse_slide_set_'.$key, $_POST) && $_POST ['fuse_slide_set_'.$key] == 'set' && array_key_exists ('fuse_slide_'.$key, $_POST)) {
+                    update_post_meta ($post_id, 'fuse_slide_'.$key, sanitize_text_field ($_POST ['fuse_slide_'.$key]));
                 } // if ()
                 else {
                     delete_post_meta ($post_id, 'fuse_slide_'.$key);

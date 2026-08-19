@@ -12,7 +12,7 @@
      *  slider templates.
      *
      *  @action fuse_before_load_functions Run before function files are loaded.
-     *  @action fuse_efter_load_functions Run after function files are loaded.
+     *  @action fuse_after_load_functions Run after function files are loaded.
      *  @action fuse_init Run after the Fuse system is initialised and is ready.
      *  @action fuse_register_posttypes Run when ready to register post types.
      */
@@ -90,6 +90,10 @@
             foreach ($functions_dirs as $dir) {
                 $files = glob (trailingslashit ($dir).'*.php');
                 
+                if (is_array ($files) === false) {
+                    continue;
+                } // if ()
+                
                 foreach ($files as $file) {
                     if (basename ($file) != 'index.php') {
                         require_once ($file);
@@ -97,7 +101,14 @@
                 } // foreach ()
             } // foreach ()
             
+            /**
+             *  fuse_after_load_actions is the name this has always fired under.
+             *  It is kept so nothing already hooked to it breaks, but the
+             *  documented fuse_after_load_functions now fires too and is the
+             *  one to use.
+             */
             do_action ('fuse_after_load_actions');
+            do_action ('fuse_after_load_functions');
         } // loadFunctions ()
         
         
@@ -179,7 +190,7 @@
                 ?>
 <script>
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
-    ({key: "<?php esc_attr_e ($api_key); ?>", v: "weekly"});
+    ({key: "<?php echo esc_js ($api_key); ?>", v: "weekly"});
 </script>
                 <?php
             } // if ()
