@@ -172,6 +172,34 @@
         } // applyState ()
 
         /**
+         *  The field's description, as it sits under the field itself.
+         *
+         *  Every container that lays out fields calls this, so a description
+         *  appears wherever a field does. It used to be written out by the
+         *  panel alone, which meant a field put inside a group lost its
+         *  description without anything saying so.
+         *
+         *  @param bool $output True to print it, false to return it.
+         *
+         *  @return string The HTML, when it is not being printed.
+         */
+        public function renderDescription (bool $output = true) {
+            $html = '';
+
+            if (strlen (strval ($this->description)) > 0) {
+                $html = '<p class="fuse-field-description">'.wp_kses_post ($this->description).'</p>';
+            } // if ()
+
+            if ($output === true) {
+                echo $html;
+
+                return '';
+            } // if ()
+
+            return $html;
+        } // renderDescription ()
+
+        /**
          *  A hidden copy of the value, for when the field is disabled.
          *
          *  A disabled control is not submitted with the form, and the settings

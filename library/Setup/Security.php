@@ -42,9 +42,6 @@
 
 
         /**
-         *  Set up our object.
-         */
-        /**
          *  @var bool Whether a rules rewrite is already queued this request.
          */
         protected $_rules_queued = false;
@@ -177,22 +174,32 @@
                 new Component\Field\Toggle (self::PREFIX.'headers', __ ('Security headers', 'fuse'), $this->option ('headers'), array (
                     'description' => __ ('The switches below only take effect while this and the server rules above are on.', 'fuse')
                 )),
-                new Component\Field\Toggle (self::PREFIX.'header_xfo', __ ('X-Frame-Options', 'fuse'), $this->option ('header_xfo')),
+                new Component\Field\Toggle (self::PREFIX.'header_xfo', __ ('X-Frame-Options', 'fuse'), $this->option ('header_xfo'), array (
+                    'description' => __ ('Controls who may put this site inside a frame, which is what clickjacking relies on.', 'fuse')
+                )),
                 new Component\Field\Select (self::PREFIX.'header_xfo_value', __ ('Frames allowed from', 'fuse'), array (
                     'SAMEORIGIN' => __ ('This site only (SAMEORIGIN)', 'fuse'),
                     'DENY' => __ ('Nowhere at all (DENY)', 'fuse')
-                ), $this->option ('header_xfo_value')),
+                ), $this->option ('header_xfo_value'), array (
+                    'description' => __ ('Choose nowhere at all unless something on this site frames its own pages.', 'fuse')
+                )),
                 new Component\Field\Toggle (self::PREFIX.'header_xcto', __ ('X-Content-Type-Options', 'fuse'), $this->option ('header_xcto'), array (
                     'description' => __ ('Stops a browser guessing a file is something other than what it was served as.', 'fuse')
                 )),
-                new Component\Field\Toggle (self::PREFIX.'header_referrer', __ ('Referrer-Policy', 'fuse'), $this->option ('header_referrer')),
+                new Component\Field\Toggle (self::PREFIX.'header_referrer', __ ('Referrer-Policy', 'fuse'), $this->option ('header_referrer'), array (
+                    'description' => __ ('Controls how much of the current address is passed on when a visitor follows a link away from this site.', 'fuse')
+                )),
                 new Component\Field\Select (self::PREFIX.'header_referrer_value', __ ('Referrer sent', 'fuse'), array (
                     'strict-origin-when-cross-origin' => __ ('Full address here, domain only elsewhere', 'fuse'),
                     'same-origin' => __ ('Only within this site', 'fuse'),
                     'strict-origin' => __ ('Domain only, always', 'fuse'),
                     'no-referrer' => __ ('Never send one', 'fuse')
-                ), $this->option ('header_referrer_value')),
-                new Component\Field\Toggle (self::PREFIX.'header_permissions', __ ('Permissions-Policy', 'fuse'), $this->option ('header_permissions')),
+                ), $this->option ('header_referrer_value'), array (
+                    'description' => __ ('The default keeps the page address inside this site and sends only the domain elsewhere, which is what analytics needs without leaking the path.', 'fuse')
+                )),
+                new Component\Field\Toggle (self::PREFIX.'header_permissions', __ ('Permissions-Policy', 'fuse'), $this->option ('header_permissions'), array (
+                    'description' => __ ('States which browser features this site will never ask for, so a script that has got in cannot ask either.', 'fuse')
+                )),
                 new Component\Field\TextArea (self::PREFIX.'header_permissions_value', __ ('Features refused', 'fuse'), $this->option ('header_permissions_value'), array (
                     'description' => __ ('The browser features this site will not ask for. The default refuses the lot.', 'fuse')
                 )),
@@ -201,20 +208,27 @@
                 )),
                 new Component\Field\Number (self::PREFIX.'header_hsts_maxage', __ ('Remember for (seconds)', 'fuse'), $this->option ('header_hsts_maxage'), array (
                     'min' => 0,
-                    'step' => 1
+                    'step' => 1,
+                    'description' => __ ('How long a browser refuses plain HTTP for. The default is a year. Start smaller while testing, because this cannot be called back once a browser has been told.', 'fuse')
                 )),
                 new Component\Field\Toggle (self::PREFIX.'header_hsts_subdomains', __ ('Include sub-domains', 'fuse'), $this->option ('header_hsts_subdomains'), array (
                     'description' => __ ('Only switch this on once every sub-domain is on HTTPS as well.', 'fuse')
                 )),
-                new Component\Field\Toggle (self::PREFIX.'header_hsts_preload', __ ('Ask to be preloaded', 'fuse'), $this->option ('header_hsts_preload')),
-                new Component\Field\Toggle (self::PREFIX.'header_csp', __ ('Content-Security-Policy', 'fuse'), $this->option ('header_csp')),
+                new Component\Field\Toggle (self::PREFIX.'header_hsts_preload', __ ('Ask to be preloaded', 'fuse'), $this->option ('header_hsts_preload'), array (
+                    'description' => __ ('Asks for this domain to be built into the browsers themselves. Getting back off that list takes months, so only ask once HTTPS is settled everywhere.', 'fuse')
+                )),
+                new Component\Field\Toggle (self::PREFIX.'header_csp', __ ('Content-Security-Policy', 'fuse'), $this->option ('header_csp'), array (
+                    'description' => __ ('States where scripts, styles and images may be loaded from. The most effective of these headers, and the easiest to get wrong.', 'fuse')
+                )),
                 new Component\Field\TextArea (self::PREFIX.'header_csp_value', __ ('Policy', 'fuse'), $this->option ('header_csp_value'), array (
                     'description' => __ ('Leave this reporting until the browser console is clear. An enforced policy that is wrong will stop scripts, styles and images loading.', 'fuse')
                 )),
                 new Component\Field\Select (self::PREFIX.'header_csp_mode', __ ('Policy mode', 'fuse'), array (
                     'report' => __ ('Report only, nothing blocked', 'fuse'),
                     'enforce' => __ ('Enforced', 'fuse')
-                ), $this->option ('header_csp_mode')),
+                ), $this->option ('header_csp_mode'), array (
+                    'description' => __ ('Reporting writes what would have been blocked to the browser console and blocks nothing. Only move to enforced once that console is clear.', 'fuse')
+                )),
                 new Component\Field\Toggle (self::PREFIX.'files', __ ('Block sensitive files', 'fuse'), $this->option ('files'), array (
                     'description' => $this->_filesDescription ()
                 )),

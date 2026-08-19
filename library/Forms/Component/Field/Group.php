@@ -168,7 +168,9 @@
                             <label for="<?php echo esc_attr ($field->getId ()); ?>"><?php echo esc_html ($field->label); ?></label>
                             <?php
                                 echo $field->render ();
-                            ?> 
+                                
+                                $field->renderDescription ();
+                            ?>
                         </div>
                     <?php endforeach; ?>
                 </div>

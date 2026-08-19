@@ -201,9 +201,7 @@
                                             ?>
                                         </div>
                                         <div class="fuse-form-panel-field-notice"></div>
-                                        <?php if (strlen ($field->description) > 0): ?>
-                                            <p class="fuse-field-description"><?php echo wp_kses_post ($field->description); ?></p>
-                                        <?php endif; ?>
+                                        <?php $field->renderDescription (); ?>
                                     </div>
                                 <?php
                             } // foreach ()
