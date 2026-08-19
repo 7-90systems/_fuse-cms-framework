@@ -194,6 +194,34 @@ All three are read the same way. Handles are trimmed, and blanks and duplicates 
 dropped, so a trailing newline or a stray space is harmless. Order is preserved,
 because it is the load order.
 
+**Styles in the editor.** The same stylesheets the front end loads are given to the
+editor too, so what is being written looks like what will be published. That covers the
+framework's optional layout and button stylesheets, whatever is found in the theme's css
+folders, and the theme's `style.css`.
+
+They are **scoped to the content area**, which is the part that matters if you have ever
+had a `.button` rule repaint the Publish button:
+
+- In the **block editor** the stylesheet contents go in through the
+  `block_editor_settings_all` filter as `theme` styles. The editor rewrites every
+  selector in those to sit under `.editor-styles-wrapper`, so a rule can only ever reach
+  something inside the content area. This depends on `add_theme_support ('editor-styles')`,
+  which the framework declares.
+- In the **classic editor** they are added to `mce_css`, and TinyMCE loads them inside
+  its own iframe, which is a separate document.
+
+Enqueueing the same CSS on `enqueue_block_editor_assets` instead puts it on the editor
+page unscoped, and that is what makes styles bleed over the admin chrome. Use that hook
+only for styling the editor interface itself.
+
+Stylesheets tied to an archive, taxonomy or 404 are left out — the editor is showing one
+post, so they would never be right. Adjust the list with the `fuse_editor_stylesheets`
+filter.
+
+Note that a full URL passed to `add_editor_style ()` makes WordPress fetch it back over
+HTTP on every editor load, so the framework hands it theme-relative paths and reads the
+files from disk instead.
+
 **Hooks.** The main extension points, all documented in the docblock of the class
 that fires them:
 

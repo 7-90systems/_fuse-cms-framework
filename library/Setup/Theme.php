@@ -71,6 +71,12 @@
             
             $this->_css_enqueue = new Theme\Enqueue\Css ();
             $this->_javascript_enqueue = new Theme\Enqueue\JavaScript ();
+
+            /**
+             *  Show the front-end stylesheets in the editor, scoped so they
+             *  cannot reach the admin screen around the content.
+             */
+            $editor_styles = new Theme\EditorStyles ($this->_css_enqueue);
             
             // Are we auto-loading fonts?
             if (get_fuse_option ('web_fonts', false) == 'yes') {
@@ -246,9 +252,40 @@
          */
         public function editorScripts () {
             foreach ($this->_getEditorStylesheets () as $key => $file) {
-                add_editor_style ($file);
+                add_editor_style ($this->_asThemeRelativePath ($file));
             } // foreach ()
         } // editorScripts ()
+
+        /**
+         *  Reduce a stylesheet URL to a path inside the theme, where it is one.
+         *
+         *  get_block_editor_theme_styles () in core treats anything that looks
+         *  like a URL as remote and fetches it back with wp_remote_get (), on
+         *  every single editor load. Handing it a theme-relative path instead
+         *  makes it read the file off disk, which is both faster and reliable
+         *  on a site that cannot reach itself over HTTP.
+         *
+         *  @param string $file The stylesheet URL.
+         *
+         *  @return string A theme-relative path, or the URL unchanged if the
+         *  file does not live in the theme.
+         */
+        protected function _asThemeRelativePath ($file) {
+            $roots = array (
+                get_stylesheet_directory_uri (),
+                get_template_directory_uri ()
+            );
+
+            foreach ($roots as $root) {
+                $base = trailingslashit ($root);
+
+                if (strpos ($file, $base) === 0) {
+                    return substr ($file, strlen ($base));
+                } // if ()
+            } // foreach ()
+
+            return $file;
+        } // _asThemeRelativePath ()
         
         /**
          *  Add our Gutenberg stylsheets.

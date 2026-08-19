@@ -212,6 +212,23 @@
 
 
         /**
+         *  Get every file that load () found, without enqueueing anything.
+         *
+         *  getRequiredFiles () narrows the list down to the current request and
+         *  enqueues as it goes, both of which need front-end query context. The
+         *  editor has no such context, so it reads the raw list from here and
+         *  decides for itself.
+         *
+         *  @return array The files found, keyed by alias.
+         */
+        public function getFiles () {
+            return $this->_files;
+        } // getFiles ()
+
+
+
+
+        /**
          *  Get the files that we have loaded.
          *
          *  @return array The files that we have found.
