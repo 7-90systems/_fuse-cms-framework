@@ -45,6 +45,7 @@ stored as options prefixed `fuse_setting_`, read and written with
 | Header & Footer Scripts | `header_scripts`, `body_scripts`, `footer_scripts` | Markup printed verbatim in `wp_head`, `wp_body_open` and `wp_footer` |
 | Google API | `google_api_key` | Key used for Maps and geocoding |
 | Contact Details | `contact_<location>_<field>` | Phone, email, street, town, state and postcode per location |
+| Security | `security_*` | See below |
 
 The three script fields are printed unescaped by design, which is why the settings
 screen and its save handler both require `manage_options`.
@@ -52,6 +53,40 @@ screen and its save handler both require `manage_options`.
 Contact locations default to a single `default` location. Add more with the
 `fuse_settings_contact_locations` filter, and change the per-location fields with
 `fuse_settings_contact_fields`.
+
+## Security
+
+A security baseline, on its own **Security** tab of the settings form. The panel is built
+from Fuse form fields, so the settings form renders and saves it like any other panel.
+
+**Everything defaults to off.** The framework updates itself across live sites, and a
+release that quietly started blocking requests would be discovered by a broken site
+rather than by being read about here.
+
+**Applied in PHP — works on any server**
+
+| Setting | Does |
+| --- | --- |
+| `security_xmlrpc` | Closes XML-RPC and stops it being advertised |
+| `security_rest_users` | Hides the REST user list from anyone not logged in |
+| `security_author_enum` | Turns `?author=1` into a 404 and drops users from the sitemap |
+| `security_version` | Removes the WordPress version from the head and the feeds |
+| `security_version_assets` | Also strips it from asset URLs — only WordPress's own |
+
+**Written to `.htaccess` — Apache and LiteSpeed only**
+
+Behind `security_htaccess`, off by default. Covers the security headers
+(X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS, and
+CSP in report or enforce mode), blocking the files that give a site away —
+`readme.html`, `.env`, `debug.log`, any copy of `wp-config` — and turning off directory
+listings.
+
+The block is rewritten whenever the settings are saved, and taken out again when the
+switch goes off or the plugin is deactivated. `Setup\Security\Environment` works out what
+the server can actually do and says so in the field descriptions, so an nginx site is
+told the rules will not apply rather than being left to wonder.
+
+`Setup\Security\Rules` also builds the nginx equivalent for pasting into a server config.
 
 ## Layouts
 

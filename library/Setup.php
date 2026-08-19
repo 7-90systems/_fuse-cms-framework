@@ -54,6 +54,13 @@
              *  Set the email sender details for the site.
              */
             $email_sender = new Setup\EmailSender ();
+
+            /**
+             *  The security baseline. Set up unconditionally: the settings
+             *  panel is only added in the admin, but the protections it applies
+             *  need the front end, REST and XML-RPC.
+             */
+            $security = Setup\Security::getInstance ();
             
             // Enable optional editor blocks
             add_action ('after_setup_theme', array ($this, 'enableOptionalEditorBlocks'), 11);

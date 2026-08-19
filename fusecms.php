@@ -45,4 +45,23 @@
      */
     function fuse_cms_framework_install () {
         $install = new Install ();
+
+        // Write the security rules, if they have been switched on.
+        Setup\Security::getInstance ()->writeRules ();
     } // fuse_cms_framework_install ()
+
+
+
+
+    /**
+     *  Tidy up on deactivation.
+     *
+     *  The .htaccess block has to come out. Leaving it behind would keep a site
+     *  applying rules from a plugin that is no longer running, and whoever
+     *  found it next would have nothing to switch it off with.
+     */
+    register_deactivation_hook (__FILE__, '\Fuse\fuse_cms_framework_deactivate');
+
+    function fuse_cms_framework_deactivate () {
+        Setup\Security::getInstance ()->removeRules ();
+    } // fuse_cms_framework_deactivate ()
