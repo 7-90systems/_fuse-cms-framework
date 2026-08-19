@@ -205,7 +205,12 @@
 
             $this->_css_enqueue->load ();
 
-            $for_this_post = $this->_getPostAliases ($post);
+            /**
+             *  The aliases this post answers to are worked out by the file
+             *  finder, so the editor and the front end cannot drift apart on
+             *  what applies to a given post.
+             */
+            $for_this_post = $this->_css_enqueue->getPostAliases ($post);
             $wanted = array ();
 
             foreach ($this->_css_enqueue->getFiles () as $alias => $file) {
@@ -215,11 +220,11 @@
                  *  editor wants them all rather than only the ones already in
                  *  the content.
                  */
-                $include = substr ($alias, 0, 7) == 'default'
-                    || $alias == 'header'
-                    || $alias == 'footer'
-                    || substr ($alias, 0, 7) == 'blocks_'
-                    || substr ($alias, 0, 10) == 'shortcode_';
+                $include = $this->_hasPrefix ($alias, Enqueue::ALIAS_DEFAULT)
+                    || $alias == Enqueue::ALIAS_HEADER
+                    || $alias == Enqueue::ALIAS_FOOTER
+                    || $this->_hasPrefix ($alias, Enqueue::ALIAS_BLOCK)
+                    || $this->_hasPrefix ($alias, Enqueue::ALIAS_SHORTCODE);
 
                 // Plus the ones that apply to this particular post.
                 if (in_array ($alias, $for_this_post, true)) {
@@ -362,50 +367,16 @@
         } // _getVersion ()
 
         /**
-         *  Get the aliases that apply to the post being edited.
+         *  Check whether an alias starts with a given prefix.
          *
-         *  These have to be built the same way Enqueue::getRequiredFiles ()
-         *  builds them on the front end, or a stylesheet that applies to one
-         *  page would show on the site but not while it is being written.
+         *  @param string $alias The alias to check.
+         *  @param string $prefix The prefix to look for.
          *
-         *  Aliases for an archive, a taxonomy, a tag or the 404 page are not
-         *  here on purpose. The editor is showing one post, so those could
-         *  never be the right styles for it.
-         *
-         *  @param \WP_Post $post The post being edited.
-         *
-         *  @return array The aliases that apply to it.
+         *  @return bool True when it does.
          */
-        protected function _getPostAliases ($post) {
-            if (is_object ($post) === false || isset ($post->ID) === false) {
-                return array ();
-            } // if ()
-
-            $post_type = $post->post_type;
-
-            $aliases = array (
-                // Everything of this post type.
-                'posttype_'.$post_type,
-                // This post, by ID.
-                $post_type.'_'.$post->ID
-            );
-
-            // This post, by its path.
-            if (function_exists ('get_page_uri')) {
-                $page_uri = get_page_uri ($post);
-
-                if (is_string ($page_uri) && $page_uri !== '') {
-                    $aliases [] = $post_type.'_'.str_replace (array ('\\', '/'), '_', $page_uri);
-                } // if ()
-            } // if ()
-
-            // The front page, which the front end treats as a special case.
-            if (intval (get_option ('page_on_front')) === intval ($post->ID)) {
-                $aliases [] = 'page_home';
-            } // if ()
-
-            return $aliases;
-        } // _getPostAliases ()
+        protected function _hasPrefix ($alias, $prefix) {
+            return substr ($alias, 0, strlen ($prefix)) === $prefix;
+        } // _hasPrefix ()
 
         /**
          *  Get the post being edited.

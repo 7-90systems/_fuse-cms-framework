@@ -11,7 +11,30 @@
     
     
     abstract class Enqueue {
-        
+
+        /**
+         *  The alias names and prefixes a stylesheet or script can be found by.
+         *
+         *  A file's name becomes its alias, and the alias is what decides when
+         *  the file is used. They are named here so that everything matching on
+         *  them -- the front end, and the editor -- is reading from one list
+         *  rather than repeating the strings.
+         */
+        const ALIAS_DEFAULT = 'default';
+        const ALIAS_HEADER = 'header';
+        const ALIAS_FOOTER = 'footer';
+        const ALIAS_FRONT_PAGE = 'page_home';
+        const ALIAS_NOT_FOUND = '404';
+        const ALIAS_POST_TYPE = 'posttype_';
+        const ALIAS_POST_TYPE_ARCHIVE = 'posttypearchive_';
+        const ALIAS_TAXONOMY = 'taxonomy_';
+        const ALIAS_TAG = 'tag_';
+        const ALIAS_BLOCK = 'blocks_';
+        const ALIAS_SHORTCODE = 'shortcode_';
+
+
+
+
         /**
          *  @var string The file extension that we will search for.
          */
@@ -229,6 +252,77 @@
 
 
         /**
+         *  Get the aliases that apply to a single post.
+         *
+         *  A stylesheet is matched to a request by its file name, which becomes
+         *  its alias. This builds the aliases one post answers to, so that the
+         *  front end and the editor agree on what applies to it without each
+         *  working the names out for itself.
+         *
+         *  @param \WP_Post $post The post.
+         *
+         *  @return array The aliases, most general first.
+         */
+        public function getPostAliases ($post = NULL) {
+            if (is_object ($post) === false || isset ($post->ID) === false) {
+                return array ();
+            } // if ()
+
+            $post_type = $post->post_type;
+
+            // Everything of this post type.
+            $aliases = array (
+                self::ALIAS_POST_TYPE.$post_type
+            );
+
+            // This post, by its path.
+            $page_uri = get_page_uri ($post);
+
+            if (is_string ($page_uri) && $page_uri !== '') {
+                $aliases [] = $post_type.'_'.str_replace (array ('\\', '/'), '_', $page_uri);
+            } // if ()
+
+            // This post, by ID.
+            $aliases [] = $post_type.'_'.$post->ID;
+
+            // The front page, which gets a name of its own.
+            if (intval (get_option ('page_on_front')) === intval ($post->ID)) {
+                $aliases [] = self::ALIAS_FRONT_PAGE;
+            } // if ()
+
+            /**
+             *  A front page whose path is literally 'home' produces page_home
+             *  twice, once from its path and once from the rule above.
+             */
+            return array_values (array_unique ($aliases));
+        } // getPostAliases ()
+
+        /**
+         *  Get the alias for a block.
+         *
+         *  @param string $block_name The registered block name.
+         *
+         *  @return string The alias.
+         */
+        public function getBlockAlias ($block_name) {
+            return self::ALIAS_BLOCK.str_replace ('/', '_', $block_name);
+        } // getBlockAlias ()
+
+        /**
+         *  Get the alias for a shortcode.
+         *
+         *  @param string $shortcode The shortcode tag.
+         *
+         *  @return string The alias.
+         */
+        public function getShortcodeAlias ($shortcode) {
+            return self::ALIAS_SHORTCODE.$shortcode;
+        } // getShortcodeAlias ()
+
+
+
+
+        /**
          *  Get the files that we have loaded.
          *
          *  @return array The files that we have found.
@@ -257,51 +351,38 @@
             if (is_singular ()) {
                 // Get files for the post type and post
                 global $post;
-                
-                $post_type = get_post_type ();
-                $page_uri = get_page_uri ($post);
-                
-                // Overall post type
-                if (array_key_exists ('posttype_'.$post_type, $this->_files)) {
-                    $files ['posttype_'.$post_type] = $this->_files ['posttype_'.$post_type];
-                } // if ()
-                
-                // Post slug
-                $search_slug = $post_type.'_'.str_replace (array ('\\', '/'), '_', $page_uri);
-                
-                if (array_key_exists ($search_slug, $this->_files)) {
-                    $files [$search_slug] = $this->_files [$search_slug];
-                } // if ()
-                
-                // ID
-                $search_slug = $post_type.'_'.$post->ID;
-                
-                if (array_key_exists ($search_slug, $this->_files)) {
-                    $files [$search_slug] = $this->_files [$search_slug];
-                } // if ()
-                
-                // Front page?
-                if ((is_front_page () || is_home ()) && array_key_exists ('page_home', $this->_files)) {
-                    $files ['page_home'] = $this->_files ['page_home'];
-                } // if ()
-                
+
+                // The post type, the post path, the post ID.
+                foreach ($this->getPostAliases ($post) as $alias) {
+                    // The front page is dealt with below, for every kind of home.
+                    if ($alias == self::ALIAS_FRONT_PAGE) {
+                        continue;
+                    } // if ()
+
+                    if (array_key_exists ($alias, $this->_files)) {
+                        $files [$alias] = $this->_files [$alias];
+                    } // if ()
+                } // foreach ()
+
                 // Blocks
                 $content = get_the_content ();
-                
+
                 foreach (parse_blocks ($content) as $block) {
                     if (strlen ($block ['blockName'].'') > 0) {
-                        $name = 'blocks_'.str_replace ('/', '_', $block ['blockName']);
-                        
+                        $name = $this->getBlockAlias ($block ['blockName']);
+
                         if (array_key_exists ($name, $this->_files)) {
                             $files [$name] = $this->_files [$name];
                         } // if ()
                     } // if ()
                 } // foreach ()
-                
+
                 // Shortcodes
                 foreach ($this->_parseShortcodes ($content) as $shortcode) {
-                    if(array_key_exists ('shortcode_'.$shortcode, $this->_files)) {
-                        $files ['shortcode_'.$shortcode] = $this->_files ['shortcode_'.$shortcode];
+                    $name = $this->getShortcodeAlias ($shortcode);
+
+                    if (array_key_exists ($name, $this->_files)) {
+                        $files [$name] = $this->_files [$name];
                     } // if ()
                 } // foreach ()
             } // if ()
@@ -358,11 +439,29 @@
             } // elseif ()
             elseif (is_404 ()) {
                 // Get the 404 files
-                if (array_key_exists ('404', $this->_files)) {
-                    $files ['404'] = $this->_files ['404'];
+                if (array_key_exists (self::ALIAS_NOT_FOUND, $this->_files)) {
+                    $files [self::ALIAS_NOT_FOUND] = $this->_files [self::ALIAS_NOT_FOUND];
                 } // if ()
             } // elseif ()
-            
+
+            /**
+             *  The home page, checked on its own rather than inside any of the
+             *  branches above.
+             *
+             *  A home page is only a single post when the site is set to show a
+             *  static page there. Left as "your latest posts", or with a
+             *  separate posts page, the home page is an archive and is_singular
+             *  () is false -- so a page_home stylesheet used to be skipped
+             *  entirely on exactly the sites most likely to have one.
+             *
+             *  It is added last so it wins over the more general files.
+             */
+            if (is_front_page () || is_home ()) {
+                if (array_key_exists (self::ALIAS_FRONT_PAGE, $this->_files)) {
+                    $files [self::ALIAS_FRONT_PAGE] = $this->_files [self::ALIAS_FRONT_PAGE];
+                } // if ()
+            } // if ()
+
             return $files;
         } // getFiles ()
         
