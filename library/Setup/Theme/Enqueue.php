@@ -309,6 +309,44 @@
         } // getBlockAlias ()
 
         /**
+         *  Get the name of every block in a parsed block list.
+         *
+         *  parse_blocks () only returns the blocks at the top of the content;
+         *  anything sitting inside a group, a columns block or any other
+         *  container is under that block's innerBlocks instead. Reading only
+         *  the top level meant a block's stylesheet and script were never
+         *  loaded as soon as somebody put it inside a group -- which is where
+         *  most blocks end up.
+         *
+         *  @param array $blocks The blocks from parse_blocks ().
+         *
+         *  @return array Every block name found, at any depth, once each.
+         */
+        public function getBlockNames ($blocks) {
+            $names = array ();
+
+            if (is_array ($blocks) === false) {
+                return $names;
+            } // if ()
+
+            foreach ($blocks as $block) {
+                if (is_array ($block) === false) {
+                    continue;
+                } // if ()
+
+                if (array_key_exists ('blockName', $block) && strlen ($block ['blockName'].'') > 0) {
+                    $names [] = $block ['blockName'];
+                } // if ()
+
+                if (array_key_exists ('innerBlocks', $block)) {
+                    $names = array_merge ($names, $this->getBlockNames ($block ['innerBlocks']));
+                } // if ()
+            } // foreach ()
+
+            return array_values (array_unique ($names));
+        } // getBlockNames ()
+
+        /**
          *  Get the alias for a shortcode.
          *
          *  @param string $shortcode The shortcode tag.
@@ -367,13 +405,11 @@
                 // Blocks
                 $content = get_the_content ();
 
-                foreach (parse_blocks ($content) as $block) {
-                    if (strlen ($block ['blockName'].'') > 0) {
-                        $name = $this->getBlockAlias ($block ['blockName']);
+                foreach ($this->getBlockNames (parse_blocks ($content)) as $block_name) {
+                    $name = $this->getBlockAlias ($block_name);
 
-                        if (array_key_exists ($name, $this->_files)) {
-                            $files [$name] = $this->_files [$name];
-                        } // if ()
+                    if (array_key_exists ($name, $this->_files)) {
+                        $files [$name] = $this->_files [$name];
                     } // if ()
                 } // foreach ()
 
