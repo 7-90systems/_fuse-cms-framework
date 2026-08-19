@@ -214,9 +214,21 @@ Enqueueing the same CSS on `enqueue_block_editor_assets` instead puts it on the 
 page unscoped, and that is what makes styles bleed over the admin chrome. Use that hook
 only for styling the editor interface itself.
 
-Stylesheets tied to an archive, taxonomy or 404 are left out — the editor is showing one
-post, so they would never be right. Adjust the list with the `fuse_editor_stylesheets`
-filter.
+The per-page stylesheets follow the same rules the front end uses, so the editor picks up
+the ones that apply to the post being written:
+
+| Stylesheet | In the editor |
+| --- | --- |
+| `default*`, `header`, `footer` | yes — they always apply |
+| `posttype_<type>` | yes, for the type being edited |
+| `<type>_<slug>`, `<type>_<id>` | yes, for that post |
+| `page_home` | yes, when editing the front page |
+| `blocks_*`, `shortcode_*` | yes, all of them — any can be inserted while editing |
+| `posttypearchive_*`, `taxonomy_*`, `tag_*`, `404` | no |
+
+The last row is deliberate: the editor is showing a single post, so an archive or
+taxonomy stylesheet could never be the right one for it. Adjust the list with the
+`fuse_editor_stylesheets` filter, which receives the stylesheets and the post.
 
 Note that a full URL passed to `add_editor_style ()` makes WordPress fetch it back over
 HTTP on every editor load, so the framework hands it theme-relative paths and reads the

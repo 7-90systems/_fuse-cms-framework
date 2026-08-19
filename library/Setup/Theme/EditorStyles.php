@@ -79,7 +79,7 @@
                 $settings ['styles'] = array ();
             } // if ()
 
-            foreach ($this->getStylesheets ($this->_getContextPostType ($context)) as $stylesheet) {
+            foreach ($this->getStylesheets ($this->_getEditedPost ($context)) as $stylesheet) {
                 $css = $this->_read ($stylesheet ['path']);
 
                 if ($css === '') {
@@ -115,7 +115,7 @@
         public function addClassicEditorStyles ($mce_css) {
             $urls = array ();
 
-            foreach ($this->getStylesheets () as $stylesheet) {
+            foreach ($this->getStylesheets ($this->_getEditedPost ()) as $stylesheet) {
                 /**
                  *  TinyMCE caches aggressively, so the file's modified time is
                  *  added to make an edited stylesheet show up.
@@ -144,11 +144,11 @@
          *  optional stylesheets, everything found in the theme's css folders,
          *  and the theme's style.css last so it still wins.
          *
-         *  @param string $post_type The post type being edited, where known.
+         *  @param \WP_Post $post The post being edited, where known.
          *
          *  @return array Each entry has 'path' and 'url'.
          */
-        public function getStylesheets ($post_type = '') {
+        public function getStylesheets ($post = NULL) {
             $stylesheets = array ();
 
             // The framework's optional front-end stylesheets.
@@ -165,7 +165,7 @@
             } // if ()
 
             // Everything the theme's css folders hold.
-            $stylesheets = array_merge ($stylesheets, $this->_getThemeStylesheets ($post_type));
+            $stylesheets = array_merge ($stylesheets, $this->_getThemeStylesheets ($post));
 
             // The theme's own stylesheet, last so it can still override.
             foreach ($this->_getThemeRoots () as $root) {
@@ -177,7 +177,7 @@
                 } // if ()
             } // foreach ()
 
-            $stylesheets = apply_filters ('fuse_editor_stylesheets', $stylesheets, $post_type);
+            $stylesheets = apply_filters ('fuse_editor_stylesheets', $stylesheets, $post);
 
             return $this->_filterReadable ($stylesheets);
         } // getStylesheets ()
@@ -198,23 +198,31 @@
          *
          *  @return array Each entry has 'path' and 'url'.
          */
-        protected function _getThemeStylesheets ($post_type = '') {
+        protected function _getThemeStylesheets ($post = NULL) {
             if (is_object ($this->_css_enqueue) === false) {
                 return array ();
             } // if ()
 
             $this->_css_enqueue->load ();
 
+            $for_this_post = $this->_getPostAliases ($post);
             $wanted = array ();
 
             foreach ($this->_css_enqueue->getFiles () as $alias => $file) {
+                /**
+                 *  The files that always apply, plus every block and shortcode
+                 *  file -- any of those can be inserted while editing, so the
+                 *  editor wants them all rather than only the ones already in
+                 *  the content.
+                 */
                 $include = substr ($alias, 0, 7) == 'default'
                     || $alias == 'header'
                     || $alias == 'footer'
                     || substr ($alias, 0, 7) == 'blocks_'
                     || substr ($alias, 0, 10) == 'shortcode_';
 
-                if ($post_type !== '' && $alias == 'posttype_'.$post_type) {
+                // Plus the ones that apply to this particular post.
+                if (in_array ($alias, $for_this_post, true)) {
                     $include = true;
                 } // if ()
 
@@ -354,18 +362,73 @@
         } // _getVersion ()
 
         /**
-         *  Get the post type being edited, where the editor tells us.
+         *  Get the aliases that apply to the post being edited.
+         *
+         *  These have to be built the same way Enqueue::getRequiredFiles ()
+         *  builds them on the front end, or a stylesheet that applies to one
+         *  page would show on the site but not while it is being written.
+         *
+         *  Aliases for an archive, a taxonomy, a tag or the 404 page are not
+         *  here on purpose. The editor is showing one post, so those could
+         *  never be the right styles for it.
+         *
+         *  @param \WP_Post $post The post being edited.
+         *
+         *  @return array The aliases that apply to it.
+         */
+        protected function _getPostAliases ($post) {
+            if (is_object ($post) === false || isset ($post->ID) === false) {
+                return array ();
+            } // if ()
+
+            $post_type = $post->post_type;
+
+            $aliases = array (
+                // Everything of this post type.
+                'posttype_'.$post_type,
+                // This post, by ID.
+                $post_type.'_'.$post->ID
+            );
+
+            // This post, by its path.
+            if (function_exists ('get_page_uri')) {
+                $page_uri = get_page_uri ($post);
+
+                if (is_string ($page_uri) && $page_uri !== '') {
+                    $aliases [] = $post_type.'_'.str_replace (array ('\\', '/'), '_', $page_uri);
+                } // if ()
+            } // if ()
+
+            // The front page, which the front end treats as a special case.
+            if (intval (get_option ('page_on_front')) === intval ($post->ID)) {
+                $aliases [] = 'page_home';
+            } // if ()
+
+            return $aliases;
+        } // _getPostAliases ()
+
+        /**
+         *  Get the post being edited.
+         *
+         *  The block editor hands us a context object. The classic editor does
+         *  not, so fall back to whatever the admin request is working on.
          *
          *  @param \WP_Block_Editor_Context $context The editor context.
          *
-         *  @return string The post type, or an empty string.
+         *  @return \WP_Post|null The post, or null.
          */
-        protected function _getContextPostType ($context) {
+        protected function _getEditedPost ($context = NULL) {
             if (is_object ($context) && isset ($context->post) && is_object ($context->post)) {
-                return $context->post->post_type;
+                return $context->post;
             } // if ()
 
-            return '';
-        } // _getContextPostType ()
+            if (function_exists ('get_post') === false) {
+                return NULL;
+            } // if ()
+
+            $post = get_post ();
+
+            return is_object ($post) ? $post : NULL;
+        } // _getEditedPost ()
 
     } // class EditorStyles
