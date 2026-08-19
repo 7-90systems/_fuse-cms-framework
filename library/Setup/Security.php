@@ -56,7 +56,18 @@
          *  Set up our object.
          */
         protected function _init () {
-            $this->protect ();
+            /**
+             *  The protections read the settings, and get_fuse_option () does
+             *  not exist yet -- the function files load on after_setup_theme at
+             *  priority 1, while this class is built as the plugin file loads.
+             *  Wait until they are there. Priority 2 matches the point the
+             *  framework reads its own settings from.
+             *
+             *  This is still early enough for everything applied here:
+             *  xmlrpc_enabled, rest_endpoints, parse_request and wp_head are
+             *  all read after after_setup_theme has run.
+             */
+            add_action ('after_setup_theme', array ($this, 'protect'), 2);
 
             if (is_admin () === true) {
                 add_filter ('fuse_settings_form_panels', array ($this, 'settingsPanel'));
@@ -333,7 +344,19 @@
             $defaults = $this->defaults ();
             $default = array_key_exists ($name, $defaults) ? $defaults [$name] : '';
 
-            return get_fuse_option (self::PREFIX.$name, $default);
+            /**
+             *  Normally get_fuse_option (), but not always: on activation the
+             *  plugin is included after after_setup_theme has already run, so
+             *  the function files were never loaded and the helper does not
+             *  exist. It is only a wrapper around get_option () with the
+             *  framework's prefix, so read the option directly when it is not
+             *  there rather than fataling.
+             */
+            if (function_exists ('get_fuse_option') === true) {
+                return get_fuse_option (self::PREFIX.$name, $default);
+            } // if ()
+
+            return get_option ('fuse_setting_'.self::PREFIX.$name, $default);
         } // option ()
 
         /**
@@ -370,7 +393,7 @@
          *
          *  These need no help from the server, so they work everywhere.
          */
-        protected function protect () {
+        public function protect () {
             if ($this->isOn ('xmlrpc') === true) {
                 $this->stopXmlrpc ();
             } // if ()
