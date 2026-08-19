@@ -211,10 +211,10 @@
                     'description' => __ ('The default keeps the page address inside this site and sends only the domain elsewhere, which is what analytics needs without leaking the path.', 'fuse')
                 )),
                 new Component\Field\Toggle (self::PREFIX.'header_permissions', __ ('Permissions-Policy', 'fuse'), $this->option ('header_permissions'), array (
-                    'description' => __ ('States which browser features this site will never ask for, so a script that has got in cannot ask either.', 'fuse')
+                    'description' => __ ('States which browser features this site may use, so a script that has got in cannot ask for the rest.', 'fuse')
                 )),
-                new Component\Field\TextArea (self::PREFIX.'header_permissions_value', __ ('Features refused', 'fuse'), $this->option ('header_permissions_value'), array (
-                    'description' => __ ('The browser features this site will not ask for. The default refuses the lot.', 'fuse')
+                new Component\Field\TextArea (self::PREFIX.'header_permissions_value', __ ('Browser features', 'fuse'), $this->option ('header_permissions_value'), array (
+                    'description' => $this->_permissionsDescription ()
                 )),
                 new Component\Field\Toggle (self::PREFIX.'header_hsts', __ ('HSTS', 'fuse'), $this->option ('header_hsts'), array (
                     'description' => $this->_hstsDescription ()
@@ -349,6 +349,36 @@
 
             return $description;
         } // _hstsDescription ()
+
+        /**
+         *  How to write the Permissions-Policy, refusing and allowing.
+         *
+         *  The default refuses everything, which is the safe place to start
+         *  and the reason somebody comes back to this field: they need one
+         *  feature switched on and the syntax for allowing is not the same
+         *  shape as the syntax for refusing.
+         *
+         *  @return string The description.
+         */
+        protected function _permissionsDescription () {
+            $note = __ ('Each entry names a browser feature and who may use it.', 'fuse');
+
+            $examples = array (
+                'geolocation=()' => __ ('refused to everybody, which is what the default does to the lot', 'fuse'),
+                'camera=(self)' => __ ('allowed on this site\'s own pages', 'fuse'),
+                'camera=(self "https://example.com")' => __ ('also allowed to something embedded from that address', 'fuse'),
+                'camera=*' => __ ('allowed everywhere, including inside frames', 'fuse')
+            );
+
+            $lines = array ();
+
+            foreach ($examples as $example => $meaning) {
+                $lines [] = '<code>'.esc_html ($example).'</code> - '.$meaning;
+            } // foreach ()
+
+            return $note.'<br />'.implode ('<br />', $lines).'<br />'.
+                __ ('Separate the entries with commas, and add a feature back only when something on the site actually needs it. A feature left out of the list altogether is allowed on this site, so refusing it explicitly is what closes it.', 'fuse');
+        } // _permissionsDescription ()
 
         /**
          *  What to say about the blocked files.
