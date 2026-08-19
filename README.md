@@ -193,6 +193,60 @@ The resulting body classes (`fuse-layout-three-col`, `fuse-layout-single-left-co
 | `fuse_slide` | Slides within a slider, with optional start and end dates | `sliders_posttype` |
 | `fuse_posttype` | Post Type Builder — defines further post types and their meta boxes from the admin | `pagetype_builder` |
 
+### Permissions
+
+`Fuse\PostType` takes two arguments of its own alongside everything
+`register_post_type ()` accepts:
+
+| Argument | Decides | Default |
+| --- | --- | --- |
+| `view` | Who may see items that are not public — private and draft | `editor` |
+| `edit` | Who may add, edit, publish and delete items | `editor` |
+
+Both are **role names**, not capabilities:
+
+```php
+new My_Post_Type ('report', 'Report', '', array (
+    'view' => 'editor',
+    'edit' => 'administrator'
+));
+```
+
+WordPress gates a post type on capabilities rather than roles, so each role name
+becomes the capability that stands for it — one held by that role and every role above
+it, and by none below, so naming a role reads as "this role and up":
+
+| Role | Capability |
+| --- | --- |
+| `administrator` | `manage_options` |
+| `editor` | `edit_others_posts` |
+| `author` | `publish_posts` |
+| `contributor` | `edit_posts` |
+| `subscriber` | `read` |
+
+A site that has moved those capabilities between roles can move the mapping with them
+through the `fuse_posttype_role_capabilities` filter. A name that is not in the table
+falls back to `editor` rather than being used literally — a typo turned into a
+capability nobody holds would lock everybody out, administrators included, and the post
+type would look broken rather than misconfigured.
+
+`view` and `edit` are removed from the arguments before registration, so they never
+reach `register_post_type ()`, which would ignore them silently. `map_meta_cap` is
+turned on with them, since without it WordPress never maps `edit_post`, `delete_post`
+and `read_post` onto the capabilities set here. A post type that supplies its own
+`capabilities` array keeps it — anything it sets wins.
+
+**`read` is left alone on a public post type.** It is what `map_meta_cap ()` checks for
+`read_post` on an item that is already published, so tying it to a role would take a
+public post type away from visitors, who hold no capabilities at all. On a post type
+that is not public there is no visitor to lock out and the `view` role decides.
+
+> **This changed the default.** Post types previously registered with
+> `capability_type => 'post'` and nothing else, which put them at `edit_posts` —
+> contributor and up. They are now `editor` and up unless a post type says otherwise.
+> On a site where authors or contributors maintain a Fuse post type, set
+> `'edit' => 'contributor'` (or `'author'`) on it.
+
 ## Blocks
 
 | Block | Enabled by |

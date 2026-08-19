@@ -4,6 +4,8 @@
      *
      *  This is our base post type class. All post types should inherit from
      *  this class.
+     *
+     *  @filter fuse_posttype_role_capabilities
      */
     
     namespace Fuse;
@@ -28,6 +30,14 @@
         
         
         
+        /**
+         *  @var string The role both permission settings fall back to.
+         */
+        const ROLE_DEFAULT = 'editor';
+
+
+
+
         /**
          *  @var string This is the slug for this post type.
          */
@@ -57,7 +67,13 @@
          *  @param string $slug The post type slug for this post type.
          *  @param string $name_singular The singular name for this post type.
          *  @param string $name_plural The plural name for this post type.
-         *  @param array $args The arguments for this post type.
+         *  @param array $args The arguments for this post type. Anything
+         *  register_post_type () takes, plus two of ours:
+         *      view    - the role that may view items, by role name.
+         *      edit    - the role that may add, edit and delete them.
+         *  Both are role names such as 'editor' or 'administrator', and both
+         *  default to 'editor'. They are turned into capabilities and never
+         *  reach register_post_type ().
          */
         public function __construct ($slug, $name_singular, $name_plural = '', $args = array ()) {
             if (strlen ($name_plural) == 0) {
@@ -161,7 +177,23 @@
                 } // if ()
                 
                 $args = array_merge ($args, $this->_args);
-                
+
+                /**
+                 *  'view' and 'edit' are ours, not WordPress's, so they are
+                 *  taken out of the arguments and turned into capabilities
+                 *  before anything is registered. Left in, they would be
+                 *  passed to register_post_type () as arguments it does not
+                 *  know, which it ignores silently -- the permissions would
+                 *  simply never happen.
+                 */
+                $view = array_key_exists ('view', $args) ? $args ['view'] : self::ROLE_DEFAULT;
+                $edit = array_key_exists ('edit', $args) ? $args ['edit'] : self::ROLE_DEFAULT;
+
+                unset ($args ['view']);
+                unset ($args ['edit']);
+
+                $args = $this->_applyPermissions ($args, $view, $edit);
+
                 register_post_type ($this->_slug, $args);
             } // if ()
         } // registerPostType ()
@@ -169,6 +201,116 @@
         
         
         
+        /**
+         *  The capability that stands in for each role.
+         *
+         *  WordPress gates a post type on capabilities, not on roles, so a
+         *  role name has to become a capability before it can be used. Each of
+         *  these is held by its own role and by every role above it, and by
+         *  none below, so naming a role reads as "this role and up" the way
+         *  somebody choosing 'editor' would expect.
+         *
+         *  Roles are editable, and a site that has moved these capabilities
+         *  around can move the mapping with them through the filter.
+         *
+         *  @return array The capability for each role name.
+         */
+        protected function _roleCapabilities () {
+            return apply_filters ('fuse_posttype_role_capabilities', array (
+                'administrator' => 'manage_options',
+                'editor' => 'edit_others_posts',
+                'author' => 'publish_posts',
+                'contributor' => 'edit_posts',
+                'subscriber' => 'read'
+            ));
+        } // _roleCapabilities ()
+
+        /**
+         *  Turn a role name into the capability that represents it.
+         *
+         *  An unknown name falls back to the default rather than being taken
+         *  literally: a typo that became a capability nobody holds would lock
+         *  every user out of the post type, including administrators, and the
+         *  post type would look broken rather than misconfigured.
+         *
+         *  @param string $role The role name.
+         *
+         *  @return string The capability.
+         */
+        protected function _capabilityForRole ($role) {
+            $capabilities = $this->_roleCapabilities ();
+            $role = is_string ($role) ? strtolower (trim ($role)) : '';
+
+            if (array_key_exists ($role, $capabilities) === true) {
+                return $capabilities [$role];
+            } // if ()
+
+            return $capabilities [self::ROLE_DEFAULT];
+        } // _capabilityForRole ()
+
+        /**
+         *  Build the post type's capabilities from the two role settings.
+         *
+         *  map_meta_cap is turned on with them, because without it WordPress
+         *  never maps edit_post, delete_post and read_post onto the primitive
+         *  capabilities set here, and the whole map would be ignored.
+         *
+         *  @param array $args The post type arguments.
+         *  @param string $view The role that may view.
+         *  @param string $edit The role that may edit.
+         *
+         *  @return array The arguments, with the capabilities added.
+         */
+        protected function _applyPermissions ($args, $view, $edit) {
+            $may_view = $this->_capabilityForRole ($view);
+            $may_edit = $this->_capabilityForRole ($edit);
+
+            $capabilities = array (
+                'edit_posts' => $may_edit,
+                'edit_others_posts' => $may_edit,
+                'edit_published_posts' => $may_edit,
+                'edit_private_posts' => $may_edit,
+                'publish_posts' => $may_edit,
+                'create_posts' => $may_edit,
+                'delete_posts' => $may_edit,
+                'delete_others_posts' => $may_edit,
+                'delete_published_posts' => $may_edit,
+                'delete_private_posts' => $may_edit,
+                'read_private_posts' => $may_view
+            );
+
+            /**
+             *  'read' is what map_meta_cap () checks for read_post on an item
+             *  that is already published, so on a public post type it stays as
+             *  WordPress's own. Tying it to a role would take a public post
+             *  type away from visitors, who hold no capabilities at all.
+             *
+             *  On a post type that is not public there is no visitor to lock
+             *  out, and the view role is what should decide.
+             */
+            $public = array_key_exists ('public', $args) ? (bool) $args ['public'] : true;
+
+            if ($public === false) {
+                $capabilities ['read'] = $may_view;
+            } // if ()
+
+            // Anything the post type set for itself wins over all of this.
+            if (array_key_exists ('capabilities', $args) === true && is_array ($args ['capabilities']) === true) {
+                $capabilities = array_merge ($capabilities, $args ['capabilities']);
+            } // if ()
+
+            $args ['capabilities'] = $capabilities;
+
+            if (array_key_exists ('map_meta_cap', $args) === false) {
+                $args ['map_meta_cap'] = true;
+            } // if ()
+
+            return $args;
+        } // _applyPermissions ()
+
+
+
+
         /**
          *  Check if we should save the posts values.
          *
