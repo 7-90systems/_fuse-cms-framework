@@ -17,6 +17,17 @@
          */
         const OPTION_UNSLASHED = 'fuse_settings_unslashed';
 
+        /**
+         *  @var string The option recording that the Permissions-Policy has
+         *  been brought up to date.
+         */
+        const OPTION_TOPICS = 'fuse_settings_browsing_topics';
+
+        /**
+         *  @var string The setting holding the Permissions-Policy.
+         */
+        const OPTION_PERMISSIONS = 'fuse_setting_security_header_permissions_value';
+
 
 
 
@@ -30,6 +41,36 @@
 
 
 
+
+        /**
+         *  Refuse browsing-topics on a policy written before it existed.
+         *
+         *  Changing the default only reaches a site that has never saved this
+         *  setting, and any site with the security tab switched on has saved
+         *  it -- so on the sites that actually use the header, the default is
+         *  the one thing that cannot reach them.
+         *
+         *  Deliberately narrow. It only touches a policy that still refuses
+         *  interest-cohort and says nothing about browsing-topics, which is
+         *  the shape this framework wrote and nothing else. A policy somebody
+         *  has rewritten for their own site is left alone, and the change is
+         *  only ever an addition -- nothing already in the list is altered.
+         */
+        public static function addBrowsingTopics () {
+            if (get_option (self::OPTION_TOPICS, '') === 'yes') {
+                return;
+            } // if ()
+
+            $value = get_option (self::OPTION_PERMISSIONS, '');
+
+            if (is_string ($value) === true
+                && strpos ($value, 'interest-cohort=()') !== false
+                && strpos ($value, 'browsing-topics') === false) {
+                update_option (self::OPTION_PERMISSIONS, rtrim (trim ($value), ',').', browsing-topics=()');
+            } // if ()
+
+            update_option (self::OPTION_TOPICS, 'yes');
+        } // addBrowsingTopics ()
 
         /**
          *  Take the stray backslashes out of settings saved before the fix.

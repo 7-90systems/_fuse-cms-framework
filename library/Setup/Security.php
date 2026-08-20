@@ -443,7 +443,15 @@
                 'header_referrer' => 'yes',
                 'header_referrer_value' => 'strict-origin-when-cross-origin',
                 'header_permissions' => 'yes',
-                'header_permissions_value' => 'geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()',
+                /**
+                 *  interest-cohort was FLoC, which Chrome withdrew and
+                 *  replaced with the Topics API. Both are refused: the new
+                 *  name because it is the one that does anything now, and the
+                 *  old one because a browser still on the earlier build reads
+                 *  only that, and an entry a browser does not recognise costs
+                 *  nothing but is ignored.
+                 */
+                'header_permissions_value' => 'geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()',
                 'header_hsts' => 'no',
                 'header_hsts_maxage' => '31536000',
                 'header_hsts_subdomains' => 'no',

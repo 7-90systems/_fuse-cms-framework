@@ -34,6 +34,12 @@
              *  without ever deactivating it.
              */
             add_action ('admin_init', array ('\Fuse\Install', 'repairSlashedOptions'));
+
+            /**
+             *  The Topics API arrived after this header did, and a site that
+             *  has saved the setting never sees a change to its default.
+             */
+            add_action ('admin_init', array ('\Fuse\Install', 'addBrowsingTopics'));
         } // __construct ()
         
         

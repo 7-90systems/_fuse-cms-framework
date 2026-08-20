@@ -103,6 +103,26 @@ CSP in report or enforce mode), blocking the files that give a site away —
 `readme.html`, `.env`, `debug.log`, any copy of `wp-config` — refusing to run PHP under
 the uploads folder (`security_uploads_php`), and turning off directory listings.
 
+**The Permissions-Policy refuses both cohort names.** `interest-cohort=()` was the FLoC
+opt-out; Chrome withdrew FLoC and replaced it with the Topics API, whose name is
+`browsing-topics`. The default refuses both — the new name because it is the one that
+does anything now, the old one because a browser still on the earlier build reads only
+that, and an entry a browser does not recognise is ignored rather than costing anything.
+
+Changing a default only reaches a site that has never saved the setting, and any site
+with the security tab switched on has saved it. So `Install::addBrowsingTopics ()` tops
+up an existing policy once, on `admin_init`, flagged with the
+`fuse_settings_browsing_topics` option. It is deliberately narrow: it only touches a
+policy that still refuses `interest-cohort` and says nothing about `browsing-topics`,
+which is the shape this framework wrote and nothing else. A policy that has been
+rewritten for the site is left alone, and the change is only ever an addition.
+
+The field itself is **Browser features**, and its note covers allowing as well as
+refusing — `()` refuses a feature to everybody, `(self)` allows it on the site's own
+pages, `(self "https://example.com")` extends that to an embedded origin, and `*` allows
+it anywhere. Leaving a feature out of the policy does not close it: most default to
+`self`, so refusing has to be written down.
+
 **The uploads rule is a rewrite, not a `FilesMatch`.** A `FilesMatch` in a root
 `.htaccess` cannot be scoped to one folder — it would match those file names everywhere
 and take the whole site down with it. The rewrite tests the request path, so it stops at
