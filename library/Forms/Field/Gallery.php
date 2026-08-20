@@ -72,20 +72,37 @@
          *  Get the image HTML.
          */
         protected function _imageHtml ($image_id = NULL) {
-            if (empty ($image_id)) {
+            /**
+             *  With no ID this is the template the JavaScript clones, and the
+             *  two values are markers for it to swap rather than data.
+             *
+             *  Escaping them as though they were data is what broke them.
+             *  esc_url () gives anything without a scheme an http:// of its
+             *  own, so %%SRC%% went into the template as http://%%SRC%% and
+             *  the swap left that in front of the real address. intval ()
+             *  turned %%ID%% into 0, so there was no marker left to replace
+             *  and an image added to a gallery was saved as attachment 0 --
+             *  which is to say, not saved at all.
+             *
+             *  They are still escaped, just as what they are: text going into
+             *  an attribute.
+             */
+            $placeholder = empty ($image_id);
+
+            if ($placeholder === true) {
                 // Swap for placeholders
                 $image_id = '%%ID%%';
                 $src = '%%SRC%%';
             } // if ()
             else {
                 // Get the image details
-                $src = esc_url (wp_get_attachment_image_url ($image_id, 'thumbnail'));
+                $src = wp_get_attachment_image_url ($image_id, 'thumbnail');
             } //else
-            
+
             ?>
                 <div class="fuse-gallery-image">
                     <span class="dashicons dashicons-no"></span>
-                    <img src="<?php echo esc_url ($src); ?>" alt="<?php _e ('Gallery image', 'fuse'); ?>" width="150" height="150" data-id="<?php echo intval ($image_id); ?>" />
+                    <img src="<?php echo ($placeholder === true) ? esc_attr ($src) : esc_url ($src); ?>" alt="<?php esc_attr_e ('Gallery image', 'fuse'); ?>" width="150" height="150" data-id="<?php echo ($placeholder === true) ? esc_attr ($image_id) : intval ($image_id); ?>" />
                 </div>
             <?php
         } // _imageHtml ()

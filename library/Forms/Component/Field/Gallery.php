@@ -39,7 +39,7 @@
          *  @return string Returns the groups HTML code.
          */
         public function render ($output = true) {
-            $field = new \Fuse\Forms\Field\GAllery ($this->getName (), $this->getValue ());
+            $field = new \Fuse\Forms\Field\Gallery ($this->getName (), $this->getValue ());
             
             if ($output === true) {
                 echo $field->render ();
