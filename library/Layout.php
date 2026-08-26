@@ -11,7 +11,7 @@
     class Layout {
 
         /**
-         *  @var Fuse\Layout\Layout The layout.
+         *  @var \Fuse\PostType\Layout The layout.
          */
         protected $_layout;
         
@@ -66,7 +66,7 @@
          *  set until the 'wp' action so that we are sure that we have the right
          *  queried objects to check.
          *
-         *  @return Fuse\Layout\Layout|NULL Returns the current layout or NULL
+         *  @return \Fuse\PostType\Layout|NULL Returns the current layout or NULL
          *  if no layout is set.
          */
         public function getLayout () {
@@ -202,7 +202,7 @@
         /**
          *  Get the layout for the current post type.
          *
-         *  @return Fuse\Layout\Layout The layout to use for the current post
+         *  @return \Fuse\PostType\Layout The layout to use for the current post
          *  type.
          */
         protected function _getPostTypeLayout () {
@@ -224,7 +224,7 @@
         /**
          *  Get the layout for the current post type archive.
          *
-         *  @return Fuse\Layout\Layout The layout to use for the current post
+         *  @return \Fuse\PostType\Layout The layout to use for the current post
          *  type archive.
          */
         protected function _getPostTypeArchiveLayout () {
@@ -232,7 +232,7 @@
 
             $layout = NULL;
 
-            if (strlen ($post_type) > 0) {
+            if (empty ($post_type) === false && strlen ($post_type) > 0) {
                 $layout = get_option ('fuse_layout_defaults_posttypesarchives_'.$post_type, 0);
             } // if ()
 
@@ -246,7 +246,7 @@
         /**
          *  Get the layout for the taxonomy.
          *
-         *  @return Fuse\Layout\Layout The layout for the taxonomy page.
+         *  @return \Fuse\PostType\Layout The layout for the taxonomy page.
          */
         protected function _getTaxonomyLayout () {
             $qo = get_queried_object ();
@@ -263,7 +263,7 @@
         /**
          *  Get the layout for date-bsed archive pages.
          *
-         *  @return Fuse\Layout\Layout The archive page layout.
+         *  @return \Fuse\PostType\Layout|NULL The archive page layout.
          */
         protected function _getArchiveLayout () {
             $qo = get_queried_object ();
@@ -274,7 +274,7 @@
             else {
                 $layout = get_option ('fuse_layout_defaults_other_archive', 0);
 
-                if ($layout_id > 0) {
+                if ($layout > 0) {
                     $layout = $this->_getDefaultLayout ();
                 } // if ()
             } // else
@@ -285,7 +285,7 @@
         /**
          *  Get the layout for search pages.
          *
-         *  @return Fuse\Layout\Layout The search page layout.
+         *  @return \Fuse\PostType\Layout The search page layout.
          */
         protected function _getSearchLayout () {
             $layout = get_option ('fuse_layout_defaults_other_search', 0);
@@ -300,7 +300,7 @@
         /**
          *  Get the layout for author pages.
          *
-         *  @return Fuse\Layout\Layout The author page layout.
+         *  @return \Fuse\PostType\Layout The author page layout.
          */
         protected function _getAuthorLayout () {
             $layout = get_option ('fuse_layout_defaults_other_author', 0);
@@ -315,7 +315,7 @@
         /**
          *  Get the layout for 404 pages.
          *
-         *  @return Fuse\Layout\Layout The 404 page layout.
+         *  @return \Fuse\PostType\Layout The 404 page layout.
          */
         protected function _get404Layout () {
             $layout = get_option ('fuse_layout_defaults_other_404', 0);
@@ -330,7 +330,7 @@
         /**
          *  Get the system-default layout.
          *
-         *  @return Fuse\Layout\Layout The default layout.
+         *  @return \Fuse\PostType\Layout The default layout.
          */
         protected function _getDefaultLayout () {
             $layout = intval (get_option ('fuse_layout_defaults_global', 0));
